@@ -3,9 +3,9 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import * as d3 from "d3";
-import { Patient } from "./data";
+import { Patient } from "./Patient";
 
-function Michi() {
+function Michi(count: { counter: number; }) {
   console.log("Michi fun started");
 
   let x: number = 5;
@@ -18,8 +18,10 @@ function Michi() {
       let loaded = (await d3.csv("/PD_SampleData_Curated.csv")).map((r) => Patient.fromJson(r));
       // setData(["hallo", "welt", "wie", "gehts"]);
       setData(loaded);
-      console.log(loaded);
-      console.log(data);
+      // console.log(loaded);
+      // console.log(data);
+      // console.log(count);
+      // console.log(count.counter);
     }
     load();
   }, []);
@@ -28,6 +30,7 @@ function Michi() {
   return (
     <>
       <h2>Welcome! x = {x}</h2>
+      <h3>Counter: {count.counter}</h3>
       <div>Daten: {data[0].toString()}</div>
     </>
   );
@@ -58,7 +61,8 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
-      <Michi />
+      {/* <Michi /> */}
+      <Michi counter={count} />
     </>
   );
 }
