@@ -3,22 +3,32 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import * as d3 from "d3";
+import { Patient } from "./data";
 
 function Michi() {
+  console.log("Michi fun started");
+
   let x: number = 5;
-  const [data, setData] = useState(["leer"]);
+  // const [data, setData] = useState(["leer"]);
+  let emptyPatient: Patient = new Patient();
+  const [data, setData] = useState([emptyPatient]);
+
   useEffect(() => {
     async function load() {
-      let loaded = (await d3.csv("/PD_SampleData_Curated.csv")).map((d) => d);
-      setData(["hallo", "welt", "wie", "gehts"]);
+      let loaded = (await d3.csv("/PD_SampleData_Curated.csv")).map((r) => Patient.fromJson(r));
+      // setData(["hallo", "welt", "wie", "gehts"]);
+      setData(loaded);
       console.log(loaded);
+      console.log(data);
     }
     load();
   }, []);
+  console.log(data);
+  console.log("Michi fun ended");
   return (
     <>
       <h2>Welcome! x = {x}</h2>
-      <div>Daten: {data[0]}</div>
+      <div>Daten: {data[0].toString()}</div>
     </>
   );
 }
