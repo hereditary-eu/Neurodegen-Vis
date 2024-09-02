@@ -11,27 +11,24 @@ function Michi(count: { counter: number; }) {
   let x: number = 5;
   // const [data, setData] = useState(["leer"]);
   let emptyPatient: Patient = new Patient();
-  const [data, setData] = useState([emptyPatient]);
+  const [patients_data, setData] = useState(Array(54).fill(emptyPatient)); // todo, hard coded 54
 
   useEffect(() => {
     async function load() {
       let loaded = (await d3.csv("/PD_SampleData_Curated.csv")).map((r) => Patient.fromJson(r));
-      // setData(["hallo", "welt", "wie", "gehts"]);
       setData(loaded);
-      // console.log(loaded);
-      // console.log(data);
-      // console.log(count);
-      // console.log(count.counter);
     }
     load();
   }, []);
-  console.log(data);
+  console.log(patients_data);
+  console.log(patients_data[0].record_id);
+  console.log(patients_data.length);
   console.log("Michi fun ended");
   return (
     <>
       <h2>Welcome! x = {x}</h2>
-      <h3>Counter: {count.counter}</h3>
-      <div>Daten: {data[0].toString()}</div>
+      <h3>Patient: #{count.counter}</h3>
+      <div>Daten: {patients_data[count.counter].toString()}</div>
     </>
   );
 }
