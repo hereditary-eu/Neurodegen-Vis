@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import * as d3 from "d3";
+// import * as obsPlot from "observablehq/plot";
+import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
 
 function Michi(count: { counter: number; }) {
@@ -23,15 +25,146 @@ function Michi(count: { counter: number; }) {
   console.log(patients_data);
   console.log(patients_data[0].record_id);
   console.log(patients_data.length);
-  console.log("Michi fun ended");
+  console.log("Michi patients data read");
+
+  let total_age: number = 0;
+  // patients_data.forEach((p) => {console.log(p.insnpsi_age);});
+  patients_data.forEach((p) => {total_age += p.insnpsi_age;});
+
+  let patients_age: number[] = [];
+  patients_data.forEach((p) => {patients_age.push(p.insnpsi_age);});
+  // console.log(patients_age);
+
+  let patients_attent_z_comp: number[] = [];
+  patients_data.forEach((p) => {patients_attent_z_comp.push(p.attent_z_comp);});
+  // console.log(patients_attent_z_comp);
+
+  // ----------------------------- schatterplot -----------------------------
+  useEffect(() => {
+    const svg = d3.select("#scatterplot")
+      .attr("width", 400)
+      .attr("height", 400);
+
+    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+    const width = +svg.attr("width") - margin.left - margin.right;
+    const height = +svg.attr("height") - margin.top - margin.bottom;
+
+    const x = d3
+      .scaleLinear()
+      .domain([d3.min(patients_age)-5, d3.max(patients_age)+5])
+      .range([margin.left, width - margin.right]);
+
+    const y = d3
+      .scaleLinear()
+      .domain([d3.min(patients_attent_z_comp), d3.max(patients_attent_z_comp)])
+      .range([height - margin.bottom, margin.top]);
+
+    const xAxis = (g) =>
+      g
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x))
+        .call((g) => g.select(".domain").remove())
+        .call((g) =>
+          g
+            .append("text")
+            .attr("x", width - margin.right)
+            .attr("y", -4)
+            .attr("fill", "currentColor")
+            .attr("font-weight", "bold")
+            .attr("text-anchor", "end")
+            .text("Age")
+        );
+
+    const yAxis = (g) =>
+      g
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft(y))
+        .call((g) => g.select(".domain").remove())
+        .call((g) =>
+          g
+            .append("text")
+            .attr("x", 4)
+            .attr("y", margin.top)
+            .attr("dy", "0.32em")
+            .attr("fill", "currentColor")
+            .attr("font-weight", "bold")
+            .attr("text-anchor", "start")
+            .text("Attention Z Comp")
+        );
+
+    svg.append("g").call(xAxis);
+    svg.append("g").call(yAxis);
+
+    svg
+      .append("g")
+      .attr("fill", "steelblue")
+      .selectAll("circle")
+      .data(patients_data)
+      .join("circle")
+      .attr("cx", (d) => x(d.insnpsi_age))
+      .attr("cy", (d) => y(d.attent_z_comp))
+      .attr("r", 5);
+  }, [patients_data, patients_age, patients_attent_z_comp]);
+  // ----------------------------- scatterplot -----------------------------
+  console.log("d3 image created");
+
+  // Obsverable plot
+
+  const rand_histo = Plot.rectY({length: 10000}, Plot.binX({y: "count"}, {x: Math.random})).plot();
+  const age_histo = Plot.plot({
+    marks: [
+      Plot.rectY(patients_age, Plot.binX({y: "count"}, {x: d => d})),
+      Plot.ruleY([0])
+    ],
+    x: {
+      label: "Age",
+      tickFormat: (d: number) => d.toString(),
+    },
+    y: {
+      label: "Frequency",
+    },
+  });
+
+  const histogramRef = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
+  if (histogramRef.current) {
+    histogramRef.current.innerHTML = ''; // Clear the div
+    histogramRef.current.appendChild(age_histo);
+    // histogramRef.current.appendChild(rand_histo);
+  }
+
+  const div = document.querySelector("#myplot");
+  if (div) {
+    console.log("div found");
+    div.innerHTML = ''; // Clear the div
+    div.appendChild(rand_histo);
+  }
+  else {
+    console.log("div not found");
+  }
+
+  console.log("obs plot created");
+  // console.log(plot);
+  // console.log(age_histo);
+  // console.log(div);
+  // console.log(svg)
+  // div.append(histogram);
+  // console.log(div)
   return (
     <>
       <h2>Welcome! x = {x}</h2>
       <h3>Patient: #{count.counter}</h3>
       <div>Daten: {patients_data[count.counter].toString()}</div>
+      <p>Total age: {total_age}</p>
+      <p>Scatterplot d3</p> 
+      <svg id="scatterplot"></svg>
+      <p>Histogram Obsverable</p>
+      <div ref={histogramRef}></div> {/* Add a div with a ref for the plot */}
+      <p>Now we try this with div!</p>
+      <div id="myplot"></div>
     </>
   );
 }
+{/* <div id="myplot"></div> */}
 
 function App() {
   const [count, setCount] = useState(0);
