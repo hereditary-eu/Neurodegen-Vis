@@ -17,7 +17,7 @@ function Michi(count: { counter: number; }) {
 
   useEffect(() => {
     async function load() {
-      let loaded = (await d3.csv("/PD_SampleData_Curated.csv")).map((r) => Patient.fromJson(r));
+      let loaded = (await d3.csv("dataset/PD_SampleData_Curated.csv")).map((r) => Patient.fromJson(r));
       setData(loaded);
     }
     load();
@@ -39,72 +39,72 @@ function Michi(count: { counter: number; }) {
   patients_data.forEach((p) => {patients_attent_z_comp.push(p.attent_z_comp);});
   // console.log(patients_attent_z_comp);
 
-  // ----------------------------- schatterplot -----------------------------
-  useEffect(() => {
-    const svg = d3.select("#scatterplot")
-      .attr("width", 400)
-      .attr("height", 400);
+  // ----------------------------- scatterplot -----------------------------
+  // useEffect(() => {
+  //   const svg = d3.select("#scatterplot")
+  //     .attr("width", 400)
+  //     .attr("height", 400);
 
-    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
-    const width = +svg.attr("width") - margin.left - margin.right;
-    const height = +svg.attr("height") - margin.top - margin.bottom;
+  //   const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+  //   const width = +svg.attr("width") - margin.left - margin.right;
+  //   const height = +svg.attr("height") - margin.top - margin.bottom;
 
-    const x = d3
-      .scaleLinear()
-      .domain([d3.min(patients_age)-5, d3.max(patients_age)+5])
-      .range([margin.left, width - margin.right]);
+  //   const x = d3
+  //     .scaleLinear()
+  //     .domain([d3.min(patients_age)-5, d3.max(patients_age)+5])
+  //     .range([margin.left, width - margin.right]);
 
-    const y = d3
-      .scaleLinear()
-      .domain([d3.min(patients_attent_z_comp), d3.max(patients_attent_z_comp)])
-      .range([height - margin.bottom, margin.top]);
+  //   const y = d3
+  //     .scaleLinear()
+  //     .domain([d3.min(patients_attent_z_comp), d3.max(patients_attent_z_comp)])
+  //     .range([height - margin.bottom, margin.top]);
 
-    const xAxis = (g) =>
-      g
-        .attr("transform", `translate(0,${height - margin.bottom})`)
-        .call(d3.axisBottom(x))
-        .call((g) => g.select(".domain").remove())
-        .call((g) =>
-          g
-            .append("text")
-            .attr("x", width - margin.right)
-            .attr("y", -4)
-            .attr("fill", "currentColor")
-            .attr("font-weight", "bold")
-            .attr("text-anchor", "end")
-            .text("Age")
-        );
+  //   const xAxis = (g) =>
+  //     g
+  //       .attr("transform", `translate(0,${height - margin.bottom})`)
+  //       .call(d3.axisBottom(x))
+  //       .call((g) => g.select(".domain").remove())
+  //       .call((g) =>
+  //         g
+  //           .append("text")
+  //           .attr("x", width - margin.right)
+  //           .attr("y", -4)
+  //           .attr("fill", "currentColor")
+  //           .attr("font-weight", "bold")
+  //           .attr("text-anchor", "end")
+  //           .text("Age")
+  //       );
 
-    const yAxis = (g) =>
-      g
-        .attr("transform", `translate(${margin.left},0)`)
-        .call(d3.axisLeft(y))
-        .call((g) => g.select(".domain").remove())
-        .call((g) =>
-          g
-            .append("text")
-            .attr("x", 4)
-            .attr("y", margin.top)
-            .attr("dy", "0.32em")
-            .attr("fill", "currentColor")
-            .attr("font-weight", "bold")
-            .attr("text-anchor", "start")
-            .text("Attention Z Comp")
-        );
+  //   const yAxis = (g) =>
+  //     g
+  //       .attr("transform", `translate(${margin.left},0)`)
+  //       .call(d3.axisLeft(y))
+  //       .call((g) => g.select(".domain").remove())
+  //       .call((g) =>
+  //         g
+  //           .append("text")
+  //           .attr("x", 4)
+  //           .attr("y", margin.top)
+  //           .attr("dy", "0.32em")
+  //           .attr("fill", "currentColor")
+  //           .attr("font-weight", "bold")
+  //           .attr("text-anchor", "start")
+  //           .text("Attention Z Comp")
+  //       );
 
-    svg.append("g").call(xAxis);
-    svg.append("g").call(yAxis);
+  //   svg.append("g").call(xAxis);
+  //   svg.append("g").call(yAxis);
 
-    svg
-      .append("g")
-      .attr("fill", "steelblue")
-      .selectAll("circle")
-      .data(patients_data)
-      .join("circle")
-      .attr("cx", (d) => x(d.insnpsi_age))
-      .attr("cy", (d) => y(d.attent_z_comp))
-      .attr("r", 5);
-  }, [patients_data, patients_age, patients_attent_z_comp]);
+  //   svg
+  //     .append("g")
+  //     .attr("fill", "steelblue")
+  //     .selectAll("circle")
+  //     .data(patients_data)
+  //     .join("circle")
+  //     .attr("cx", (d) => x(d.insnpsi_age))
+  //     .attr("cy", (d) => y(d.attent_z_comp))
+  //     .attr("r", 5);
+  // }, [patients_data, patients_age, patients_attent_z_comp]);
   // ----------------------------- scatterplot -----------------------------
   console.log("d3 image created");
 
@@ -113,8 +113,10 @@ function Michi(count: { counter: number; }) {
   const rand_histo = Plot.rectY({length: 10000}, Plot.binX({y: "count"}, {x: Math.random})).plot();
   const age_histo = Plot.plot({
     marks: [
-      Plot.rectY(patients_age, Plot.binX({y: "count"}, {x: d => d})),
-      Plot.ruleY([0])
+      // Plot.rectY(patients_age, Plot.binX({y: "count"}, {x: d => d})),
+      Plot.rectY(patients_data, Plot.binX({y: "count"}, {x: "insnpsi_age"})),
+      Plot.ruleY([0]),
+      // Plot.ruleX([0])
     ],
     x: {
       label: "Age",
@@ -124,6 +126,28 @@ function Michi(count: { counter: number; }) {
       label: "Frequency",
     },
   });
+  
+  const scatterplot = Plot.plot({
+    marks: [
+      Plot.dot(patients_data, {x: "insnpsi_age", y: "attent_z_comp"}),
+      Plot.ruleX([Math.min(...patients_age.filter((d) => !isNaN(d)))-1]),
+      Plot.ruleY([Math.min(...patients_attent_z_comp.filter((d) => !isNaN(d)))]),
+    ],
+    x: {
+      label: "Age",
+      // tickFormat: (d: number) => d.toString(),
+    },
+    y: {
+      label: "Attention Z Comp",
+    },
+  });
+
+  const scatterplot_ref = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
+  if (scatterplot_ref.current) {
+    scatterplot_ref.current.innerHTML = ''; // Clear the div
+    scatterplot_ref.current.appendChild(scatterplot);
+    // histogramRef.current.appendChild(rand_histo);
+  } 
 
   const histogramRef = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
   if (histogramRef.current) {
@@ -155,12 +179,22 @@ function Michi(count: { counter: number; }) {
       <h3>Patient: #{count.counter}</h3>
       <div>Daten: {patients_data[count.counter].toString()}</div>
       <p>Total age: {total_age}</p>
-      <p>Scatterplot d3</p> 
-      <svg id="scatterplot"></svg>
-      <p>Histogram Obsverable</p>
-      <div ref={histogramRef}></div> {/* Add a div with a ref for the plot */}
-      <p>Now we try this with div!</p>
-      <div id="myplot"></div>
+      <div className="flex-container">
+        <div>
+          <p>Histogram Obsverable</p>
+          <div ref={histogramRef}></div> 
+        </div>
+        <div>
+          <p>Random numbers, with div!</p>
+          <div id="myplot"></div>
+        </div>
+      </div>
+      <div className="flex-container">
+        <div>
+          <p>Scatterplot Obsverable</p>
+          <div ref={scatterplot_ref}></div>
+        </div>
+      </div>
     </>
   );
 }
@@ -198,3 +232,7 @@ function App() {
 }
 
 export default App;
+
+
+{/* <p>Scatterplot d3</p> 
+<svg id="scatterplot"></svg> */}
