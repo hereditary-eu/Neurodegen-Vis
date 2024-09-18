@@ -111,10 +111,20 @@ function Michi(count: { counter: number; }) {
   // Obsverable plot
 
   const rand_histo = Plot.rectY({length: 10000}, Plot.binX({y: "count"}, {x: Math.random})).plot();
+  const div = document.querySelector("#myplot");
+  if (div) {
+    console.log("div found");
+    div.innerHTML = ''; // Clear the div
+    div.appendChild(rand_histo);
+  }
+  else {
+    console.log("div not found");
+  }
+
   const age_histo = Plot.plot({
     marks: [
       // Plot.rectY(patients_age, Plot.binX({y: "count"}, {x: d => d})),
-      Plot.rectY(patients_data, Plot.binX({y: "count"}, {x: "insnpsi_age"})),
+      Plot.rectY(patients_data, Plot.binX({y: "count", thresholds: 7}, {x: "insnpsi_age"})),
       Plot.ruleY([0]),
       // Plot.ruleX([0])
     ],
@@ -126,12 +136,19 @@ function Michi(count: { counter: number; }) {
       label: "Frequency",
     },
   });
-  
-  const scatterplot = Plot.plot({
+  const histogramRef = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
+  if (histogramRef.current) {
+    histogramRef.current.innerHTML = ''; // Clear the div
+    histogramRef.current.appendChild(age_histo);
+    // histogramRef.current.appendChild(rand_histo);
+  }
+
+  const basic_scatterplot = Plot.plot({
     marks: [
       Plot.dot(patients_data, {x: "insnpsi_age", y: "attent_z_comp"}),
       Plot.ruleX([Math.min(...patients_age.filter((d) => !isNaN(d)))-1]),
       Plot.ruleY([Math.min(...patients_attent_z_comp.filter((d) => !isNaN(d)))]),
+      Plot.ruleY([-1])
     ],
     x: {
       label: "Age",
@@ -145,25 +162,75 @@ function Michi(count: { counter: number; }) {
   const scatterplot_ref = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
   if (scatterplot_ref.current) {
     scatterplot_ref.current.innerHTML = ''; // Clear the div
-    scatterplot_ref.current.appendChild(scatterplot);
+    scatterplot_ref.current.appendChild(basic_scatterplot);
     // histogramRef.current.appendChild(rand_histo);
   } 
 
-  const histogramRef = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
-  if (histogramRef.current) {
-    histogramRef.current.innerHTML = ''; // Clear the div
-    histogramRef.current.appendChild(age_histo);
+  const pd_duration = Plot.plot({
+    marks: [
+      Plot.dot(patients_data, {x: "npsid_ddur_v", y: "attent_z_comp"}),
+      // Plot.ruleX([Math.min(...patients_age.filter((d) => !isNaN(d)))-1]),
+      Plot.ruleY([-1]),
+    ],
+    x: {
+      label: "Duration PD",
+      // tickFormat: (d: number) => d.toString(),
+    },
+    y: {
+      label: "Attention Z Comp",
+    },
+  });
+
+  const pd_duration_ref = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
+  if (pd_duration_ref.current) {
+    pd_duration_ref.current.innerHTML = ''; // Clear the div
+    pd_duration_ref.current.appendChild(pd_duration);
     // histogramRef.current.appendChild(rand_histo);
   }
 
-  const div = document.querySelector("#myplot");
-  if (div) {
-    console.log("div found");
-    div.innerHTML = ''; // Clear the div
-    div.appendChild(rand_histo);
+  const failed_tests = Plot.plot({
+    marks: [
+      Plot.dot(patients_data, {x: "npsid_ddur_v", y: 'attent_sum_z'}),
+      // Plot.ruleX([Math.min(...patients_age.filter((d) => !isNaN(d)))-1]),
+      Plot.ruleY([0]),
+    ],
+    x: {
+      label: "Duration PD",
+      // tickFormat: (d: number) => d.toString(),
+    },
+    y: {
+      label: "Attention Z Comp",
+    },
+  });
+
+  const failed_tests_ref = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
+  if (failed_tests_ref.current) {
+    failed_tests_ref.current.innerHTML = ''; // Clear the div
+    failed_tests_ref.current.appendChild(failed_tests);
+    // histogramRef.current.appendChild(rand_histo);
   }
-  else {
-    console.log("div not found");
+
+  const failed_tests_rel = Plot.plot({
+    marks: [
+      Plot.dot(patients_data, {x: "npsid_ddur_v", y: (d) => d.attent_sum_z / d.attent_sum}),
+      Plot.ruleY([0]),
+
+      // Plot.ruleX([Math.min(...patients_age.filter((d) => !isNaN(d)))-1]),
+    ],
+    x: {
+      label: "Duration PD",
+      // tickFormat: (d: number) => d.toString(),
+    },
+    y: {
+      label: "Attention Z Comp",
+    },
+  });
+
+  const failed_tests_rel_ref = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
+  if (failed_tests_rel_ref.current) {
+    failed_tests_rel_ref.current.innerHTML = ''; // Clear the div
+    failed_tests_rel_ref.current.appendChild(failed_tests_rel);
+    // histogramRef.current.appendChild(rand_histo);
   }
 
   console.log("obs plot created");
@@ -193,6 +260,22 @@ function Michi(count: { counter: number; }) {
         <div>
           <p>Scatterplot Obsverable</p>
           <div ref={scatterplot_ref}></div>
+        </div>
+      </div>
+      <div className="flex-container">
+        <div>
+          <p>Duration PD vs z-score</p>
+          <div ref={pd_duration_ref}></div>
+        </div>
+      </div>
+      <div className="flex-container">
+      <div>
+          <p>Duration PD vs failed tests</p>
+          <div ref={failed_tests_ref}></div>
+        </div>
+        <div>
+          <p>Duration PD vs failed tests relativ</p>
+          <div ref={failed_tests_rel_ref}></div>
         </div>
       </div>
     </>
