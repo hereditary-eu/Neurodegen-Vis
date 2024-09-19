@@ -48,3 +48,11 @@
   align-items: center;
   gap: 1em;
 }
+
+.contaienr{
+  /* margin: auto; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* width: 100%; */
+}
