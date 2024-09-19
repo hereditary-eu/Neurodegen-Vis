@@ -237,8 +237,20 @@ interface ScatterplotProps {
 
 function linReg(xArray: number[], yArray: number[]): [number, number] {
   // Calculate Sums
+  console.log("linReg fun started");
+  console.log(xArray);
+  console.log(yArray);
   let xSum=0, ySum=0 , xxSum=0, xySum=0;
   let count = xArray.length;
+
+  // remove NaN values
+  for (let i = 0; i < count; i++) {
+    if (isNaN(xArray[i]) || isNaN(yArray[i])) {
+      xArray.splice(i, 1);
+      yArray.splice(i, 1);
+      count--;
+    }
+  }
 
   for (let i = 0, len = count; i < count; i++) {
     xSum += xArray[i];
@@ -246,7 +258,6 @@ function linReg(xArray: number[], yArray: number[]): [number, number] {
     xxSum += xArray[i] * xArray[i];
     xySum += xArray[i] * yArray[i];
   }
-
   let slope = (count * xySum - xSum * ySum) / (count * xxSum - xSum * xSum);
   let intercept = (ySum / count) - (slope * xSum) / count;
   
@@ -258,19 +269,34 @@ function PlotScatterplot({feature, patients_data}: ScatterplotProps) {
   console.log("Scatterplot fun started");
   console.log(patients_data);
 
+  let slope: number = 0;
+  let intercept: number = 0;
+  [slope, intercept] = linReg(patients_data.map((p) => p.npsid_ddur_v), patients_data.map((p) => p[feature]));
+  console.log(slope);
+  console.log(intercept);
+
+  // const linReg_x = [Math.min(...patients_data.map((p) => p.npsid_ddur_v)),
+  //    Math.max(...patients_data.map((p) => p.npsid_ddur_v))];
+  const linReg_x = [0, 10, 25];
+  const linReg_y = linReg_x.map((x) => slope * x + intercept);
+  console.log(linReg_x);
+  console.log(linReg_y);
+  const linRegData = linReg_x.map((x, i) => ({x: x, y: linReg_y[i]}));
+  // throw TypeError("test");
+
   const pd_duration = Plot.plot({
     marks: [
-      Plot.dot(patients_data, {x: "npsid_ddur_v", y: feature}),
-      // Plot.ruleX([Math.min(...patients_age.filter((d) => !isNaN(d)))-1]),
-      Plot.ruleY([-1]),
+      Plot.dot(patients_data, { x: "npsid_ddur_v", y: feature, tip: true }),
+      Plot.line(linRegData, {x: "x", y: "y", stroke: "blue"}),
+      // Plot.crosshair(olympians, {x: "weight", y: "height"})
     ],
     x: {
       label: "Duration PD",
-      // tickFormat: (d: number) => d.toString(),
     },
     y: {
       label: feature,
     },
+    style: "--plot-background: black; "
   });
 
   const pd_duration_ref = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
@@ -283,7 +309,7 @@ function PlotScatterplot({feature, patients_data}: ScatterplotProps) {
   return (
   <div className="flex-container">
     <div>
-      <p> Scatterplot {feature}</p>
+      <p> Scatterplot {feature}, slope={slope}</p>
       <div ref={pd_duration_ref}></div>
     </div>
   </div>
