@@ -7,21 +7,17 @@ import * as d3 from "d3";
 import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
 
-function Michi(count: { counter: number; }) {
+interface MichiProps {
+  count: number;
+  patients_data: Patient[];
+  selected_feature: string;
+}
+
+function Michi({count, patients_data, selected_feature}: MichiProps) {
+
   console.log("Michi fun started");
-
   let x: number = 5;
-  // const [data, setData] = useState(["leer"]);
-  let emptyPatient: Patient = new Patient();
-  const [patients_data, setData] = useState(Array(54).fill(emptyPatient)); // todo, hard coded 54
 
-  useEffect(() => {
-    async function load() {
-      let loaded = (await d3.csv("dataset/PD_SampleData_Curated.csv")).map((r) => Patient.fromJson(r));
-      setData(loaded);
-    }
-    load();
-  }, []);
   console.log(patients_data);
   console.log(patients_data[0].record_id);
   console.log(patients_data.length);
@@ -33,78 +29,11 @@ function Michi(count: { counter: number; }) {
 
   let patients_age: number[] = [];
   patients_data.forEach((p) => {patients_age.push(p.insnpsi_age);});
-  // console.log(patients_age);
 
   let patients_attent_z_comp: number[] = [];
   patients_data.forEach((p) => {patients_attent_z_comp.push(p.attent_z_comp);});
   // console.log(patients_attent_z_comp);
 
-  // ----------------------------- scatterplot -----------------------------
-  // useEffect(() => {
-  //   const svg = d3.select("#scatterplot")
-  //     .attr("width", 400)
-  //     .attr("height", 400);
-
-  //   const margin = { top: 20, right: 20, bottom: 30, left: 40 };
-  //   const width = +svg.attr("width") - margin.left - margin.right;
-  //   const height = +svg.attr("height") - margin.top - margin.bottom;
-
-  //   const x = d3
-  //     .scaleLinear()
-  //     .domain([d3.min(patients_age)-5, d3.max(patients_age)+5])
-  //     .range([margin.left, width - margin.right]);
-
-  //   const y = d3
-  //     .scaleLinear()
-  //     .domain([d3.min(patients_attent_z_comp), d3.max(patients_attent_z_comp)])
-  //     .range([height - margin.bottom, margin.top]);
-
-  //   const xAxis = (g) =>
-  //     g
-  //       .attr("transform", `translate(0,${height - margin.bottom})`)
-  //       .call(d3.axisBottom(x))
-  //       .call((g) => g.select(".domain").remove())
-  //       .call((g) =>
-  //         g
-  //           .append("text")
-  //           .attr("x", width - margin.right)
-  //           .attr("y", -4)
-  //           .attr("fill", "currentColor")
-  //           .attr("font-weight", "bold")
-  //           .attr("text-anchor", "end")
-  //           .text("Age")
-  //       );
-
-  //   const yAxis = (g) =>
-  //     g
-  //       .attr("transform", `translate(${margin.left},0)`)
-  //       .call(d3.axisLeft(y))
-  //       .call((g) => g.select(".domain").remove())
-  //       .call((g) =>
-  //         g
-  //           .append("text")
-  //           .attr("x", 4)
-  //           .attr("y", margin.top)
-  //           .attr("dy", "0.32em")
-  //           .attr("fill", "currentColor")
-  //           .attr("font-weight", "bold")
-  //           .attr("text-anchor", "start")
-  //           .text("Attention Z Comp")
-  //       );
-
-  //   svg.append("g").call(xAxis);
-  //   svg.append("g").call(yAxis);
-
-  //   svg
-  //     .append("g")
-  //     .attr("fill", "steelblue")
-  //     .selectAll("circle")
-  //     .data(patients_data)
-  //     .join("circle")
-  //     .attr("cx", (d) => x(d.insnpsi_age))
-  //     .attr("cy", (d) => y(d.attent_z_comp))
-  //     .attr("r", 5);
-  // }, [patients_data, patients_age, patients_attent_z_comp]);
   // ----------------------------- scatterplot -----------------------------
   console.log("d3 image created");
 
@@ -243,8 +172,10 @@ function Michi(count: { counter: number; }) {
   return (
     <>
       <h2>Welcome! x = {x}</h2>
-      <h3>Patient: #{count.counter}</h3>
-      <div>Daten: {patients_data[count.counter].toString()}</div>
+      <h3>Patient: #{count}</h3>
+      <div>Daten: {patients_data[count].toString()}</div>
+      {/* <h3>Patient: #{count.counter}</h3>
+      <div>Daten: {patients_data[count.counter].toString()}</div> */}
       <p>Total age: {total_age}</p>
       <div className="flex-container">
         <div>
@@ -281,10 +212,30 @@ function Michi(count: { counter: number; }) {
     </>
   );
 }
-{/* <div id="myplot"></div> */}
+
+function scatterplot(feature: string, patients_data: Patient[]) {
+  return "";
+}
+
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState<number>(0);
+  const [feature, setFeature] = useState<string>("insnpsi_age");
+  const feature_list: string[] = ["insnpsi_age", "attent_z_comp", "npsid_ddur_v", "attent_sum_z", "attent_sum"];
+
+  let emptyPatient: Patient = new Patient();
+  const [patients_data, setData] = useState(Array(54).fill(emptyPatient)); // todo, hard coded 54
+  console.log(patients_data);
+
+  useEffect(() => {
+    async function load() {
+      let loaded = (await d3.csv("dataset/PD_SampleData_Curated.csv")).map((r) => Patient.fromJson(r));
+      setData(loaded);
+    }
+    load();
+  }, []);
+  console.log("after")
+  console.log(patients_data);
 
   return (
     <>
@@ -309,13 +260,13 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
       {/* <Michi /> */}
-      <Michi counter={count} />
+      <Michi count={count} patients_data={patients_data} selected_feature=""/>
+      <label htmlFor="feature">Choose a feature:  </label>
+      <select name="feature" id="feature" onChange={(e) => setFeature(e.target.value)}>
+        {feature_list.map((f) => <option value={f}>{f}</option>)}
+      </select>
     </>
   );
 }
 
 export default App;
-
-
-{/* <p>Scatterplot d3</p> 
-<svg id="scatterplot"></svg> */}
