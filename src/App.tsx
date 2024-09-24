@@ -16,7 +16,7 @@ interface MichiProps {
 function Michi({count, patients_data, selected_feature}: MichiProps) {
 
   console.log("Michi fun started");
-  let x: number = 5;
+  let binNumber = 8;
 
   console.log(patients_data);
   console.log(patients_data[0].record_id);
@@ -186,19 +186,13 @@ function Michi({count, patients_data, selected_feature}: MichiProps) {
   // console.log(div)
   return (
     <>
-      <h2>Welcome! x = {x}</h2>
-      <h3>Patient: #{count}</h3>
-      <div>Daten: {patients_data[count].toString()}</div>
-      {/* <h3>Patient: #{count.counter}</h3>
-      <div>Daten: {patients_data[count.counter].toString()}</div> */}
-      <p>Total age: {total_age}</p>
       <div className="flex-container">
         <div>
-          <p>Histogram Obsverable</p>
+          <p>Age Distribution</p>
           <div ref={histogramRef}></div> 
         </div>
         <div>
-          <p>Random numbers, with div!</p>
+          <p>Time since PD diagnosis Distribution</p>
           <div id="myplot"></div>
         </div>
       </div>
@@ -348,19 +342,7 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      {/* <Michi /> */}
+      <h1>Parkinson's disease analysis</h1>
       <Michi count={count} patients_data={patients_data} selected_feature=""/>
       <label htmlFor="feature">Choose a feature:  </label>
       <select name="feature" id="feature" onChange={(e) => setFeature(e.target.value)}>
