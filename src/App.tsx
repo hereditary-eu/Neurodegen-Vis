@@ -6,6 +6,7 @@ import * as d3 from "d3";
 // import * as obsPlot from "observablehq/plot";
 import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
+import {categorial_keys_list} from "./key_list";
 
 interface MichiProps {
   patients_data: Patient[];
@@ -27,10 +28,7 @@ function Michi({patients_data, selected_feature}: MichiProps) {
   patients_data.forEach((p) => {patients_attent_z_comp.push(p.attent_z_comp);});
 
   // ----------------------------- scatterplot -----------------------------
-  console.log("d3 image created");
-
   // Obsverable plot
-
   // const rand_histo = Plot.rectY({length: 10000}, Plot.binX({y: "count"}, {x: Math.random})).plot();
   const dur_histo = Plot.plot({
     marks: [
@@ -175,7 +173,9 @@ function PlotScatterplot({y_feature, x_feature, patients_data, show_dash=false}:
       label: y_feature,
       domain: [min_y, max_y],
     },
-    style: "--plot-background: black; "
+    style: "--plot-background: black; --plot-font-size: 12px;"
+    // style: {fontSize: "15px"}
+        // TODO change font size
   });
 
   const pd_duration_ref = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
@@ -200,22 +200,27 @@ function PlotScatterplot({y_feature, x_feature, patients_data, show_dash=false}:
 
 function App() {
   // const [count, setCount] = useState<number>(0);
+  // console.log("TestLog")
+  // console.log(categorial_keys_list)
   const z_score_features: string[] = ["attent_z_comp", "exec_z_comp", "visuosp_z_comp", 
     "memory_z_comp", "language_z_comp"];
-  const z_failed_tests = {
+
+  interface stringMap { [key: string]: string; }
+  const z_failed_tests: stringMap  = {
     "attent_z_comp": "attent_sum_z",
     "exec_z_comp": "exec_sum_z",
     "visuosp_z_comp": "visuosp_sum_z",
     "memory_z_comp": "memory_sum_z",
     "language_z_comp": "language_sum_z"
   }
-  // const z_failed_tests_rel = {
-  //   "attent_z_comp": "attent_sum_z",
-  //   "exec_z_comp": "exec_sum_z",
-  //   "visuosp_z_comp": "visuosp_sum_z",
-  //   "memory_z_comp": "memory_sum_z",
-  //   "language_z_comp": "language_sum_z"
-  // }
+  const z_failed_tests_tot: stringMap   = {
+    "attent_z_comp": "attent_sum",
+    "exec_z_comp": "exec_sum",
+    "visuosp_z_comp": "visuosp_sum",
+    "memory_z_comp": "memory_sum",
+    "language_z_comp": "language_suz"
+  }
+  const [categ_feature, setCategFeature] = useState<string>(categorial_keys_list[0]);
   const [feature, setFeature] = useState<string>(z_score_features[0]);
   const feature_list: string[] = ["insnpsi_age", "attent_z_comp", "npsid_ddur_v", "attent_sum_z"
     , "attent_sum"];
@@ -229,6 +234,8 @@ function App() {
     }
     load();
   }, []);
+  console.log("TestLog")
+  // console.log(patients_data);
 
 
   return (
@@ -247,6 +254,11 @@ function App() {
       <select name="feature" id="feature" onChange={(e) => setFeature(e.target.value)}>
         {z_score_features.map((f) => <option value={f}>{f}</option>)}
       </select>
+      <label htmlFor="categ_feature"> --- Choose a categorical feature:  </label>
+      
+      <select name="categ_feature" id="categ_feature" onChange={(e) => setCategFeature(e.target.value)}>
+        {categorial_keys_list.map((f) => <option value={f}>{f}</option>)}
+      </select>
       <div className="flex-container">
         <PlotScatterplot y_feature={feature} x_feature='insnpsi_age' patients_data={patients_data} show_dash={true}/>
         <PlotScatterplot y_feature={feature} x_feature='npsid_ddur_v' patients_data={patients_data} show_dash={true}/>
@@ -255,7 +267,6 @@ function App() {
         <PlotScatterplot y_feature={z_failed_tests[feature]} x_feature='insnpsi_age' patients_data={patients_data}/>
         <PlotScatterplot y_feature={z_failed_tests[feature]} x_feature='npsid_ddur_v' patients_data={patients_data} show_dash={true}/>
       </div>
-      
     </>
   );
 }
