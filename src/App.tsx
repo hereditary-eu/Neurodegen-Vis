@@ -8,12 +8,11 @@ import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
 
 interface MichiProps {
-  count: number;
   patients_data: Patient[];
   selected_feature: string;
 }
 
-function Michi({count, patients_data, selected_feature}: MichiProps) {
+function Michi({patients_data, selected_feature}: MichiProps) {
 
   console.log("Michi fun started");
   let binNumber = 8;
@@ -36,7 +35,7 @@ function Michi({count, patients_data, selected_feature}: MichiProps) {
   const dur_histo = Plot.plot({
     marks: [
       // Plot.rectY(patients_age, Plot.binX({y: "count"}, {x: d => d})),
-      Plot.rectY(patients_data, Plot.binX({y: "count", thresholds: 8}, {x: "npsid_ddur_v"})),
+      Plot.rectY(patients_data, Plot.binX({y: "count", thresholds: binNumber}, {x: "npsid_ddur_v"})),
       Plot.ruleY([0]),
       // Plot.ruleX([0])
     ],
@@ -48,10 +47,10 @@ function Michi({count, patients_data, selected_feature}: MichiProps) {
       label: "Frequency",
     },
   });
-  const div = document.querySelector("#myplot");
-  if (div) {
-    div.innerHTML = ''; // Clear the div
-    div.appendChild(dur_histo);
+  const div_dur_histo = document.querySelector("#myplot");
+  if (div_dur_histo) {
+    div_dur_histo.innerHTML = ''; // Clear the div
+    div_dur_histo.appendChild(dur_histo);
   }
   else {
     console.log("div not found");
@@ -60,7 +59,7 @@ function Michi({count, patients_data, selected_feature}: MichiProps) {
   const age_histo = Plot.plot({
     marks: [
       // Plot.rectY(patients_age, Plot.binX({y: "count"}, {x: d => d})),
-      Plot.rectY(patients_data, Plot.binX({y: "count", thresholds: 7}, {x: "insnpsi_age"})),
+      Plot.rectY(patients_data, Plot.binX({y: "count", thresholds: binNumber}, {x: "insnpsi_age"})),
       Plot.ruleY([0]),
       // Plot.ruleX([0])
     ],
@@ -72,100 +71,10 @@ function Michi({count, patients_data, selected_feature}: MichiProps) {
       label: "Frequency",
     },
   });
-  const histogramRef = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
-  if (histogramRef.current) {
-    histogramRef.current.innerHTML = ''; // Clear the div
-    histogramRef.current.appendChild(age_histo);
-    // histogramRef.current.appendChild(rand_histo);
-  }
-
-  const basic_scatterplot = Plot.plot({
-    marks: [
-      Plot.dot(patients_data, {x: "insnpsi_age", y: "attent_z_comp"}),
-      Plot.ruleX([Math.min(...patients_age.filter((d) => !isNaN(d)))-1]),
-      Plot.ruleY([Math.min(...patients_attent_z_comp.filter((d) => !isNaN(d)))]),
-      Plot.ruleY([-1])
-    ],
-    x: {
-      label: "Age",
-      // tickFormat: (d: number) => d.toString(),
-    },
-    y: {
-      label: "Attention Z Comp",
-    },
-  });
-
-  const scatterplot_ref = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
-  if (scatterplot_ref.current) {
-    scatterplot_ref.current.innerHTML = ''; // Clear the div
-    scatterplot_ref.current.appendChild(basic_scatterplot);
-    // histogramRef.current.appendChild(rand_histo);
-  } 
-
-  const pd_duration = Plot.plot({
-    marks: [
-      Plot.dot(patients_data, {x: "npsid_ddur_v", y: "attent_z_comp"}),
-      // Plot.ruleX([Math.min(...patients_age.filter((d) => !isNaN(d)))-1]),
-      Plot.ruleY([-1]),
-    ],
-    x: {
-      label: "Duration PD",
-      // tickFormat: (d: number) => d.toString(),
-    },
-    y: {
-      label: "Attention Z Comp",
-    },
-  });
-
-  const pd_duration_ref = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
-  if (pd_duration_ref.current) {
-    pd_duration_ref.current.innerHTML = ''; // Clear the div
-    pd_duration_ref.current.appendChild(pd_duration);
-    // histogramRef.current.appendChild(rand_histo);
-  }
-
-  const failed_tests = Plot.plot({
-    marks: [
-      Plot.dot(patients_data, {x: "npsid_ddur_v", y: 'attent_sum_z'}),
-      // Plot.ruleX([Math.min(...patients_age.filter((d) => !isNaN(d)))-1]),
-      Plot.ruleY([0]),
-    ],
-    x: {
-      label: "Duration PD",
-      // tickFormat: (d: number) => d.toString(),
-    },
-    y: {
-      label: "Attention Z Comp",
-    },
-  });
-
-  const failed_tests_ref = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
-  if (failed_tests_ref.current) {
-    failed_tests_ref.current.innerHTML = ''; // Clear the div
-    failed_tests_ref.current.appendChild(failed_tests);
-    // histogramRef.current.appendChild(rand_histo);
-  }
-
-  const failed_tests_rel = Plot.plot({
-    marks: [
-      Plot.dot(patients_data, {x: "npsid_ddur_v", y: (d) => d.attent_sum_z / d.attent_sum}),
-      Plot.ruleY([0]),
-
-      // Plot.ruleX([Math.min(...patients_age.filter((d) => !isNaN(d)))-1]),
-    ],
-    x: {
-      label: "Duration PD",
-      // tickFormat: (d: number) => d.toString(),
-    },
-    y: {
-      label: "Attention Z Comp",
-    },
-  });
-
-  const failed_tests_rel_ref = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
-  if (failed_tests_rel_ref.current) {
-    failed_tests_rel_ref.current.innerHTML = ''; // Clear the div
-    failed_tests_rel_ref.current.appendChild(failed_tests_rel);
+  const age_histo_ref = useRef<HTMLDivElement>(null);  // Create a ref to access the div element
+  if (age_histo_ref.current) {
+    age_histo_ref.current.innerHTML = ''; // Clear the div
+    age_histo_ref.current.appendChild(age_histo);
     // histogramRef.current.appendChild(rand_histo);
   }
 
@@ -175,34 +84,11 @@ function Michi({count, patients_data, selected_feature}: MichiProps) {
       <div className="flex-container">
         <div>
           <p>Age Distribution</p>
-          <div ref={histogramRef}></div> 
+          <div ref={age_histo_ref}></div> 
         </div>
         <div>
           <p>Time since PD diagnosis Distribution</p>
           <div id="myplot"></div>
-        </div>
-      </div>
-      <div className="flex-container">
-        <div>
-          <p>Age vs attention z-score</p>
-          <div ref={scatterplot_ref}></div>
-        </div>
-        <div>
-          <p>Duration PD vs z-score</p>
-          <div ref={pd_duration_ref}></div>
-        </div>
-      </div>
-      <div className="flex-container">
-
-      </div>
-      <div className="flex-container">
-      <div>
-          <p>Duration PD vs failed tests</p>
-          <div ref={failed_tests_ref}></div>
-        </div>
-        <div>
-          <p>Duration PD vs failed tests relativ</p>
-          <div ref={failed_tests_rel_ref}></div>
         </div>
       </div>
     </>
@@ -241,19 +127,20 @@ interface ScatterplotProps {
   y_feature: string;
   x_feature: string;
   patients_data: Patient[];
+  show_dash?: boolean;
 }
 
-function calcMinMax({y_feature, x_feature, patients_data}: ScatterplotProps){
+function calcMinMax({y_feature, x_feature, patients_data, show_dash=false}: ScatterplotProps){
   const min_x = Math.min(...patients_data.map((p) => p[x_feature]).filter((d) => !isNaN(d)));
   const max_x = Math.max(...patients_data.map((p) => p[x_feature]).filter((d) => !isNaN(d)));
   const min_y = Math.min(...patients_data.map((p) => p[y_feature]).filter((d) => !isNaN(d)));
   const max_y = Math.max(...patients_data.map((p) => p[y_feature]).filter((d) => !isNaN(d)));
   const x_range = max_x - min_x;
   const y_range = max_y - min_y;
-  return [min_x - x_range*0.05, max_x + x_range*0.05, min_y - x_range*0.05, max_y + y_range*0.05];
+  return [min_x - x_range*0.05, max_x + x_range*0.05, min_y - y_range*0.05, max_y + y_range*0.05];
 }
 
-function PlotScatterplot({y_feature, x_feature, patients_data}: ScatterplotProps) {
+function PlotScatterplot({y_feature, x_feature, patients_data, show_dash=false}: ScatterplotProps) {
   console.log("Scatterplot fun started");
 
   let [min_x, max_x, min_y, max_y] = calcMinMax({y_feature, x_feature, patients_data});
@@ -273,14 +160,20 @@ function PlotScatterplot({y_feature, x_feature, patients_data}: ScatterplotProps
   const pd_duration = Plot.plot({
     marks: [
       Plot.dot(patients_data, { x: x_feature, y: y_feature, tip: true }),
-      Plot.line(linRegData, {x: "x", y: "y", stroke: "blue"}),
+      Plot.line(linRegData, { x: "x", y: "y", stroke: "blue", strokeWidth: 2.5 }),
       Plot.crosshair(patients_data, { x: x_feature, y: y_feature, tip: true }),
+      Plot.ruleY([min_y]),
+      Plot.ruleX([min_x]),
+      // Conditionally add the dashed line if show_dash is true
+      ...(show_dash ? [Plot.ruleY([-1], {strokeDasharray: "3" })] : []),
     ],
     x: {
       label: x_feature,
+      domain: [min_x, max_x],
     },
     y: {
       label: y_feature,
+      domain: [min_y, max_y],
     },
     style: "--plot-background: black; "
   });
@@ -296,7 +189,8 @@ function PlotScatterplot({y_feature, x_feature, patients_data}: ScatterplotProps
     <>
     <div className="flex-container">
       <div>
-        <p> Scatterplot {y_feature}, slope={slope}</p>
+        <p> Scatterplot {y_feature}, slope={Math.round(slope * 1000) / 1000
+        }</p>
         <div ref={pd_duration_ref}></div>
       </div>
     </div>
@@ -305,9 +199,23 @@ function PlotScatterplot({y_feature, x_feature, patients_data}: ScatterplotProps
 }
 
 function App() {
-  const [count, setCount] = useState<number>(0);
+  // const [count, setCount] = useState<number>(0);
   const z_score_features: string[] = ["attent_z_comp", "exec_z_comp", "visuosp_z_comp", 
     "memory_z_comp", "language_z_comp"];
+  const z_failed_tests = {
+    "attent_z_comp": "attent_sum_z",
+    "exec_z_comp": "exec_sum_z",
+    "visuosp_z_comp": "visuosp_sum_z",
+    "memory_z_comp": "memory_sum_z",
+    "language_z_comp": "language_sum_z"
+  }
+  // const z_failed_tests_rel = {
+  //   "attent_z_comp": "attent_sum_z",
+  //   "exec_z_comp": "exec_sum_z",
+  //   "visuosp_z_comp": "visuosp_sum_z",
+  //   "memory_z_comp": "memory_sum_z",
+  //   "language_z_comp": "language_sum_z"
+  // }
   const [feature, setFeature] = useState<string>(z_score_features[0]);
   const feature_list: string[] = ["insnpsi_age", "attent_z_comp", "npsid_ddur_v", "attent_sum_z"
     , "attent_sum"];
@@ -334,14 +242,18 @@ function App() {
         </a>
       </div>
       <h1>Parkinson's disease analysis</h1>
-      <Michi count={count} patients_data={patients_data} selected_feature=""/>
+      <Michi patients_data={patients_data} selected_feature=""/>
       <label htmlFor="feature">Choose a feature:  </label>
       <select name="feature" id="feature" onChange={(e) => setFeature(e.target.value)}>
         {z_score_features.map((f) => <option value={f}>{f}</option>)}
       </select>
       <div className="flex-container">
-        <PlotScatterplot y_feature={feature} x_feature='insnpsi_age' patients_data={patients_data}/>
-        <PlotScatterplot y_feature={feature} x_feature='npsid_ddur_v' patients_data={patients_data}/>
+        <PlotScatterplot y_feature={feature} x_feature='insnpsi_age' patients_data={patients_data} show_dash={true}/>
+        <PlotScatterplot y_feature={feature} x_feature='npsid_ddur_v' patients_data={patients_data} show_dash={true}/>
+      </div>
+      <div className="flex-container">
+        <PlotScatterplot y_feature={z_failed_tests[feature]} x_feature='insnpsi_age' patients_data={patients_data}/>
+        <PlotScatterplot y_feature={z_failed_tests[feature]} x_feature='npsid_ddur_v' patients_data={patients_data} show_dash={true}/>
       </div>
       
     </>
