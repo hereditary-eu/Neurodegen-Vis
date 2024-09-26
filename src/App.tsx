@@ -139,6 +139,25 @@ function linReg(xArray: number[], yArray: number[]): [number, number] {
     return [slope, intercept];
 }
 
+function calcAverage(xArray: number[], yArray: number[]): [number, number] {
+    const slope = 0;
+    let intercept = 0;
+
+    // const sum =
+    console.log(yArray);
+    const sum = yArray.reduce((acc, val) => acc + val, 0);
+    const avg = sum / yArray.length;
+    intercept = avg;
+
+    console.log("calc Average");
+    console.log("sum", sum);
+    console.log(yArray.length);
+    console.log(slope);
+    console.log(intercept);
+
+    return [slope, intercept];
+}
+
 interface ScatterplotProps {
     y_feature: string;
     x_feature: string;
@@ -186,6 +205,9 @@ function PlotScatterplot({
     showCatLinReg = false,
 }: ScatterplotProps) {
     console.log("Scatterplot fun started");
+    patients_data = patients_data.filter(
+        (p) => !isNaN(p[x_feature] && p[y_feature])
+    );
 
     let [min_x, max_x, min_y, max_y] = calcMinMax({
         y_feature,
@@ -194,10 +216,10 @@ function PlotScatterplot({
         categorical_feature,
     });
     console.log("--min max--");
-    console.log(min_x);
-    console.log(max_x);
-    console.log(min_y);
-    console.log(max_y);
+    // console.log(min_x);
+    // console.log(max_x);
+    // console.log(min_y);
+    // console.log(max_y);
 
     // -- Linear Regression --
     // LinReg all
@@ -212,9 +234,11 @@ function PlotScatterplot({
     const linRegDataAll = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
 
     // Lin Reg Category 0!
-    [slope, intercept] = linReg(
+    // [slope, intercept] = calcAverage(
+    // [slope, intercept] = linReg(
+    [slope, intercept] = calcAverage(
         patients_data
-            .filter((d) => d[categorical_feature] === 0)
+            .filter((d) => d[categorical_feature] === 0) // also filters out NaN
             .map((p) => p[x_feature]),
         patients_data
             .filter((d) => d[categorical_feature] === 0)
@@ -224,9 +248,11 @@ function PlotScatterplot({
     const linRegData0 = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
 
     // Lin Reg Category 1!
-    [slope, intercept] = linReg(
+    // [slope, intercept] = calcAverage(
+    // [slope, intercept] = linReg(
+    [slope, intercept] = calcAverage(
         patients_data
-            .filter((d) => d[categorical_feature] === 1)
+            .filter((d) => d[categorical_feature] === 1) // also filters out NaN
             .map((p) => p[x_feature]),
         patients_data
             .filter((d) => d[categorical_feature] === 1)
@@ -234,6 +260,14 @@ function PlotScatterplot({
     );
     linReg_y = linReg_x.map((x) => slope * x + intercept);
     const linRegData1 = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
+
+    if (show_dash) {
+        console.log("linRegData");
+        console.log("linRegDataall:", linRegDataAll[0], linRegDataAll[1]);
+        console.log("linRegData0:", linRegData0[0], linRegData0[1]);
+        console.log("linRegData1:", linRegData1[0], linRegData1[1]);
+        console.log(showCatLinReg);
+    }
 
     let colors: string[] = ["orange", "green"];
     const pd_scatterplot = Plot.plot({
@@ -256,13 +290,13 @@ function PlotScatterplot({
                           x: "x",
                           y: "y",
                           stroke: colors[0],
-                          strokeWidth: 1.8,
+                          strokeWidth: 3,
                       }),
                       Plot.line(linRegData1, {
                           x: "x",
                           y: "y",
                           stroke: colors[1],
-                          strokeWidth: 1.8,
+                          strokeWidth: 2.5,
                       }),
                   ]
                 : []),
@@ -414,7 +448,7 @@ function App() {
             </select>
             <br />
             <button onClick={() => setShowCatLinReg(!showCatLinReg)}>
-                Show LinReg for categories
+                Show Average for categories
             </button>
             <div className="flex-container">
                 <PlotScatterplot
