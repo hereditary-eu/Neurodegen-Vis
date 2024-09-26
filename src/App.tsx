@@ -145,6 +145,7 @@ interface ScatterplotProps {
     patients_data: Patient[];
     categorical_feature: string;
     show_dash?: boolean;
+    showCatLinReg?: boolean;
 }
 
 function calcMinMax({
@@ -182,6 +183,7 @@ function PlotScatterplot({
     patients_data,
     categorical_feature,
     show_dash = false,
+    showCatLinReg = false,
 }: ScatterplotProps) {
     console.log("Scatterplot fun started");
 
@@ -248,18 +250,22 @@ function PlotScatterplot({
                 stroke: "white",
                 strokeWidth: 1.8,
             }),
-            Plot.line(linRegData0, {
-                x: "x",
-                y: "y",
-                stroke: colors[0],
-                strokeWidth: 1.8,
-            }),
-            Plot.line(linRegData1, {
-                x: "x",
-                y: "y",
-                stroke: colors[1],
-                strokeWidth: 1.8,
-            }),
+            ...(showCatLinReg
+                ? [
+                      Plot.line(linRegData0, {
+                          x: "x",
+                          y: "y",
+                          stroke: colors[0],
+                          strokeWidth: 1.8,
+                      }),
+                      Plot.line(linRegData1, {
+                          x: "x",
+                          y: "y",
+                          stroke: colors[1],
+                          strokeWidth: 1.8,
+                      }),
+                  ]
+                : []),
             Plot.crosshair(patients_data, {
                 x: x_feature,
                 y: y_feature,
@@ -350,6 +356,7 @@ function App() {
         "attent_sum_z",
         "attent_sum",
     ];
+    const [showCatLinReg, setShowCatLinReg] = useState<boolean>(false);
 
     let emptyPatient: Patient = new Patient();
     const [patients_data, setData] = useState(Array(54).fill(emptyPatient)); // todo, hard coded 54
@@ -405,6 +412,10 @@ function App() {
                     <option value={f}>{f}</option>
                 ))}
             </select>
+            <br />
+            <button onClick={() => setShowCatLinReg(!showCatLinReg)}>
+                Show LinReg for categories
+            </button>
             <div className="flex-container">
                 <PlotScatterplot
                     y_feature={feature}
@@ -412,6 +423,7 @@ function App() {
                     patients_data={patients_data}
                     categorical_feature={categ_feature}
                     show_dash={true}
+                    showCatLinReg={showCatLinReg}
                 />
                 <PlotScatterplot
                     y_feature={feature}
@@ -419,6 +431,7 @@ function App() {
                     patients_data={patients_data}
                     categorical_feature={categ_feature}
                     show_dash={true}
+                    showCatLinReg={showCatLinReg}
                 />
             </div>
             <div className="flex-container">
@@ -427,13 +440,14 @@ function App() {
                     x_feature="insnpsi_age"
                     patients_data={patients_data}
                     categorical_feature={categ_feature}
+                    showCatLinReg={showCatLinReg}
                 />
                 <PlotScatterplot
                     y_feature={z_failed_tests[feature]}
                     x_feature="npsid_ddur_v"
                     patients_data={patients_data}
                     categorical_feature={categ_feature}
-                    show_dash={true}
+                    showCatLinReg={showCatLinReg}
                 />
             </div>
         </>
