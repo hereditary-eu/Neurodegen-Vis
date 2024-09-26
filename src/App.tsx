@@ -8,13 +8,13 @@ import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
 import { categorial_keys_list } from "./key_list";
 
-interface MichiProps {
+interface plotHistoProps {
     patients_data: Patient[];
     selected_feature: string;
 }
 
-function Michi({ patients_data, selected_feature }: MichiProps) {
-    console.log("Michi fun started");
+function PlotAgeHisto({ patients_data, selected_feature }: plotHistoProps) {
+    console.log("plotHisto fun started");
     let binNumber = 8;
 
     let total_age: number = 0;
@@ -143,6 +143,7 @@ interface ScatterplotProps {
     y_feature: string;
     x_feature: string;
     patients_data: Patient[];
+    categorical_feature: string;
     show_dash?: boolean;
 }
 
@@ -150,6 +151,7 @@ function calcMinMax({
     y_feature,
     x_feature,
     patients_data,
+    categorical_feature = "",
     show_dash = false,
 }: ScatterplotProps) {
     const min_x = Math.min(
@@ -178,6 +180,7 @@ function PlotScatterplot({
     y_feature,
     x_feature,
     patients_data,
+    categorical_feature,
     show_dash = false,
 }: ScatterplotProps) {
     console.log("Scatterplot fun started");
@@ -186,6 +189,7 @@ function PlotScatterplot({
         y_feature,
         x_feature,
         patients_data,
+        categorical_feature,
     });
     console.log("--min max--");
     console.log(min_x);
@@ -193,24 +197,68 @@ function PlotScatterplot({
     console.log(min_y);
     console.log(max_y);
 
+    // -- Linear Regression --
+    // LinReg all
     let slope: number = 0;
     let intercept: number = 0;
     [slope, intercept] = linReg(
         patients_data.map((p) => p[x_feature]),
         patients_data.map((p) => p[y_feature])
     );
-
     const linReg_x = [min_x, max_x];
-    const linReg_y = linReg_x.map((x) => slope * x + intercept);
-    const linRegData = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
-    const pd_duration = Plot.plot({
+    let linReg_y = linReg_x.map((x) => slope * x + intercept);
+    const linRegDataAll = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
+
+    // Lin Reg Category 0!
+    [slope, intercept] = linReg(
+        patients_data
+            .filter((d) => d[categorical_feature] === 0)
+            .map((p) => p[x_feature]),
+        patients_data
+            .filter((d) => d[categorical_feature] === 0)
+            .map((p) => p[y_feature])
+    );
+    linReg_y = linReg_x.map((x) => slope * x + intercept);
+    const linRegData0 = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
+
+    // Lin Reg Category 1!
+    [slope, intercept] = linReg(
+        patients_data
+            .filter((d) => d[categorical_feature] === 1)
+            .map((p) => p[x_feature]),
+        patients_data
+            .filter((d) => d[categorical_feature] === 1)
+            .map((p) => p[y_feature])
+    );
+    linReg_y = linReg_x.map((x) => slope * x + intercept);
+    const linRegData1 = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
+
+    let colors: string[] = ["orange", "green"];
+    const pd_scatterplot = Plot.plot({
         marks: [
-            Plot.dot(patients_data, { x: x_feature, y: y_feature, tip: true }),
-            Plot.line(linRegData, {
+            Plot.dot(patients_data, {
+                x: x_feature,
+                y: y_feature,
+                stroke: categorical_feature,
+                tip: true,
+            }),
+            Plot.line(linRegDataAll, {
                 x: "x",
                 y: "y",
-                stroke: "blue",
-                strokeWidth: 2.5,
+                stroke: "white",
+                strokeWidth: 1.8,
+            }),
+            Plot.line(linRegData0, {
+                x: "x",
+                y: "y",
+                stroke: colors[0],
+                strokeWidth: 1.8,
+            }),
+            Plot.line(linRegData1, {
+                x: "x",
+                y: "y",
+                stroke: colors[1],
+                strokeWidth: 1.8,
             }),
             Plot.crosshair(patients_data, {
                 x: x_feature,
@@ -230,6 +278,10 @@ function PlotScatterplot({
             label: y_feature,
             domain: [min_y, max_y],
         },
+        color: {
+            domain: [0, 1],
+            range: colors,
+        },
         style: "--plot-background: black; --plot-font-size: 12px;",
         // style: {fontSize: "15px"}
         // TODO change font size
@@ -238,7 +290,7 @@ function PlotScatterplot({
     const pd_duration_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
     if (pd_duration_ref.current) {
         pd_duration_ref.current.innerHTML = ""; // Clear the div
-        pd_duration_ref.current.appendChild(pd_duration);
+        pd_duration_ref.current.appendChild(pd_scatterplot);
         // histogramRef.current.appendChild(rand_histo);
     }
 
@@ -328,7 +380,7 @@ function App() {
                 </a>
             </div>
             <h1>Parkinson's disease analysis</h1>
-            <Michi patients_data={patients_data} selected_feature="" />
+            <PlotAgeHisto patients_data={patients_data} selected_feature="" />
             <label htmlFor="feature">Choose a feature: </label>
             <select
                 name="feature"
@@ -358,12 +410,14 @@ function App() {
                     y_feature={feature}
                     x_feature="insnpsi_age"
                     patients_data={patients_data}
+                    categorical_feature={categ_feature}
                     show_dash={true}
                 />
                 <PlotScatterplot
                     y_feature={feature}
                     x_feature="npsid_ddur_v"
                     patients_data={patients_data}
+                    categorical_feature={categ_feature}
                     show_dash={true}
                 />
             </div>
@@ -372,11 +426,13 @@ function App() {
                     y_feature={z_failed_tests[feature]}
                     x_feature="insnpsi_age"
                     patients_data={patients_data}
+                    categorical_feature={categ_feature}
                 />
                 <PlotScatterplot
                     y_feature={z_failed_tests[feature]}
                     x_feature="npsid_ddur_v"
                     patients_data={patients_data}
+                    categorical_feature={categ_feature}
                     show_dash={true}
                 />
             </div>
