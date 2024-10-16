@@ -223,19 +223,20 @@ function PlotScatterplot({
 
     // -- Linear Regression --
     // LinReg all
-    let slope: number = 0;
+    let slope_all: number = 0;
     let intercept: number = 0;
-    [slope, intercept] = linReg(
+    [slope_all, intercept] = linReg(
         patients_data.map((p) => p[x_feature]),
         patients_data.map((p) => p[y_feature])
     );
     const linReg_x = [min_x, max_x];
-    let linReg_y = linReg_x.map((x) => slope * x + intercept);
+    let linReg_y = linReg_x.map((x) => slope_all * x + intercept);
     const linRegDataAll = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
 
     // Lin Reg Category 0!
     // [slope, intercept] = calcAverage(
     // [slope, intercept] = linReg(
+    let slope: number = 0;
     [slope, intercept] = calcAverage(
         patients_data
             .filter((d) => d[categorical_feature] === 0) // also filters out NaN
@@ -341,7 +342,7 @@ function PlotScatterplot({
                     <p>
                         {" "}
                         Scatterplot {y_feature}, slope=
-                        {Math.round(slope * 1000) / 1000}
+                        {Math.round(slope_all * 1000) / 1000}
                     </p>
                     <div ref={pd_duration_ref}></div>
                 </div>
