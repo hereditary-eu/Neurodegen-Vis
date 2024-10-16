@@ -3,6 +3,7 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import * as d3 from "d3";
+import d3_mean from "d3-array/src/mean";
 // import * as obsPlot from "observablehq/plot";
 import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
@@ -351,6 +352,95 @@ function PlotScatterplot({
     );
 }
 
+function pearsonCorrelation(x: number[], y: number[]) {
+    const n = x.length;
+    if (y.length !== n)
+        throw new Error("The two columns must have the same length.");
+
+    console.log("pearsonCorrelation fun started");
+    // if array empty, d3 mean returns Nan, so we set it to 0
+    const x_mean: number = d3.mean(x) ?? 0;
+    // console.log("xmean:", x_mean);
+    // let x_mean = mean(x);
+    const y_mean: number = d3.mean(y) ?? 0;
+
+    const cov_xy = d3.sum(x, (_, i) => (x[i] - x_mean) * (y[i] - y_mean));
+    const sigma_xx = d3.sum(x, (d) => (d - x_mean) ** 2);
+    const sigma_yy = d3.sum(y, (d) => (d - y_mean) ** 2);
+    return cov_xy / Math.sqrt(sigma_xx * sigma_yy);
+}
+
+interface CorHeatmapProps {
+    patients_data: Patient[];
+    cov_features: string[];
+}
+
+function Plot_cor_heatmap({ patients_data, cov_features }: CorHeatmapProps) {
+    // let covmatrix_plot = "";
+
+    let covariance1 = pearsonCorrelation(
+        patients_data.map((p) => p.insnpsi_age),
+        patients_data.map((p) => p.attent_z_comp)
+    );
+    console.log("covariance1", covariance1);
+
+    console.log("cov_features", cov_features);
+    let correlations = d3.cross(cov_features, cov_features).map(([a, b]) => ({
+        a,
+        b,
+        correlation: pearsonCorrelation(
+            Plot.valueof(patients_data, a) ?? [],
+            Plot.valueof(patients_data, b) ?? []
+        ),
+    }));
+    console.log("correlations", correlations);
+
+    const corr_heatmap = Plot.plot({
+        marginLeft: 100,
+        label: null,
+        color: {
+            scheme: "buylrd", // blue-red color scheme
+            pivot: 0, // Zero as the midpoint
+            legend: true, // Display a color legend
+            label: "correlation", // Label for the legend
+        },
+        x: {
+            label: "Features (X)",
+            domain: cov_features, // Order the x-axis according to cov_features
+        },
+        y: {
+            label: "Features (Y)",
+            domain: cov_features, // Order the y-axis according to cov_features
+        },
+        marks: [
+            Plot.cell(correlations, { x: "a", y: "b", fill: "correlation" }),
+            Plot.text(correlations, {
+                x: "a",
+                y: "b",
+                text: (d) => d.correlation.toFixed(2),
+                fill: (d) =>
+                    Math.abs(d.correlation) > 0.6 ? "white" : "black",
+            }),
+        ],
+    });
+
+    const corr_heatmap_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
+    if (corr_heatmap_ref.current) {
+        corr_heatmap_ref.current.innerHTML = ""; // Clear the div
+        corr_heatmap_ref.current.appendChild(corr_heatmap);
+        // histogramRef.current.appendChild(rand_histo);
+    }
+
+    return (
+        <>
+            <p>Covariance Matrix for selected Features.</p>
+            <div className="flex-container">
+                <div ref={corr_heatmap_ref}></div>
+            </div>
+        </>
+    );
+}
+
 function App() {
     // const [count, setCount] = useState<number>(0);
     // console.log("TestLog")
@@ -391,6 +481,16 @@ function App() {
         "attent_sum_z",
         "attent_sum",
     ];
+    const covFeatures: string[] = [
+        "insnpsi_age",
+        "npsid_ddur_v",
+        "attent_z_comp",
+        "exec_z_comp",
+        "visuosp_z_comp",
+        "memory_z_comp",
+        "language_z_comp",
+    ];
+
     const [showCatLinReg, setShowCatLinReg] = useState<boolean>(false);
 
     let emptyPatient: Patient = new Patient();
@@ -483,6 +583,12 @@ function App() {
                     patients_data={patients_data}
                     categorical_feature={categ_feature}
                     showCatLinReg={showCatLinReg}
+                />
+            </div>
+            <div>
+                <Plot_cor_heatmap
+                    patients_data={patients_data}
+                    cov_features={covFeatures}
                 />
             </div>
         </>
