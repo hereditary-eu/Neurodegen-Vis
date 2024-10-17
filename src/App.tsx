@@ -151,11 +151,11 @@ function calcAverage(xArray: number[], yArray: number[]): [number, number] {
     const avg = sum / yArray.length;
     intercept = avg;
 
-    console.log("calc Average");
-    console.log("sum", sum);
-    console.log(yArray.length);
-    console.log(slope);
-    console.log(intercept);
+    // console.log("calc Average");
+    // console.log("sum", sum);
+    // console.log(yArray.length);
+    // console.log(slope);
+    // console.log(intercept);
 
     return [slope, intercept];
 }
@@ -167,6 +167,7 @@ interface ScatterplotProps {
     categorical_feature: string;
     show_dash?: boolean;
     showCatLinReg?: boolean;
+    showCatAvg?: boolean;
 }
 
 function calcMinMax({
@@ -204,6 +205,7 @@ function PlotScatterplot({
     patients_data,
     categorical_feature,
     show_dash = false,
+    showCatAvg = false,
     showCatLinReg = false,
 }: ScatterplotProps) {
     console.log("Scatterplot fun started");
@@ -253,14 +255,35 @@ function PlotScatterplot({
     // Lin Reg Category 1!
     // [slope, intercept] = calcAverage(
     // [slope, intercept] = linReg(
-    [slope, intercept] = calcAverage(
-        patients_data
-            .filter((d) => d[categorical_feature] === 1) // also filters out NaN
-            .map((p) => p[x_feature]),
-        patients_data
-            .filter((d) => d[categorical_feature] === 1)
-            .map((p) => p[y_feature])
-    );
+
+    if (showCatLinReg) {
+        [slope, intercept] = linReg(
+            patients_data
+                .filter((d) => d[categorical_feature] === 1) // also filters out NaN
+                .map((p) => p[x_feature]),
+            patients_data
+                .filter((d) => d[categorical_feature] === 1)
+                .map((p) => p[y_feature])
+        );
+    } else {
+        [slope, intercept] = calcAverage(
+            patients_data
+                .filter((d) => d[categorical_feature] === 1) // also filters out NaN
+                .map((p) => p[x_feature]),
+            patients_data
+                .filter((d) => d[categorical_feature] === 1)
+                .map((p) => p[y_feature])
+        );
+    }
+
+    // [slope, intercept] = calcAverage(
+    //     patients_data
+    //         .filter((d) => d[categorical_feature] === 1) // also filters out NaN
+    //         .map((p) => p[x_feature]),
+    //     patients_data
+    //         .filter((d) => d[categorical_feature] === 1)
+    //         .map((p) => p[y_feature])
+    // );
     linReg_y = linReg_x.map((x) => slope * x + intercept);
     const linRegData1 = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
 
@@ -287,7 +310,7 @@ function PlotScatterplot({
                 stroke: "white",
                 strokeWidth: 1.8,
             }),
-            ...(showCatLinReg
+            ...(showCatLinReg || showCatAvg
                 ? [
                       Plot.line(linRegData0, {
                           x: "x",
@@ -395,7 +418,7 @@ function Plot_cor_heatmap({ patients_data, cov_features }: CorHeatmapProps) {
             Plot.valueof(patients_data, b) ?? []
         ),
     }));
-    console.log("correlations", correlations);
+    // console.log("correlations", correlations);
 
     const heatmap_width = cov_features.length * 65 + 130;
     const heatmap_height = cov_features.length * 35 + 130;
@@ -529,6 +552,7 @@ function App() {
 
     // compare overall cognitve results, cognitve states, with this categorical ... done stuff.
 
+    const [showCatAvg, setShowCatAvg] = useState<boolean>(false);
     const [showCatLinReg, setShowCatLinReg] = useState<boolean>(false);
 
     let emptyPatient: Patient = new Patient();
@@ -586,8 +610,22 @@ function App() {
                 ))}
             </select>
             <br />
-            <button onClick={() => setShowCatLinReg(!showCatLinReg)}>
+            <button
+                onClick={() => {
+                    setShowCatAvg(!showCatAvg);
+                    setShowCatLinReg(false);
+                }}
+            >
                 Show Average for categories
+            </button>
+            <br />
+            <button
+                onClick={() => {
+                    setShowCatLinReg(!showCatLinReg);
+                    setShowCatAvg(false);
+                }}
+            >
+                Show Linear Regression for categories
             </button>
             <div className="flex-container">
                 <PlotScatterplot
@@ -597,6 +635,7 @@ function App() {
                     categorical_feature={categ_feature}
                     show_dash={true}
                     showCatLinReg={showCatLinReg}
+                    showCatAvg={showCatAvg}
                 />
                 <PlotScatterplot
                     y_feature={feature}
@@ -605,6 +644,7 @@ function App() {
                     categorical_feature={categ_feature}
                     show_dash={true}
                     showCatLinReg={showCatLinReg}
+                    showCatAvg={showCatAvg}
                 />
             </div>
             <div className="flex-container">
@@ -614,6 +654,7 @@ function App() {
                     patients_data={patients_data}
                     categorical_feature={categ_feature}
                     showCatLinReg={showCatLinReg}
+                    showCatAvg={showCatAvg}
                 />
                 <PlotScatterplot
                     y_feature={z_failed_tests[feature]}
@@ -621,6 +662,7 @@ function App() {
                     patients_data={patients_data}
                     categorical_feature={categ_feature}
                     showCatLinReg={showCatLinReg}
+                    showCatAvg={showCatAvg}
                 />
             </div>
             <div>
