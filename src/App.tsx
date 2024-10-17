@@ -85,6 +85,7 @@ function PlotAgeHisto({ patients_data, selected_feature }: plotHistoProps) {
         y: {
             label: "Frequency",
         },
+        style: "--plot-background: black; font-size: 11px",
     });
     const age_histo_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
     if (age_histo_ref.current) {
@@ -324,7 +325,11 @@ function PlotScatterplot({
             domain: [0, 1],
             range: colors,
         },
-        style: "--plot-background: black; --plot-font-size: 12px;",
+        style: "--plot-background: black; font-size: 11px",
+        // style: {
+        //     backgroundColor: "black",
+        //     fontSize: "12px",
+        // },
         // style: {fontSize: "15px"}
         // TODO change font size
     });
@@ -352,6 +357,7 @@ function PlotScatterplot({
     );
 }
 
+// Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
 function pearsonCorrelation(x: number[], y: number[]) {
     const n = x.length;
     if (y.length !== n)
@@ -375,16 +381,12 @@ interface CorHeatmapProps {
     cov_features: string[];
 }
 
+// Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
 function Plot_cor_heatmap({ patients_data, cov_features }: CorHeatmapProps) {
     // let covmatrix_plot = "";
 
-    let covariance1 = pearsonCorrelation(
-        patients_data.map((p) => p.insnpsi_age),
-        patients_data.map((p) => p.attent_z_comp)
-    );
-    console.log("covariance1", covariance1);
-
-    console.log("cov_features", cov_features);
+    // console.log("cov_features", cov_features);
+    // d3.cross returns the cartesian product (all possible combinations) of the two arrays
     let correlations = d3.cross(cov_features, cov_features).map(([a, b]) => ({
         a,
         b,
@@ -395,8 +397,14 @@ function Plot_cor_heatmap({ patients_data, cov_features }: CorHeatmapProps) {
     }));
     console.log("correlations", correlations);
 
+    const heatmap_width = cov_features.length * 65 + 130;
+    const heatmap_height = cov_features.length * 35 + 130;
+
     const corr_heatmap = Plot.plot({
-        marginLeft: 100,
+        width: heatmap_width, // Set the overall width of the heatmap
+        height: heatmap_height, // Set the overall height of the heatmap (adjust for number of features)
+        marginLeft: 130,
+        marginBottom: 130,
         label: null,
         color: {
             scheme: "buylrd", // blue-red color scheme
@@ -407,21 +415,39 @@ function Plot_cor_heatmap({ patients_data, cov_features }: CorHeatmapProps) {
         x: {
             label: "Features (X)",
             domain: cov_features, // Order the x-axis according to cov_features
+            tickRotate: 90, // Rotate the x-axis tick labels by 90 degrees
+            // tickSize: 20,
+            // tickFontSize: 15,
         },
         y: {
             label: "Features (Y)",
             domain: cov_features, // Order the y-axis according to cov_features
         },
         marks: [
-            Plot.cell(correlations, { x: "a", y: "b", fill: "correlation" }),
+            Plot.cell(correlations, {
+                x: "a",
+                y: "b",
+                fill: "correlation",
+                // inset: 0,
+            }),
             Plot.text(correlations, {
                 x: "a",
                 y: "b",
-                text: (d) => d.correlation.toFixed(2),
+                text: (d) => d.correlation.toFixed(2), // toFixed(2) to convert number to string and display only 2 decimal places
                 fill: (d) =>
                     Math.abs(d.correlation) > 0.6 ? "white" : "black",
+                fontSize: 11, //fontsize of correlation values
             }),
         ],
+        style: "font-size: 12px;" + "--plot-axis-tick-rotate: 90deg;",
+        // style: {
+        //     fontSize: "12px", // Adjust font size globally (including axis labels)
+        //     "--plot-axis-label-font-size": "14px", // Axis labels font size
+        //     "--plot-axis-tick-font-size": "12px", // Tick labels font size
+        //     "--plot-label-offset": "10px", // Adjust label offset (optional)
+        //     "--plot-axis-tick-text-anchor": "start", // Align tick text
+        //     "--plot-axis-tick-rotate": "90deg", // Rotate the x-axis tick labels by 90 degrees
+        // }, // Type assertion to allow custom properties
     });
 
     const corr_heatmap_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
@@ -484,12 +510,24 @@ function App() {
     const covFeatures: string[] = [
         "insnpsi_age",
         "npsid_ddur_v",
+        "overall_domain_sum",
+        "npsid_rep_moca_c",
+        "npsid_rep_mmse_c",
         "attent_z_comp",
         "exec_z_comp",
         "visuosp_z_comp",
         "memory_z_comp",
         "language_z_comp",
     ];
+
+    // 32 overall_domain_sum ... sum of all failed tests. (z-scores below -11)
+    // 9.	npsid_rep_moca_c: Raw result of Montreal Cognitive Assessment (MoCA) test (rep can be ignored, it is related to the fact that the variable is repeated in the data base).
+    // 10.	npsid_rep_mmse_c: Raw result of Mini-Mental State Examination (MMSE) test.
+
+    // categorical features:
+    // 13. npsid_cog_stat : Cognitive status of the patient: 1=NoCognitiveImpairment; 2=MildCognitiveImpairment-single-domain; 3-MildCognitiveImpairment-multiple-domain; 4-Dementia
+
+    // compare overall cognitve results, cognitve states, with this categorical ... done stuff.
 
     const [showCatLinReg, setShowCatLinReg] = useState<boolean>(false);
 
