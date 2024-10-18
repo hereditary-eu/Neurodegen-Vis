@@ -7,7 +7,7 @@ import d3_mean from "d3-array/src/mean";
 // import * as obsPlot from "observablehq/plot";
 import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
-import { categorial_keys_list } from "./key_list";
+import { categorial_keys_list } from "./categorical_keys_list";
 
 interface plotHistoProps {
     patients_data: Patient[];
@@ -151,11 +151,6 @@ function calcAverage(xArray: number[], yArray: number[]): [number, number] {
     const avg = sum / yArray.length;
     intercept = avg;
 
-    // console.log("calc Average");
-    // console.log("sum", sum);
-    // console.log(yArray.length);
-    // console.log(slope);
-    // console.log(intercept);
 
     return [slope, intercept];
 }
@@ -220,10 +215,6 @@ function PlotScatterplot({
         categorical_feature,
     });
     console.log("--min max--");
-    // console.log(min_x);
-    // console.log(max_x);
-    // console.log(min_y);
-    // console.log(max_y);
 
     // -- Linear Regression --
     // LinReg all
@@ -420,8 +411,12 @@ function Plot_cor_heatmap({ patients_data, cov_features }: CorHeatmapProps) {
     }));
     // console.log("correlations", correlations);
 
-    const heatmap_width = cov_features.length * 65 + 130;
-    const heatmap_height = cov_features.length * 35 + 130;
+    // const heatmap_width = cov_features.length * 65 + 130;
+    const heatmap_width = cov_features.length * 65 + 165;
+    console.log("heatmap_width", heatmap_width);
+    // const heatmap_width = 700;
+    const heatmap_height = cov_features.length * 35 + 155;
+    console.log("heatmap_height", heatmap_height);
 
     const corr_heatmap = Plot.plot({
         width: heatmap_width, // Set the overall width of the heatmap
@@ -436,14 +431,14 @@ function Plot_cor_heatmap({ patients_data, cov_features }: CorHeatmapProps) {
             label: "correlation", // Label for the legend
         },
         x: {
-            label: "Features (X)",
+            // label: "Features (X)",
             domain: cov_features, // Order the x-axis according to cov_features
             tickRotate: 90, // Rotate the x-axis tick labels by 90 degrees
             // tickSize: 20,
             // tickFontSize: 15,
         },
         y: {
-            label: "Features (Y)",
+            // label: "Features (Y)",
             domain: cov_features, // Order the y-axis according to cov_features
         },
         marks: [
@@ -490,6 +485,14 @@ function Plot_cor_heatmap({ patients_data, cov_features }: CorHeatmapProps) {
     );
 }
 
+function SelectCorHeatmapFeatures(all_features: string[]) {
+    return(
+        <>  
+            {/* Inputs.checkbox(["red", "green", "blue"], {label: "color"}) */}
+        </>
+    )
+}
+
 function App() {
     // const [count, setCount] = useState<number>(0);
     // console.log("TestLog")
@@ -500,6 +503,8 @@ function App() {
         "visuosp_z_comp",
         "memory_z_comp",
         "language_z_comp",
+        "npsid_rep_moca_c",
+        "npsid_rep_mmse_c",
     ];
 
     interface stringMap {
@@ -541,7 +546,30 @@ function App() {
         "visuosp_z_comp",
         "memory_z_comp",
         "language_z_comp",
+        "rc_score_done",
+        "sdmt_done",
+        "flu_a_done",
+        "phon_flu_done",
     ];
+
+    const [selectedCovFeatures, setSelectedCovFeatures] = useState<string[]>(
+        covFeatures // Initially select all features
+    );
+
+    
+    const handleCheckboxChange = (feature: string) => {
+        setSelectedCovFeatures((prevSelected) => {
+            if (prevSelected.includes(feature)) {
+                // If feature is already selected, remove it
+                return prevSelected.filter((f) => f !== feature);
+            } else {
+                // Otherwise, add the feature
+                return [...prevSelected, feature];
+            }
+        });
+    };
+
+
 
     // 32 overall_domain_sum ... sum of all failed tests. (z-scores below -11)
     // 9.	npsid_rep_moca_c: Raw result of Montreal Cognitive Assessment (MoCA) test (rep can be ignored, it is related to the fact that the variable is repeated in the data base).
@@ -554,6 +582,8 @@ function App() {
 
     const [showCatAvg, setShowCatAvg] = useState<boolean>(false);
     const [showCatLinReg, setShowCatLinReg] = useState<boolean>(false);
+
+    const [colorEnabled, setColorEnabled] = useState<boolean>(false); 
 
     let emptyPatient: Patient = new Patient();
     const [patients_data, setData] = useState(Array(54).fill(emptyPatient)); // todo, hard coded 54
@@ -665,10 +695,25 @@ function App() {
                     showCatAvg={showCatAvg}
                 />
             </div>
+            <h2>Select Features for the Correlation Heatmap:</h2>
+            <div className="checkbox-container">
+                {covFeatures.map((feature) => (
+                    <div key={feature}>
+                        <label >
+                            <input
+                                type="checkbox"
+                                checked={selectedCovFeatures.includes(feature)}
+                                onChange={() => handleCheckboxChange(feature)}
+                            />
+                            {feature}
+                        </label>
+                    </div>
+                ))}
+            </div>
             <div>
                 <Plot_cor_heatmap
                     patients_data={patients_data}
-                    cov_features={covFeatures}
+                    cov_features={selectedCovFeatures}
                 />
             </div>
         </>

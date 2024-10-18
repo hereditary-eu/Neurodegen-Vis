@@ -45,6 +45,8 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  margin-top: 5px;
+  margin-bottom: 1px;
 }
 button:hover {
   border-color: #646cff;
@@ -52,6 +54,13 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+.checkbox-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Set each checkbox to have a minimum width */
+  gap: 10px; /* Spacing between checkboxes */
+  padding: 10px;
 }
 
 @media (prefers-color-scheme: light) {
