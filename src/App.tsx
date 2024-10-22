@@ -3,7 +3,7 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import * as d3 from "d3";
-import d3_mean from "d3-array/src/mean";
+// import d3_mean from "d3-array/src/mean";
 // import * as obsPlot from "observablehq/plot";
 import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
@@ -111,7 +111,7 @@ function PlotAgeHisto({ patients_data, selected_feature }: plotHistoProps) {
     );
 }
 
-function linReg(xArray: number[], yArray: number[]): [number, number] {
+function LinReg(xArray: number[], yArray: number[]): [number, number] {
     // Calculate Sums
     console.log("linReg fun started");
     let xSum = 0,
@@ -141,7 +141,7 @@ function linReg(xArray: number[], yArray: number[]): [number, number] {
     return [slope, intercept];
 }
 
-function calcAverage(xArray: number[], yArray: number[]): [number, number] {
+function CalcAverage(xArray: number[], yArray: number[]): [number, number] {
     const slope = 0;
     let intercept = 0;
 
@@ -165,7 +165,7 @@ interface ScatterplotProps {
     showCatAvg?: boolean;
 }
 
-function calcMinMax({
+function CalcMinMax({
     y_feature,
     x_feature,
     patients_data,
@@ -173,7 +173,7 @@ function calcMinMax({
     show_dash = false,
 }: ScatterplotProps) {
     const min_x = Math.min(
-        ...patients_data.map((p) => p[x_feature]).filter((d) => !isNaN(d))
+        ...patients_data.map((p) => (p)[x_feature]).filter((d) => !isNaN(d))
     );
     const max_x = Math.max(
         ...patients_data.map((p) => p[x_feature]).filter((d) => !isNaN(d))
@@ -208,7 +208,7 @@ function PlotScatterplot({
         (p) => !isNaN(p[x_feature] && p[y_feature])
     );
 
-    let [min_x, max_x, min_y, max_y] = calcMinMax({
+    let [min_x, max_x, min_y, max_y] = CalcMinMax({
         y_feature,
         x_feature,
         patients_data,
@@ -220,7 +220,7 @@ function PlotScatterplot({
     // LinReg all
     let slope_all: number = 0;
     let intercept: number = 0;
-    [slope_all, intercept] = linReg(
+    [slope_all, intercept] = LinReg(
         patients_data.map((p) => p[x_feature]),
         patients_data.map((p) => p[y_feature])
     );
@@ -232,7 +232,7 @@ function PlotScatterplot({
     // [slope, intercept] = calcAverage(
     // [slope, intercept] = linReg(
     let slope: number = 0;
-    [slope, intercept] = calcAverage(
+    [slope, intercept] = CalcAverage(
         patients_data
             .filter((d) => d[categorical_feature] === 0) // also filters out NaN
             .map((p) => p[x_feature]),
@@ -248,7 +248,7 @@ function PlotScatterplot({
     // [slope, intercept] = linReg(
 
     if (showCatLinReg) {
-        [slope, intercept] = linReg(
+        [slope, intercept] = LinReg(
             patients_data
                 .filter((d) => d[categorical_feature] === 1) // also filters out NaN
                 .map((p) => p[x_feature]),
@@ -257,7 +257,7 @@ function PlotScatterplot({
                 .map((p) => p[y_feature])
         );
     } else {
-        [slope, intercept] = calcAverage(
+        [slope, intercept] = CalcAverage(
             patients_data
                 .filter((d) => d[categorical_feature] === 1) // also filters out NaN
                 .map((p) => p[x_feature]),
@@ -396,7 +396,7 @@ interface CorHeatmapProps {
 }
 
 // Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
-function Plot_cor_heatmap({ patients_data, cov_features }: CorHeatmapProps) {
+function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
     // let covmatrix_plot = "";
 
     // console.log("cov_features", cov_features);
@@ -485,13 +485,9 @@ function Plot_cor_heatmap({ patients_data, cov_features }: CorHeatmapProps) {
     );
 }
 
-function SelectCorHeatmapFeatures(all_features: string[]) {
-    return(
-        <>  
-            {/* Inputs.checkbox(["red", "green", "blue"], {label: "color"}) */}
-        </>
-    )
-}
+// function PCAAnalysis(patients_data: Patient[]) {
+//     PCA = (await require("https://bundle.run/ml-pca@4.0.2")).PCA
+// };
 
 function App() {
     // const [count, setCount] = useState<number>(0);
@@ -569,7 +565,15 @@ function App() {
         });
     };
 
-
+    // const [PCA, setPCA] = useState<any>(null);
+    // useEffect(() => {
+    //     const loadPCA = async () => {
+    //       const { PCA } = await import('https://bundle.run/ml-pca@4.0.2');
+    //       setPCA(() => PCA);
+    //     };
+    
+    //     loadPCA();
+    //   }, []);
 
     // 32 overall_domain_sum ... sum of all failed tests. (z-scores below -11)
     // 9.	npsid_rep_moca_c: Raw result of Montreal Cognitive Assessment (MoCA) test (rep can be ignored, it is related to the fact that the variable is repeated in the data base).
@@ -582,8 +586,6 @@ function App() {
 
     const [showCatAvg, setShowCatAvg] = useState<boolean>(false);
     const [showCatLinReg, setShowCatLinReg] = useState<boolean>(false);
-
-    const [colorEnabled, setColorEnabled] = useState<boolean>(false); 
 
     let emptyPatient: Patient = new Patient();
     const [patients_data, setData] = useState(Array(54).fill(emptyPatient)); // todo, hard coded 54
@@ -711,7 +713,7 @@ function App() {
                 ))}
             </div>
             <div>
-                <Plot_cor_heatmap
+                <PlotCorHeatmap
                     patients_data={patients_data}
                     cov_features={selectedCovFeatures}
                 />

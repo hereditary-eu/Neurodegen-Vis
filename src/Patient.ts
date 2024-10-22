@@ -1,7 +1,9 @@
-import * as fs from 'fs';
+// import * as fs from 'fs';
 
 
-export class Patient {
+export class Patient { 
+  [key: string]: any; // TODO, not really clean, but it works!
+  // [key: string]: number | string | undefined;
   record_id: number = -1;
   mh_diagnosis: string = '';
   npsi_cl_visit_n: number = -1;
