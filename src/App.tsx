@@ -8,6 +8,9 @@ import * as d3 from "d3";
 import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
 import { categorial_keys_list } from "./categorical_keys_list";
+import { numerical_keys_list } from "./numerical_keys_list";
+import PCA from "./PCA"
+
 
 interface plotHistoProps {
     patients_data: Patient[];
@@ -717,6 +720,9 @@ function App() {
                     patients_data={patients_data}
                     cov_features={selectedCovFeatures}
                 />
+            </div>
+            <div>
+                <PCA patients_data={patients_data} num_features={numerical_keys_list} />
             </div>
         </>
     );
