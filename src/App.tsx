@@ -9,8 +9,16 @@ import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
 import { categorial_keys_list } from "./categorical_keys_list";
 import { numerical_keys_list } from "./numerical_keys_list";
-import PCA from "./PCA"
+import PCA_analysis from "./PCA"
 
+interface logPSXProps {
+    message: string;
+    logElement: any;
+}
+function LogPSX( {message, logElement}: logPSXProps ) {
+    console.log(message, logElement);
+    return <></>;
+}
 
 interface plotHistoProps {
     patients_data: Patient[];
@@ -282,11 +290,11 @@ function PlotScatterplot({
     const linRegData1 = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
 
     if (show_dash) {
-        console.log("linRegData");
-        console.log("linRegDataall:", linRegDataAll[0], linRegDataAll[1]);
-        console.log("linRegData0:", linRegData0[0], linRegData0[1]);
-        console.log("linRegData1:", linRegData1[0], linRegData1[1]);
-        console.log(showCatLinReg);
+        // console.log("linRegData");
+        // console.log("linRegDataall:", linRegDataAll[0], linRegDataAll[1]);
+        // console.log("linRegData0:", linRegData0[0], linRegData0[1]);
+        // console.log("linRegData1:", linRegData1[0], linRegData1[1]);
+        // console.log(showCatLinReg);
     }
 
     let colors: string[] = ["orange", "green"];
@@ -355,7 +363,6 @@ function PlotScatterplot({
     if (pd_duration_ref.current) {
         pd_duration_ref.current.innerHTML = ""; // Clear the div
         pd_duration_ref.current.appendChild(pd_scatterplot);
-        // histogramRef.current.appendChild(rand_histo);
     }
 
     return (
@@ -488,10 +495,6 @@ function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
     );
 }
 
-// function PCAAnalysis(patients_data: Patient[]) {
-//     PCA = (await require("https://bundle.run/ml-pca@4.0.2")).PCA
-// };
-
 function App() {
     // const [count, setCount] = useState<number>(0);
     // console.log("TestLog")
@@ -598,9 +601,15 @@ function App() {
     const [showCatAvg, setShowCatAvg] = useState<boolean>(false);
     const [showCatLinReg, setShowCatLinReg] = useState<boolean>(false);
 
+    const [dataLoaded, setDataLoaded] = useState<boolean>(false);
+
     let emptyPatient: Patient = new Patient();
     const [patients_data, setData] = useState(Array(54).fill(emptyPatient)); // todo, hard coded 54
+    console.log("patients Data before useEffect", patients_data);
+
     useEffect(() => {
+
+        console.log("Loading data...");
         async function load() {
             let loaded = (
                 await d3.csv("dataset/PD_SampleData_Curated.csv")
@@ -608,130 +617,146 @@ function App() {
             setData(loaded);
         }
         load();
+        console.log("Data loaded!")
+        setDataLoaded(true);
     }, []);
-    console.log("TestLog");
-    // console.log(patients_data);
+
+    // useEffect(() => {
+    //     (async () => {
+    //         console.log("Loading data...");
+
+    //         const loaded = (
+    //             await d3.csv("dataset/PD_SampleData_Curated.csv")
+    //         ).map((r) => Patient.fromJson(r));
+    //         setData(loaded);
+
+    //         console.log("Data loaded!")
+    //     })();
+    // }, []);
+
+
+    // let loaded_2 = await d3.csv("dataset/PD_SampleData_Curated.csv")).map((r) => Patient.fromJson(r));
+    // setData(loaded_2);
+
+    console.log("patients Data before JSX", patients_data);
+
+    useEffect(() => {
+        console.log("patients Data after update", patients_data); // Logs every time patients_data updates
+    }, [patients_data]);
+
+    console.log("Data loaded?", dataLoaded);
 
     return (
         <>
-            <div>
-                <a href="https://vitejs.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo" />
-                </a>
-                <a href="https://react.dev" target="_blank">
-                    <img
-                        src={reactLogo}
-                        className="logo react"
-                        alt="React logo"
-                    />
-                </a>
-            </div>
-            <h1>Parkinson's disease analysis</h1>
-            <PlotAgeHisto patients_data={patients_data} selected_feature="" />
-            <label htmlFor="feature">Choose a feature: </label>
-            <select
-                name="feature"
-                id="feature"
-                onChange={(e) => setFeature(e.target.value)}
-            >
-                {z_score_features.map((f) => (
-                    <option value={f}>{f}</option>
-                ))}
-            </select>
-            <label htmlFor="categ_feature">
-                {" "}
-                --- Choose a categorical feature:{" "}
-            </label>
-
-            <select
-                name="categ_feature"
-                id="categ_feature"
-                onChange={(e) => setCategFeature(e.target.value)}
-            >
-                {categorial_keys_list.map((f) => (
-                    <option value={f}>{f}</option>
-                ))}
-            </select>
-            <br />
-            <button
-                onClick={() => {
-                    setShowCatAvg(!showCatAvg);
-                    setShowCatLinReg(false);
-                }}
-            >
-                Show Average for categories
-            </button>
-            <br />
-            <button
-                onClick={() => {
-                    setShowCatLinReg(!showCatLinReg);
-                    setShowCatAvg(false);
-                }}
-            >
-                Show Linear Regression for categories
-            </button>
-            <div className="flex-container">
-                <PlotScatterplot
-                    y_feature={feature}
-                    x_feature="insnpsi_age"
-                    patients_data={patients_data}
-                    categorical_feature={categ_feature}
-                    show_dash={true}
-                    showCatLinReg={showCatLinReg}
-                    showCatAvg={showCatAvg}
-                />
-                <PlotScatterplot
-                    y_feature={feature}
-                    x_feature="npsid_ddur_v"
-                    patients_data={patients_data}
-                    categorical_feature={categ_feature}
-                    show_dash={true}
-                    showCatLinReg={showCatLinReg}
-                    showCatAvg={showCatAvg}
-                />
-            </div>
-            <div className="flex-container">
-                <PlotScatterplot
-                    y_feature={z_failed_tests[feature]}
-                    x_feature="insnpsi_age"
-                    patients_data={patients_data}
-                    categorical_feature={categ_feature}
-                    showCatLinReg={showCatLinReg}
-                    showCatAvg={showCatAvg}
-                />
-                <PlotScatterplot
-                    y_feature={z_failed_tests[feature]}
-                    x_feature="npsid_ddur_v"
-                    patients_data={patients_data}
-                    categorical_feature={categ_feature}
-                    showCatLinReg={showCatLinReg}
-                    showCatAvg={showCatAvg}
-                />
-            </div>
-            <h2>Select Features for the Correlation Heatmap:</h2>
-            <div className="checkbox-container">
-                {covFeatures.map((feature) => (
-                    <div key={feature}>
-                        <label >
-                            <input
-                                type="checkbox"
-                                checked={selectedCovFeatures.includes(feature)}
-                                onChange={() => handleCheckboxChange(feature)}
-                            />
-                            {feature}
-                        </label>
-                    </div>
-                ))}
-            </div>
-            <div>
-                <PlotCorHeatmap
-                    patients_data={patients_data}
-                    cov_features={selectedCovFeatures}
-                />
-            </div>
-            <div>
-                <PCA patients_data={patients_data} num_features={numerical_keys_list} />
-            </div>
+            {dataLoaded ? (
+                <>
+                <p>data loaded</p><div>
+                    <LogPSX message=" Data loaded finished fragment, Data loaded?" logElement={dataLoaded} />
+                        
+                        <a href="https://vitejs.dev" target="_blank">
+                            <img src={viteLogo} className="logo" alt="Vite logo" />
+                        </a>
+                        <a href="https://react.dev" target="_blank">
+                            <img
+                                src={reactLogo}
+                                className="logo react"
+                                alt="React logo" />
+                        </a>
+                    </div><h1>Parkinson's disease analysis</h1><PlotAgeHisto patients_data={patients_data} selected_feature="" /><label htmlFor="feature">Choose a feature: </label><select
+                        name="feature"
+                        id="feature"
+                        onChange={(e) => setFeature(e.target.value)}
+                    >
+                            {z_score_features.map((f) => (
+                                <option value={f}>{f}</option>
+                            ))}
+                        </select><label htmlFor="categ_feature">
+                            {" "}
+                            --- Choose a categorical feature:{" "}
+                        </label><select
+                            name="categ_feature"
+                            id="categ_feature"
+                            onChange={(e) => setCategFeature(e.target.value)}
+                        >
+                            {categorial_keys_list.map((f) => (
+                                <option value={f}>{f}</option>
+                            ))}
+                        </select><br /><button
+                            onClick={() => {
+                                setShowCatAvg(!showCatAvg);
+                                setShowCatLinReg(false);
+                            } }
+                        >
+                            Show Average for categories
+                        </button><br /><button
+                            onClick={() => {
+                                setShowCatLinReg(!showCatLinReg);
+                                setShowCatAvg(false);
+                            } }
+                        >
+                            Show Linear Regression for categories
+                        </button><div className="flex-container">
+                            <PlotScatterplot
+                                y_feature={feature}
+                                x_feature="insnpsi_age"
+                                patients_data={patients_data}
+                                categorical_feature={categ_feature}
+                                show_dash={true}
+                                showCatLinReg={showCatLinReg}
+                                showCatAvg={showCatAvg} />
+                            <PlotScatterplot
+                                y_feature={feature}
+                                x_feature="npsid_ddur_v"
+                                patients_data={patients_data}
+                                categorical_feature={categ_feature}
+                                show_dash={true}
+                                showCatLinReg={showCatLinReg}
+                                showCatAvg={showCatAvg} />
+                        </div><div className="flex-container">
+                            <PlotScatterplot
+                                y_feature={z_failed_tests[feature]}
+                                x_feature="insnpsi_age"
+                                patients_data={patients_data}
+                                categorical_feature={categ_feature}
+                                showCatLinReg={showCatLinReg}
+                                showCatAvg={showCatAvg} />
+                            <PlotScatterplot
+                                y_feature={z_failed_tests[feature]}
+                                x_feature="npsid_ddur_v"
+                                patients_data={patients_data}
+                                categorical_feature={categ_feature}
+                                showCatLinReg={showCatLinReg}
+                                showCatAvg={showCatAvg} />
+                        </div><h2>Select Features for the Correlation Heatmap:</h2><div className="checkbox-container">
+                            {covFeatures.map((feature) => (
+                                <div key={feature}>
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedCovFeatures.includes(feature)}
+                                            onChange={() => handleCheckboxChange(feature)} />
+                                        {feature}
+                                    </label>
+                                </div>
+                            ))}
+                        </div><div>
+                            <PlotCorHeatmap
+                                patients_data={patients_data}
+                                cov_features={selectedCovFeatures} />
+                        </div><div>
+                            {/* {console.log("patients_data Fun", patients_data)} */}
+                            <LogPSX message="patients_data PSX" logElement={patients_data} />
+                            <PCA_analysis patients_data={patients_data} num_features={numerical_keys_list} />
+                        </div></>
+            )
+        :
+        (
+            <>
+            <p>loading data...</p>
+            <LogPSX message="loading data not finsihed fragment, data loaded?" logElement={dataLoaded} />
+            </>
+            // Logpsx("patients_data", patients_data)
+        )}
         </>
     );
 }
