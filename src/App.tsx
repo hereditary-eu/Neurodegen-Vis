@@ -504,6 +504,9 @@ function App() {
         "language_z_comp",
         "npsid_rep_moca_c",
         "npsid_rep_mmse_c",
+        "st_ter_daed",
+        "st_ter_leed",
+        "updrs_3_on",
     ];
 
     interface stringMap {
@@ -549,6 +552,11 @@ function App() {
         "sdmt_done",
         "flu_a_done",
         "phon_flu_done",
+        "st_ter_daed",
+        "st_ter_leed",
+        "updrs_3_on"
+
+
     ];
 
     const [selectedCovFeatures, setSelectedCovFeatures] = useState<string[]>(
