@@ -5,7 +5,7 @@ export class Patient {
   [key: string]: any; // TODO, not really clean, but it works!
   // [key: string]: number | string | undefined;
   record_id: number = -1;
-  mh_diagnosis: string = '';
+  mh_diagnosis: string = 'StandardValue';
   npsi_cl_visit_n: number = -1;
   npsid_visits: number = -1;
   npsid_data_npsi: string = '';

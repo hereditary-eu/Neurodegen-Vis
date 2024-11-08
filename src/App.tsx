@@ -3,6 +3,8 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import * as d3 from "d3";
+// import {PCA} from "ml-pca";
+
 // import d3_mean from "d3-array/src/mean";
 // import * as obsPlot from "observablehq/plot";
 import * as Plot from "@observablehq/plot";
@@ -10,6 +12,8 @@ import { Patient } from "./Patient";
 import { categorial_keys_list } from "./categorical_keys_list";
 import { numerical_keys_list } from "./numerical_keys_list";
 import PCA_analysis from "./PCA"
+import { CalcMinMaxPatientsData } from "./HelperFunctions";
+
 
 interface logPSXProps {
     message: string;
@@ -176,35 +180,6 @@ interface ScatterplotProps {
     showCatAvg?: boolean;
 }
 
-function CalcMinMax({
-    y_feature,
-    x_feature,
-    patients_data,
-    categorical_feature = "",
-    show_dash = false,
-}: ScatterplotProps) {
-    const min_x = Math.min(
-        ...patients_data.map((p) => (p)[x_feature]).filter((d) => !isNaN(d))
-    );
-    const max_x = Math.max(
-        ...patients_data.map((p) => p[x_feature]).filter((d) => !isNaN(d))
-    );
-    const min_y = Math.min(
-        ...patients_data.map((p) => p[y_feature]).filter((d) => !isNaN(d))
-    );
-    const max_y = Math.max(
-        ...patients_data.map((p) => p[y_feature]).filter((d) => !isNaN(d))
-    );
-    const x_range = max_x - min_x;
-    const y_range = max_y - min_y;
-    return [
-        min_x - x_range * 0.05,
-        max_x + x_range * 0.05,
-        min_y - y_range * 0.05,
-        max_y + y_range * 0.05,
-    ];
-}
-
 function PlotScatterplot({
     y_feature,
     x_feature,
@@ -219,7 +194,7 @@ function PlotScatterplot({
         (p) => !isNaN(p[x_feature] && p[y_feature])
     );
 
-    let [min_x, max_x, min_y, max_y] = CalcMinMax({
+    let [min_x, max_x, min_y, max_y] = CalcMinMaxPatientsData({
         y_feature,
         x_feature,
         patients_data,
@@ -408,6 +383,7 @@ interface CorHeatmapProps {
 // Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
 function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
     // let covmatrix_plot = "";
+    console.log("Patients data in heatmap", patients_data);
 
     // console.log("cov_features", cov_features);
     // d3.cross returns the cartesian product (all possible combinations) of the two arrays
@@ -423,10 +399,10 @@ function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
 
     // const heatmap_width = cov_features.length * 65 + 130;
     const heatmap_width = cov_features.length * 65 + 165;
-    console.log("heatmap_width", heatmap_width);
+    // console.log("heatmap_width", heatmap_width);
     // const heatmap_width = 700;
     const heatmap_height = cov_features.length * 35 + 155;
-    console.log("heatmap_height", heatmap_height);
+    // console.log("heatmap_height", heatmap_height);
 
     const corr_heatmap = Plot.plot({
         width: heatmap_width, // Set the overall width of the heatmap
@@ -739,15 +715,19 @@ function App() {
                                     </label>
                                 </div>
                             ))}
-                        </div><div>
+                        </div>
+                        <div>
                             <PlotCorHeatmap
                                 patients_data={patients_data}
                                 cov_features={selectedCovFeatures} />
-                        </div><div>
+                        </div>
+                        <div>
                             {/* {console.log("patients_data Fun", patients_data)} */}
                             <LogPSX message="patients_data PSX" logElement={patients_data} />
-                            <PCA_analysis patients_data={patients_data} num_features={numerical_keys_list} />
-                        </div></>
+                            <LogPSX message="Start PCA" logElement={""}/>
+                            <PCA_analysis patients_data={patients_data} num_features={numerical_keys_list}/>
+                        </div>
+                    </>
             )
         :
         (
