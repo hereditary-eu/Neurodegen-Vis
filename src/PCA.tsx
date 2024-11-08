@@ -6,6 +6,35 @@ import { CalcMinMaxMatrix } from "./HelperFunctions";
 
 
 // import { SummaryTable } from "@observablehq/summary-table"
+function getLoadingsForPlot(feature_num: number, loadings: number[][], loadingScaleFactor: number, features: string[]) {
+    const loadingsForPlot = [{x: 0, y: 0}, 
+        {
+            x: loadings[feature_num][0] * loadingScaleFactor, 
+            y: loadings[feature_num][1] * loadingScaleFactor,
+            feature: features[feature_num],
+        }] 
+
+    return {
+            line: Plot.line(loadingsForPlot, {
+                x: "x",
+                y: "y",
+                stroke: "red",
+                strokeWidth: 2,
+                markerEnd: 'arrow', // Arrow tip to indicate direction
+            }),
+
+            text: Plot.text([loadingsForPlot[1]], {
+                x: "x",
+                y: "y",
+                text: 'feature',
+                // dx: 10,
+                dy: -(10)  * Math.sign(loadingsForPlot[1].y),
+                fontSize: 13,
+                fill: "red",
+            })
+    }
+
+}
 
 
 interface PCAProps {
@@ -52,29 +81,22 @@ function PCA_analysis( {patients_data, num_features}: PCAProps ) {
     // let a = loadings.get(0, 0);
     
     console.log("loadings", loadings);
-    const loadingScaleFactor = 1;
 
-    const biplotAxis = 4;
+    const biplotAxis = 0;
+    const loadingScaleFactor = 2.2;
     const scaleFactor = (diff_x**2 + diff_y**2)**(1/2) ;
     const scaleFactor2 = 1/((loadings[biplotAxis][0]**2 + loadings[biplotAxis][1]**2)**(1/2)) * 1.5;
 
 
 
+    const loadingMarks = [];
+    
+    for (let i = 0; i < 5; i++) {
+        const loadingMark = getLoadingsForPlot(i, loadings, loadingScaleFactor, num_features);
+        loadingMarks.push(loadingMark.line, loadingMark.text);
+    ;
+    }
 
-    const loadingsForPlot = [{x: 0, y: 0}, 
-        {
-            // x: loadings[biplotAxis][0] * diff_x * loadingScaleFactor, 
-            // y: loadings[biplotAxis][1] * diff_y * loadingScaleFactor,
-            // x: loadings[biplotAxis][0] * scaleFactor2, 
-            // y: loadings[biplotAxis][1] * scaleFactor2,
-            x: loadings[biplotAxis][0] * 2, 
-            y: loadings[biplotAxis][1] * 2,
-            feature: num_features[biplotAxis],
-        }] 
-
-    const feature = 'nspi_age'
-    console.log("loadingsForPlot", loadingsForPlot);
-    console.log("loadingsForPlot[1]", [loadingsForPlot[1]])
 
     const pca_scatterplot = Plot.plot({
         marks: [
@@ -83,22 +105,7 @@ function PCA_analysis( {patients_data, num_features}: PCAProps ) {
             Plot.ruleX([min_x]),
             Plot.ruleY([0]),
             Plot.ruleX([0]),
-            Plot.line(loadingsForPlot, {
-                x: "x",
-                y: "y",
-                stroke: "red",
-                strokeWidth: 2,
-                markerEnd: 'arrow', // Arrow tip to indicate direction
-            }),
-            Plot.text([loadingsForPlot[1]], {
-                x: "x",
-                y: "y",
-                text: 'feature',
-                // dx: 10,
-                dy: 10,
-                fontSize: 15,
-                fill: "red",
-            }),
+            ...loadingMarks,
         ],
         x: {
             label: "Principal Component 1"

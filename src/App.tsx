@@ -703,7 +703,8 @@ function App() {
                                 categorical_feature={categ_feature}
                                 showCatLinReg={showCatLinReg}
                                 showCatAvg={showCatAvg} />
-                        </div><h2>Select Features for the Correlation Heatmap:</h2><div className="checkbox-container">
+                        </div>
+                        <h2>Select Features for the Correlation Heatmap:</h2><div className="checkbox-container">
                             {covFeatures.map((feature) => (
                                 <div key={feature}>
                                     <label>
@@ -721,7 +722,7 @@ function App() {
                                 patients_data={patients_data}
                                 cov_features={selectedCovFeatures} />
                         </div>
-                        <div>
+                        <div className="flex-container" >
                             {/* {console.log("patients_data Fun", patients_data)} */}
                             <LogPSX message="patients_data PSX" logElement={patients_data} />
                             <LogPSX message="Start PCA" logElement={""}/>
