@@ -451,6 +451,9 @@ function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
         corr_heatmap_ref.current.appendChild(corr_heatmap);
     }
     
+    // const [selectedFeatures, setSelectedFeatures] = useState<string[]>(["-1", "-1"]);
+    const [selectedFeatures, setSelectedFeatures] = useState<[string, string]>(["-1", "-1"]);
+
     d3.select(corr_heatmap)
         .selectAll("rect")
         .on("click", function (d) {
@@ -461,7 +464,7 @@ function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
 
             console.log("Clicked on cell", idx_x, idx_y);
 
-            return [cov_features[idx_x], cov_features[idx_y]];
+            setSelectedFeatures([cov_features[idx_x], cov_features[idx_y]]);
 
         })
         .on("mouseover", function (d) {
@@ -474,11 +477,32 @@ function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
         // .on("mouseover", highlight)
         ;
     
+    let x_feature = selectedFeatures[0];
+    let y_feature = selectedFeatures[1];
+
+    console.log("Selected Features", selectedFeatures);
+    let features_selected: boolean = selectedFeatures[0] !== "-1" && selectedFeatures[1] !== "-1"; 
+    
     return (
         <>
             <p>Covariance Matrix for selected Features.</p>
-            <div className="flex-container">
+            <div>
                 <div ref={corr_heatmap_ref}></div>
+                {features_selected ? (
+                    <>
+                        <p>Selected Features: {x_feature} vs {y_feature}</p>
+                        <PlotScatterplot
+                        y_feature={y_feature}
+                        x_feature={x_feature}
+                        patients_data={patients_data}
+                        categorical_feature="rc_score_done"
+                        showCatLinReg={false}
+                        showCatAvg={false} />
+                    </>
+
+                ) : (
+                    <p> No features Selected</p>
+                )}
             </div>
         </>
     );
