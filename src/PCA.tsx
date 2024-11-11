@@ -90,9 +90,12 @@ function PCA_analysis( {patients_data, num_features}: PCAProps ) {
 
 
     const loadingMarks = [];
+
+    const show_features = [0, 1, 2, 3, 4, 6];
     
-    for (let i = 0; i < 5; i++) {
-        const loadingMark = getLoadingsForPlot(i, loadings, loadingScaleFactor, num_features);
+    for (let i = 0; i < show_features.length; i++) {
+        let j = show_features[i];
+        const loadingMark = getLoadingsForPlot(j, loadings, loadingScaleFactor, num_features);
         loadingMarks.push(loadingMark.line, loadingMark.text);
     ;
     }

@@ -375,6 +375,7 @@ function pearsonCorrelation(x: number[], y: number[]) {
     return cov_xy / Math.sqrt(sigma_xx * sigma_yy);
 }
 
+
 interface CorHeatmapProps {
     patients_data: Patient[];
     cov_features: string[];
@@ -382,10 +383,8 @@ interface CorHeatmapProps {
 
 // Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
 function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
-    // let covmatrix_plot = "";
     console.log("Patients data in heatmap", patients_data);
 
-    // console.log("cov_features", cov_features);
     // d3.cross returns the cartesian product (all possible combinations) of the two arrays
     let correlations = d3.cross(cov_features, cov_features).map(([a, b]) => ({
         a,
@@ -395,14 +394,10 @@ function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
             Plot.valueof(patients_data, b) ?? []
         ),
     }));
-    // console.log("correlations", correlations);
 
-    // const heatmap_width = cov_features.length * 65 + 130;
     const heatmap_width = cov_features.length * 65 + 165;
-    // console.log("heatmap_width", heatmap_width);
-    // const heatmap_width = 700;
     const heatmap_height = cov_features.length * 35 + 155;
-    // console.log("heatmap_height", heatmap_height);
+
 
     const corr_heatmap = Plot.plot({
         width: heatmap_width, // Set the overall width of the heatmap
@@ -432,7 +427,10 @@ function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
                 x: "a",
                 y: "b",
                 fill: "correlation",
-                // inset: 0,
+                // title: (d) => `${d.a} vs ${d.b}: ${d.correlation.toFixed(2)}`,
+                title: "Hello world",
+                // onClick: (d) => handleCellClick(d.a, d.b),
+                // handleClick,
             }),
             Plot.text(correlations, {
                 x: "a",
@@ -441,26 +439,41 @@ function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
                 fill: (d) =>
                     Math.abs(d.correlation) > 0.6 ? "white" : "black",
                 fontSize: 11, //fontsize of correlation values
+                title: "Hello world2",
             }),
         ],
         style: "font-size: 12px;" + "--plot-axis-tick-rotate: 90deg;",
-        // style: {
-        //     fontSize: "12px", // Adjust font size globally (including axis labels)
-        //     "--plot-axis-label-font-size": "14px", // Axis labels font size
-        //     "--plot-axis-tick-font-size": "12px", // Tick labels font size
-        //     "--plot-label-offset": "10px", // Adjust label offset (optional)
-        //     "--plot-axis-tick-text-anchor": "start", // Align tick text
-        //     "--plot-axis-tick-rotate": "90deg", // Rotate the x-axis tick labels by 90 degrees
-        // }, // Type assertion to allow custom properties
     });
 
     const corr_heatmap_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
     if (corr_heatmap_ref.current) {
         corr_heatmap_ref.current.innerHTML = ""; // Clear the div
         corr_heatmap_ref.current.appendChild(corr_heatmap);
-        // histogramRef.current.appendChild(rand_histo);
     }
+    
+    d3.select(corr_heatmap)
+        .selectAll("rect")
+        .on("click", function (d) {
+            let tar = d.target; // cell
+            let idx1d = [...tar.parentElement.children].indexOf(tar); // index of cell
+            const idx_x = Math.floor(idx1d/cov_features.length);
+            const idx_y = idx1d % cov_features.length;
 
+            console.log("Clicked on cell", idx_x, idx_y);
+
+            return [cov_features[idx_x], cov_features[idx_y]];
+
+        })
+        .on("mouseover", function (d) {
+            d3.select(this).style("stroke", "black");
+        })
+        .on("mouseout", function (d) {
+            d3.select(this).style("stroke", "none");
+        })
+        .style("cursor", "default");
+        // .on("mouseover", highlight)
+        ;
+    
     return (
         <>
             <p>Covariance Matrix for selected Features.</p>
@@ -726,7 +739,7 @@ function App() {
                             {/* {console.log("patients_data Fun", patients_data)} */}
                             <LogPSX message="patients_data PSX" logElement={patients_data} />
                             <LogPSX message="Start PCA" logElement={""}/>
-                            <PCA_analysis patients_data={patients_data} num_features={numerical_keys_list}/>
+                            {/* <PCA_analysis patients_data={patients_data} num_features={numerical_keys_list}/> */}
                         </div>
                     </>
             )
