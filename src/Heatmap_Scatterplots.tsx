@@ -1,0 +1,454 @@
+import { useEffect, useState, useRef } from "react";
+import "./App.css";
+import * as d3 from "d3";
+import * as Plot from "@observablehq/plot";
+import { Patient } from "./Patient";
+import { CalcMinMaxPatientsData } from "./HelperFunctions";
+
+interface plotHistoProps {
+    patients_data: Patient[];
+    selected_feature: string;
+}
+
+function PlotAgeHisto({ patients_data, selected_feature }: plotHistoProps) {
+    console.log("plotHisto fun started");
+    let binNumber = 8;
+
+    let total_age: number = 0;
+    patients_data.forEach((p) => {
+        total_age += p.insnpsi_age;
+    });
+
+    let patients_age: number[] = [];
+    patients_data.forEach((p) => {
+        patients_age.push(p.insnpsi_age);
+    });
+
+    let patients_attent_z_comp: number[] = [];
+    patients_data.forEach((p) => {
+        patients_attent_z_comp.push(p.attent_z_comp);
+    });
+
+    const dur_histo = Plot.plot({
+        marks: [
+            Plot.rectY(
+                patients_data,
+                Plot.binX(
+                    { y: "count", thresholds: binNumber },
+                    { x: "npsid_ddur_v" }
+                )
+            ),
+            Plot.ruleY([0]),
+            // Plot.ruleX([0])
+        ],
+        x: {
+            label: "Age",
+            tickFormat: (d: number) => d.toString(),
+        },
+        y: {
+            label: "Frequency",
+        },
+    });
+    const div_dur_histo = document.querySelector("#myplot");
+    if (div_dur_histo) {
+        div_dur_histo.innerHTML = ""; // Clear the div
+        div_dur_histo.appendChild(dur_histo);
+    } else {
+        console.log("div not found");
+    }
+
+    const age_histo = Plot.plot({
+        marks: [
+            Plot.rectY(
+                patients_data,
+                Plot.binX(
+                    { y: "count", thresholds: binNumber },
+                    { x: "insnpsi_age" }
+                )
+            ),
+            Plot.ruleY([0]),
+            // Plot.ruleX([0])
+        ],
+        x: {
+            label: "Age",
+            tickFormat: (d: number) => d.toString(),
+        },
+        y: {
+            label: "Frequency",
+        },
+        style: "--plot-background: black; font-size: 11px",
+    });
+    const age_histo_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
+    if (age_histo_ref.current) {
+        age_histo_ref.current.innerHTML = ""; // Clear the div
+        age_histo_ref.current.appendChild(age_histo);
+    }
+
+    console.log("Histogram plot created");
+    return (
+        <>
+            <div className="flex-container">
+                <div>
+                    <p>Age Distribution</p>
+                    <div ref={age_histo_ref}></div>
+                </div>
+                <div>
+                    <p>Time since PD diagnosis Distribution</p>
+                    <div id="myplot"></div>
+                </div>
+            </div>
+        </>
+    );
+}
+
+function LinReg(xArray: number[], yArray: number[]): [number, number] {
+    // Calculate Sums
+    console.log("linReg fun started");
+    let xSum = 0,
+        ySum = 0,
+        xxSum = 0,
+        xySum = 0;
+    let count = xArray.length;
+
+    // remove NaN values
+    for (let i = 0; i < count; i++) {
+        if (isNaN(xArray[i]) || isNaN(yArray[i])) {
+            xArray.splice(i, 1);
+            yArray.splice(i, 1);
+            count--;
+        }
+    }
+
+    for (let i = 0, len = count; i < count; i++) {
+        xSum += xArray[i];
+        ySum += yArray[i];
+        xxSum += xArray[i] * xArray[i];
+        xySum += xArray[i] * yArray[i];
+    }
+    let slope = (count * xySum - xSum * ySum) / (count * xxSum - xSum * xSum);
+    let intercept = ySum / count - (slope * xSum) / count;
+
+    return [slope, intercept];
+}
+
+function CalcAverage(xArray: number[], yArray: number[]): [number, number] {
+    const slope = 0;
+    let intercept = 0;
+
+    const sum = yArray.reduce((acc, val) => acc + val, 0);
+    const avg = sum / yArray.length;
+    intercept = avg;
+
+    return [slope, intercept];
+}
+
+interface ScatterplotProps {
+    y_feature: string;
+    x_feature: string;
+    patients_data: Patient[];
+    categorical_feature: string;
+    show_dash?: boolean;
+    showCatLinReg?: boolean;
+    showCatAvg?: boolean;
+}
+
+function PlotScatterplot({
+    y_feature,
+    x_feature,
+    patients_data,
+    categorical_feature,
+    show_dash = false,
+    showCatAvg = false,
+    showCatLinReg = false,
+}: ScatterplotProps) {
+    console.log("Scatterplot fun started");
+    patients_data = patients_data.filter(
+        (p) => !isNaN(p[x_feature] && p[y_feature])
+    );
+
+    let [min_x, max_x, min_y, max_y] = CalcMinMaxPatientsData({
+        y_feature,
+        x_feature,
+        patients_data,
+        categorical_feature,
+    });
+    console.log("--min max--");
+
+    // -- Linear Regression --
+    // LinReg all
+    let slope_all: number = 0;
+    let intercept: number = 0;
+    [slope_all, intercept] = LinReg(
+        patients_data.map((p) => p[x_feature]),
+        patients_data.map((p) => p[y_feature])
+    );
+    const linReg_x = [min_x, max_x];
+    let linReg_y = linReg_x.map((x) => slope_all * x + intercept);
+    const linRegDataAll = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
+
+    // Lin Reg Category 0!
+    // [slope, intercept] = calcAverage(
+    // [slope, intercept] = linReg(
+    let slope: number = 0;
+    [slope, intercept] = CalcAverage(
+        patients_data
+            .filter((d) => d[categorical_feature] === 0) // also filters out NaN
+            .map((p) => p[x_feature]),
+        patients_data
+            .filter((d) => d[categorical_feature] === 0)
+            .map((p) => p[y_feature])
+    );
+    linReg_y = linReg_x.map((x) => slope * x + intercept);
+    const linRegData0 = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
+
+    // Lin Reg Category 1!
+    // [slope, intercept] = calcAverage(
+    // [slope, intercept] = linReg(
+
+    if (showCatLinReg) {
+        [slope, intercept] = LinReg(
+            patients_data
+                .filter((d) => d[categorical_feature] === 1) // also filters out NaN
+                .map((p) => p[x_feature]),
+            patients_data
+                .filter((d) => d[categorical_feature] === 1)
+                .map((p) => p[y_feature])
+        );
+    } else {
+        [slope, intercept] = CalcAverage(
+            patients_data
+                .filter((d) => d[categorical_feature] === 1) // also filters out NaN
+                .map((p) => p[x_feature]),
+            patients_data
+                .filter((d) => d[categorical_feature] === 1)
+                .map((p) => p[y_feature])
+        );
+    }
+
+    linReg_y = linReg_x.map((x) => slope * x + intercept);
+    const linRegData1 = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
+
+    let colors: string[] = ["orange", "green"];
+    const pd_scatterplot = Plot.plot({
+        marks: [
+            Plot.dot(patients_data, {
+                x: x_feature,
+                y: y_feature,
+                stroke: categorical_feature,
+                tip: true,
+            }),
+            Plot.line(linRegDataAll, {
+                x: "x",
+                y: "y",
+                stroke: "white",
+                strokeWidth: 1.8,
+            }),
+            ...(showCatLinReg || showCatAvg
+                ? [
+                      Plot.line(linRegData0, {
+                          x: "x",
+                          y: "y",
+                          stroke: colors[0],
+                          strokeWidth: 3,
+                      }),
+                      Plot.line(linRegData1, {
+                          x: "x",
+                          y: "y",
+                          stroke: colors[1],
+                          strokeWidth: 2.5,
+                      }),
+                  ]
+                : []),
+            Plot.crosshair(patients_data, {
+                x: x_feature,
+                y: y_feature,
+                tip: true,
+            }),
+            Plot.ruleY([min_y]),
+            Plot.ruleX([min_x]),
+            // Conditionally add the dashed line if show_dash is true
+            ...(show_dash ? [Plot.ruleY([-1], { strokeDasharray: "3" })] : []),
+        ],
+        x: {
+            label: x_feature,
+            domain: [min_x, max_x],
+        },
+        y: {
+            label: y_feature,
+            domain: [min_y, max_y],
+        },
+        color: {
+            domain: [0, 1],
+            range: colors,
+        },
+        style: "--plot-background: black; font-size: 13px",
+    });
+
+    const pd_duration_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
+    if (pd_duration_ref.current) {
+        pd_duration_ref.current.innerHTML = ""; // Clear the div
+        pd_duration_ref.current.appendChild(pd_scatterplot);
+    }
+
+    return (
+        <>
+            <div className="flex-container">
+                <div>
+                    <p>
+                        {" "}
+                        Scatterplot {y_feature}, slope=
+                        {Math.round(slope_all * 1000) / 1000}
+                    </p>
+                    <div ref={pd_duration_ref}></div>
+                </div>
+            </div>
+        </>
+    );
+}
+
+// Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
+function pearsonCorrelation(x: number[], y: number[]) {
+    const n = x.length;
+    if (y.length !== n)
+        throw new Error("The two columns must have the same length.");
+
+    console.log("pearsonCorrelation fun started");
+    // if array empty, d3 mean returns Nan, so we set it to 0
+    const x_mean: number = d3.mean(x) ?? 0;
+    // console.log("xmean:", x_mean);
+    // let x_mean = mean(x);
+    const y_mean: number = d3.mean(y) ?? 0;
+
+    const cov_xy = d3.sum(x, (_, i) => (x[i] - x_mean) * (y[i] - y_mean));
+    const sigma_xx = d3.sum(x, (d) => (d - x_mean) ** 2);
+    const sigma_yy = d3.sum(y, (d) => (d - y_mean) ** 2);
+    return cov_xy / Math.sqrt(sigma_xx * sigma_yy);
+}
+
+
+interface CorHeatmapProps {
+    patients_data: Patient[];
+    cov_features: string[];
+}
+
+// Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
+function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
+    console.log("Patients data in heatmap", patients_data);
+
+    // d3.cross returns the cartesian product (all possible combinations) of the two arrays
+    let correlations = d3.cross(cov_features, cov_features).map(([a, b]) => ({
+        a,
+        b,
+        correlation: pearsonCorrelation(
+            Plot.valueof(patients_data, a) ?? [],
+            Plot.valueof(patients_data, b) ?? []
+        ),
+    }));
+
+    const heatmap_width = cov_features.length * 65 + 165;
+    const heatmap_height = cov_features.length * 35 + 155;
+
+
+    const corr_heatmap = Plot.plot({
+        width: heatmap_width, // Set the overall width of the heatmap
+        height: heatmap_height, // Set the overall height of the heatmap (adjust for number of features)
+        marginLeft: 130,
+        marginBottom: 130,
+        label: null,
+        color: {
+            scheme: "buylrd", // blue-red color scheme
+            pivot: 0, // Zero as the midpoint
+            legend: true, // Display a color legend
+            label: "correlation", // Label for the legend
+        },
+        x: {
+            // label: "Features (X)",
+            domain: cov_features, // Order the x-axis according to cov_features
+            tickRotate: 90, // Rotate the x-axis tick labels by 90 degrees
+        },
+        y: {
+            // label: "Features (Y)",
+            domain: cov_features, // Order the y-axis according to cov_features
+        },
+        marks: [
+            Plot.cell(correlations, {
+                x: "a",
+                y: "b",
+                fill: "correlation",
+            }),
+            Plot.text(correlations, {
+                x: "a",
+                y: "b",
+                text: (d) => d.correlation.toFixed(2), // toFixed(2) to convert number to string and display only 2 decimal places
+                fill: (d) =>
+                    Math.abs(d.correlation) > 0.6 ? "white" : "black",
+                fontSize: 12, //fontsize of correlation values
+            }),
+        ],
+        style: "font-size: 13px;" + "--plot-axis-tick-rotate: 90deg;",
+    });
+
+    const corr_heatmap_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
+    if (corr_heatmap_ref.current) {
+        corr_heatmap_ref.current.innerHTML = ""; // Clear the div
+        corr_heatmap_ref.current.appendChild(corr_heatmap);
+    }
+    
+    // const [selectedFeatures, setSelectedFeatures] = useState<string[]>(["-1", "-1"]);
+    const [selectedFeatures, setSelectedFeatures] = useState<[string, string]>(["-1", "-1"]);
+
+    d3.select(corr_heatmap)
+        .selectAll("rect")
+        .on("click", function (d) {
+            let tar = d.target; // cell
+            let idx1d = [...tar.parentElement.children].indexOf(tar); // index of cell
+            const idx_x = Math.floor(idx1d/cov_features.length);
+            const idx_y = idx1d % cov_features.length;
+
+            console.log("Clicked on cell", idx_x, idx_y);
+
+            setSelectedFeatures([cov_features[idx_x], cov_features[idx_y]]);
+
+        })
+        .on("mouseover", function (d) {
+            d3.select(this).style("stroke", "black");
+        })
+        .on("mouseout", function (d) {
+            d3.select(this).style("stroke", "none");
+        })
+        .style("cursor", "default");
+        // .on("mouseover", highlight)
+        ;
+    
+    let x_feature = selectedFeatures[0];
+    let y_feature = selectedFeatures[1];
+
+    console.log("Selected Features", selectedFeatures);
+    let features_selected: boolean = selectedFeatures[0] !== "-1" && selectedFeatures[1] !== "-1"; 
+    
+    return (
+        <>
+            <p>Covariance Matrix for selected Features.</p>
+            <div>
+                <div ref={corr_heatmap_ref}></div>
+                {features_selected ? (
+                    <>
+                        <p>Selected Features: {x_feature} vs {y_feature}</p>
+                        <PlotScatterplot
+                        y_feature={y_feature}
+                        x_feature={x_feature}
+                        patients_data={patients_data}
+                        categorical_feature="rc_score_done"
+                        showCatLinReg={false}
+                        showCatAvg={false} />
+                    </>
+
+                ) : (
+                    <p> No features Selected</p>
+                )}
+            </div>
+        </>
+    );
+}
+
+export { PlotAgeHisto, PlotScatterplot, PlotCorHeatmap };

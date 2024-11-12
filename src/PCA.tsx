@@ -4,8 +4,6 @@ import * as Plot from "@observablehq/plot";
 import { useEffect, useState, useRef } from "react";
 import { CalcMinMaxMatrix } from "./HelperFunctions";
 
-
-// import { SummaryTable } from "@observablehq/summary-table"
 function getLoadingsForPlot(feature_num: number, loadings: number[][], loadingScaleFactor: number, features: string[]) {
     const loadingsForPlot = [{x: 0, y: 0}, 
         {
@@ -33,9 +31,7 @@ function getLoadingsForPlot(feature_num: number, loadings: number[][], loadingSc
                 fill: "red",
             })
     }
-
 }
-
 
 interface PCAProps {
     patients_data: Patient[];
@@ -73,9 +69,6 @@ function PCA_analysis( {patients_data, num_features}: PCAProps ) {
     const diff_x = max_x - min_x;	
     const diff_y = max_y - min_y;
 
-    
-
-    
     const loadings = pca.getLoadings().data;
     
     // let a = loadings.get(0, 0);
@@ -87,8 +80,6 @@ function PCA_analysis( {patients_data, num_features}: PCAProps ) {
     const scaleFactor = (diff_x**2 + diff_y**2)**(1/2) ;
     const scaleFactor2 = 1/((loadings[biplotAxis][0]**2 + loadings[biplotAxis][1]**2)**(1/2)) * 1.5;
 
-
-
     const loadingMarks = [];
 
     const show_features = [0, 1, 2, 3, 4, 6];
@@ -99,7 +90,6 @@ function PCA_analysis( {patients_data, num_features}: PCAProps ) {
         loadingMarks.push(loadingMark.line, loadingMark.text);
     ;
     }
-
 
     const pca_scatterplot = Plot.plot({
         marks: [
@@ -119,15 +109,11 @@ function PCA_analysis( {patients_data, num_features}: PCAProps ) {
         style: "--plot-background: black; font-size: 11px",
     });
 
-
-
     const pca_scatterplot_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
     if (pca_scatterplot_ref.current) {
         pca_scatterplot_ref.current.innerHTML = ""; // Clear the div
         pca_scatterplot_ref.current.appendChild(pca_scatterplot);
     }
-
-    
 
     return (
         <div>
