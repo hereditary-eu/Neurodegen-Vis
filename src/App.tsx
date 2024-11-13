@@ -115,20 +115,21 @@ function App() {
 
     let emptyPatient: Patient = new Patient();
     const [patients_data, setData] = useState(Array(54).fill(emptyPatient)); // todo, hard coded 54
-    console.log("patients Data before useEffect", patients_data);
 
     useEffect(() => {
-
         console.log("Loading data...");
         async function load() {
             let loaded = (
                 await d3.csv("dataset/PD_SampleData_Curated.csv")
             ).map((r) => Patient.fromJson(r));
             setData(loaded);
-        }
-        load();
-        console.log("Data loaded!")
+            console.log("Data loaded!", patients_data);
         setDataLoaded(true);
+        }
+        load().catch(console.error);
+        // console.log("Data loaded!!!!")
+        // console.log(patients_data)
+        // setDataLoaded(true);
     }, []);
 
     // useEffect(() => {
