@@ -1,6 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import * as d3 from "d3";
 import * as Plot from "@observablehq/plot";
@@ -50,17 +48,7 @@ function App() {
         memory_z_comp: "memory_sum",
         language_z_comp: "language_suz",
     };
-    const [categ_feature, setCategFeature] = useState<string>(
-        categorial_keys_list[0]
-    );
-    const [feature, setFeature] = useState<string>(z_score_features[0]);
-    const feature_list: string[] = [
-        "insnpsi_age",
-        "attent_z_comp",
-        "npsid_ddur_v",
-        "attent_sum_z",
-        "attent_sum",
-    ];
+
     const covFeatures: string[] = [
         "insnpsi_age",
         "npsid_ddur_v",
@@ -78,13 +66,27 @@ function App() {
         "phon_flu_done",
         "st_ter_daed",
         "st_ter_leed",
-        "updrs_3_on"
+        "updrs_3_on",
+    ];
 
-
+    const covFeatures_init: string[] = [
+        "insnpsi_age",
+        "npsid_ddur_v",
+        "overall_domain_sum",
+        "npsid_rep_moca_c",
+        "npsid_rep_mmse_c",
+        "attent_z_comp",
+        "exec_z_comp",
+        "visuosp_z_comp",
+        "memory_z_comp",
+        "language_z_comp",
+        "st_ter_daed",
+        "st_ter_leed",
+        "updrs_3_on",
     ];
 
     const [selectedCovFeatures, setSelectedCovFeatures] = useState<string[]>(
-        covFeatures // Initially select all features
+        covFeatures_init // Initially select all features
     );
 
     
@@ -108,9 +110,6 @@ function App() {
     // 13. npsid_cog_stat : Cognitive status of the patient: 1=NoCognitiveImpairment; 2=MildCognitiveImpairment-single-domain; 3-MildCognitiveImpairment-multiple-domain; 4-Dementia
 
     // compare overall cognitve results, cognitve states, with this categorical ... done stuff.
-
-    const [showCatAvg, setShowCatAvg] = useState<boolean>(false);
-    const [showCatLinReg, setShowCatLinReg] = useState<boolean>(false);
 
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
 
@@ -161,85 +160,9 @@ function App() {
         <>
             {dataLoaded ? (
                 <>
-                <p>data loaded</p><div>
-                    <LogPSX message=" Data loaded finished fragment, Data loaded?" logElement={dataLoaded} />
-                        
-                        <a href="https://vitejs.dev" target="_blank">
-                            <img src={viteLogo} className="logo" alt="Vite logo" />
-                        </a>
-                        <a href="https://react.dev" target="_blank">
-                            <img
-                                src={reactLogo}
-                                className="logo react"
-                                alt="React logo" />
-                        </a>
-                    </div><h1>Parkinson's disease analysis</h1><PlotAgeHisto patients_data={patients_data} selected_feature="" /><label htmlFor="feature">Choose a feature: </label><select
-                        name="feature"
-                        id="feature"
-                        onChange={(e) => setFeature(e.target.value)}
-                    >
-                            {z_score_features.map((f) => (
-                                <option value={f}>{f}</option>
-                            ))}
-                        </select><label htmlFor="categ_feature">
-                            {" "}
-                            --- Choose a categorical feature:{" "}
-                        </label><select
-                            name="categ_feature"
-                            id="categ_feature"
-                            onChange={(e) => setCategFeature(e.target.value)}
-                        >
-                            {categorial_keys_list.map((f) => (
-                                <option value={f}>{f}</option>
-                            ))}
-                        </select><br /><button
-                            onClick={() => {
-                                setShowCatAvg(!showCatAvg);
-                                setShowCatLinReg(false);
-                            } }
-                        >
-                            Show Average for categories
-                        </button><br /><button
-                            onClick={() => {
-                                setShowCatLinReg(!showCatLinReg);
-                                setShowCatAvg(false);
-                            } }
-                        >
-                            Show Linear Regression for categories
-                        </button><div className="flex-container">
-                            <PlotScatterplot
-                                y_feature={feature}
-                                x_feature="insnpsi_age"
-                                patients_data={patients_data}
-                                categorical_feature={categ_feature}
-                                show_dash={true}
-                                showCatLinReg={showCatLinReg}
-                                showCatAvg={showCatAvg} />
-                            <PlotScatterplot
-                                y_feature={feature}
-                                x_feature="npsid_ddur_v"
-                                patients_data={patients_data}
-                                categorical_feature={categ_feature}
-                                show_dash={true}
-                                showCatLinReg={showCatLinReg}
-                                showCatAvg={showCatAvg} />
-                        </div><div className="flex-container">
-                            <PlotScatterplot
-                                y_feature={z_failed_tests[feature]}
-                                x_feature="insnpsi_age"
-                                patients_data={patients_data}
-                                categorical_feature={categ_feature}
-                                showCatLinReg={showCatLinReg}
-                                showCatAvg={showCatAvg} />
-                            <PlotScatterplot
-                                y_feature={z_failed_tests[feature]}
-                                x_feature="npsid_ddur_v"
-                                patients_data={patients_data}
-                                categorical_feature={categ_feature}
-                                showCatLinReg={showCatLinReg}
-                                showCatAvg={showCatAvg} />
-                        </div>
-                        <h2>Select Features for the Correlation Heatmap:</h2><div className="checkbox-container">
+                    <h1>Parkinson's disease analysis</h1>
+                    <h2>Select Features for the Correlation Heatmap:</h2>
+                    <div className="checkbox-container">
                             {covFeatures.map((feature) => (
                                 <div key={feature}>
                                     <label>
