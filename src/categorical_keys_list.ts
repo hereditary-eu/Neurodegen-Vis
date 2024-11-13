@@ -26,6 +26,5 @@ export const categorial_keys_list: string[] = [
     "naming_done",
     "flu_s_done",
     "set_gs_done",
-    "soc_cog_sum"
-  ];
-
+    "soc_cog_sum",
+];

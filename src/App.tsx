@@ -1,18 +1,22 @@
 import { useEffect, useState, useRef } from "react";
 import "./App.css";
 import * as d3 from "d3";
-import * as Plot from "@observablehq/plot";
+// import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
 import { categorial_keys_list } from "./categorical_keys_list";
 import { numerical_keys_list } from "./numerical_keys_list";
-import PCA_analysis from "./PCA"
-import { PlotAgeHisto, PlotCorHeatmap, PlotScatterplot } from "./Heatmap_Scatterplots";
+import PCA_analysis from "./PCA";
+import {
+    PlotAgeHisto,
+    PlotCorHeatmap,
+    PlotScatterplot,
+} from "./Heatmap_Scatterplots";
 
 interface logPSXProps {
     message: string;
     logElement: any;
 }
-function LogPSX( {message, logElement}: logPSXProps ) {
+function LogPSX({ message, logElement }: logPSXProps) {
     console.log(message, logElement);
     return <></>;
 }
@@ -89,7 +93,6 @@ function App() {
         covFeatures_init // Initially select all features
     );
 
-    
     const handleCheckboxChange = (feature: string) => {
         setSelectedCovFeatures((prevSelected) => {
             if (prevSelected.includes(feature)) {
@@ -124,7 +127,7 @@ function App() {
             ).map((r) => Patient.fromJson(r));
             setData(loaded);
             console.log("Data loaded!", patients_data);
-        setDataLoaded(true);
+            setDataLoaded(true);
         }
         load().catch(console.error);
         // console.log("Data loaded!!!!")
@@ -132,31 +135,7 @@ function App() {
         // setDataLoaded(true);
     }, []);
 
-    // useEffect(() => {
-    //     (async () => {
-    //         console.log("Loading data...");
-
-    //         const loaded = (
-    //             await d3.csv("dataset/PD_SampleData_Curated.csv")
-    //         ).map((r) => Patient.fromJson(r));
-    //         setData(loaded);
-
-    //         console.log("Data loaded!")
-    //     })();
-    // }, []);
-
-
-    // let loaded_2 = await d3.csv("dataset/PD_SampleData_Curated.csv")).map((r) => Patient.fromJson(r));
-    // setData(loaded_2);
-
-    console.log("patients Data before JSX", patients_data);
-
-    useEffect(() => {
-        console.log("patients Data after update", patients_data); // Logs every time patients_data updates
-    }, [patients_data]);
-
     console.log("Data loaded?", dataLoaded);
-
     return (
         <>
             {dataLoaded ? (
@@ -164,39 +143,46 @@ function App() {
                     <h1>Parkinson's disease analysis</h1>
                     <h2>Select Features for the Correlation Heatmap:</h2>
                     <div className="checkbox-container">
-                            {covFeatures.map((feature) => (
-                                <div key={feature}>
-                                    <label>
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedCovFeatures.includes(feature)}
-                                            onChange={() => handleCheckboxChange(feature)} />
-                                        {feature}
-                                    </label>
-                                </div>
-                            ))}
-                        </div>
-                        <div>
-                            <PlotCorHeatmap
-                                patients_data={patients_data}
-                                cov_features={selectedCovFeatures} />
-                        </div>
-                        <div className="flex-container" >
-                            {/* {console.log("patients_data Fun", patients_data)} */}
-                            <LogPSX message="patients_data PSX" logElement={patients_data} />
-                            <LogPSX message="Start PCA" logElement={""}/>
-                            {/* <PCA_analysis patients_data={patients_data} num_features={numerical_keys_list}/> */}
-                        </div>
-                    </>
-            )
-        :
-        (
-            <>
-            <p>loading data...</p>
-            <LogPSX message="loading data not finsihed fragment, data loaded?" logElement={dataLoaded} />
-            </>
-            // Logpsx("patients_data", patients_data)
-        )}
+                        {covFeatures.map((feature) => (
+                            <div key={feature}>
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedCovFeatures.includes(
+                                            feature
+                                        )}
+                                        onChange={() =>
+                                            handleCheckboxChange(feature)
+                                        }
+                                    />
+                                    {feature}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
+                    <div>
+                        <PlotCorHeatmap
+                            patients_data={patients_data}
+                            cov_features={selectedCovFeatures}
+                        />
+                    </div>
+                    <div>
+                        <LogPSX message="Start PCA" logElement={""} />
+                        <PCA_analysis
+                            patients_data={patients_data}
+                            num_features={numerical_keys_list}
+                        />
+                    </div>
+                </>
+            ) : (
+                <>
+                    <p>loading data...</p>
+                    <LogPSX
+                        message="loading data not finsihed fragment, data loaded?"
+                        logElement={dataLoaded}
+                    />
+                </>
+            )}
         </>
     );
 }

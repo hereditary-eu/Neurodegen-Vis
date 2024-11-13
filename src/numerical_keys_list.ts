@@ -9,5 +9,4 @@ export const numerical_keys_list: string[] = [
     "visuosp_z_comp",
     "memory_z_comp",
     "language_z_comp",
-  ];
-
+];

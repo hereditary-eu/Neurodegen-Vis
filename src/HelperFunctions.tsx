@@ -1,6 +1,5 @@
 import { Patient } from "./Patient";
 
-
 interface MinMaxPatProps {
     y_feature: string;
     x_feature: string;
@@ -19,7 +18,7 @@ function CalcMinMaxPatientsData({
     show_dash = false,
 }: MinMaxPatProps) {
     const min_x = Math.min(
-        ...patients_data.map((p) => (p)[x_feature]).filter((d) => !isNaN(d))
+        ...patients_data.map((p) => p[x_feature]).filter((d) => !isNaN(d))
     );
     const max_x = Math.max(
         ...patients_data.map((p) => p[x_feature]).filter((d) => !isNaN(d))
@@ -40,19 +39,14 @@ function CalcMinMaxPatientsData({
     ];
 }
 
-
 interface MinMaxMatrixProps {
     matrix: number[];
     feature_1: number;
     feature_2: number;
 }
-function CalcMinMaxMatrix({
-    matrix, 
-    feature_1,
-    feature_2,
-}: MinMaxMatrixProps) {
+function CalcMinMaxMatrix({ matrix, feature_1, feature_2 }: MinMaxMatrixProps) {
     const min_x = Math.min(
-        ...matrix.map((p) => (p)[feature_1]).filter((d) => !isNaN(d))
+        ...matrix.map((p) => p[feature_1]).filter((d) => !isNaN(d))
     );
     const max_x = Math.max(
         ...matrix.map((p) => p[feature_1]).filter((d) => !isNaN(d))
