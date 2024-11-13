@@ -8,10 +8,15 @@ import { CalcMinMaxPatientsData } from "./HelperFunctions";
 interface CorHeatmapProps {
     patients_data: Patient[];
     cov_features: string[];
+    setSelectedFeatures: (selectedFeatures: [string, string]) => void;
 }
 
 // Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
-function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
+function PlotCorHeatmap({
+    patients_data,
+    cov_features,
+    setSelectedFeatures,
+}: CorHeatmapProps) {
     // d3.cross returns the cartesian product (all possible combinations) of the two arrays
     let correlations = d3.cross(cov_features, cov_features).map(([a, b]) => ({
         a,
@@ -72,12 +77,6 @@ function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
         corr_heatmap_ref.current.appendChild(corr_heatmap);
     }
 
-    // const [selectedFeatures, setSelectedFeatures] = useState<string[]>(["-1", "-1"]);
-    const [selectedFeatures, setSelectedFeatures] = useState<[string, string]>([
-        "-1",
-        "-1",
-    ]);
-
     d3.select(corr_heatmap)
         .selectAll("rect")
         .on("click", function (d) {
@@ -88,7 +87,6 @@ function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
             const idx_y = idx1d % cov_features.length;
 
             console.log("Clicked on cell", idx_x, idx_y);
-
             setSelectedFeatures([cov_features[idx_x], cov_features[idx_y]]);
         })
         .on("mouseover", function (d) {
@@ -98,49 +96,12 @@ function PlotCorHeatmap({ patients_data, cov_features }: CorHeatmapProps) {
             d3.select(this).style("stroke", "none");
         })
         .style("cursor", "default");
-    // .on("mouseover", highlight)
-    let x_feature = selectedFeatures[0];
-    let y_feature = selectedFeatures[1];
-
-    console.log("Selected Features", selectedFeatures);
-    let features_selected: boolean =
-        selectedFeatures[0] !== "-1" && selectedFeatures[1] !== "-1";
-
-    let scatterplot = PlotScatterplot({
-        y_feature: y_feature,
-        x_feature: x_feature,
-        patients_data: patients_data,
-        categorical_feature: "rc_score_done",
-        showCatLinReg: false,
-        showCatAvg: false,
-    });
-
-    if (corr_heatmap_ref.current && features_selected) {
-        // scatterplot_ref.current.innerHTML = ""; // Clear the div
-        corr_heatmap_ref.current.appendChild(scatterplot);
-    }
-
-    // let scatterplot_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
-    // if (scatterplot_ref.current && features_selected) {
-    //     scatterplot_ref.current.innerHTML = ""; // Clear the div
-    //     scatterplot_ref.current.appendChild(scatterplot);
-    // }
 
     return (
         <>
             <p>Covariance Matrix for selected Features.</p>
             <div>
                 <div ref={corr_heatmap_ref}></div>
-                {features_selected ? (
-                    <>
-                        <p>
-                            Selected Features: {x_feature} vs {y_feature}
-                        </p>
-                        {/* <div ref={scatterplot_ref}></div> */}
-                    </>
-                ) : (
-                    <p> No features Selected</p>
-                )}
             </div>
         </>
     );
@@ -169,13 +130,6 @@ function PlotScatterplot({
     const scatterplot_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
 
     console.log("scatterplot_ref.current", scatterplot_ref.current);
-
-    useEffect(() => {
-        console.log(
-            "'scatterplot_ref.current' changed 1",
-            scatterplot_ref.current
-        );
-    }, []);
 
     patients_data = patients_data.filter(
         (p) => !isNaN(p[x_feature] && p[y_feature])
@@ -300,27 +254,25 @@ function PlotScatterplot({
         style: "--plot-background: black; font-size: 13px",
     });
 
-    return pd_scatterplot;
+    if (scatterplot_ref.current) {
+        scatterplot_ref.current.innerHTML = ""; // Clear the div
+        scatterplot_ref.current.appendChild(pd_scatterplot);
+    }
 
-    // if (scatterplot_ref.current) {
-    //     scatterplot_ref.current.innerHTML = ""; // Clear the div
-    //     scatterplot_ref.current.appendChild(pd_scatterplot);
-    // }
-
-    // return (
-    //     <>
-    //         <div className="flex-container">
-    //             <div>
-    //                 <p>
-    //                     {" "}
-    //                     {y_feature} vs {x_feature}, slope=
-    //                     {Math.round(slope_all * 1000) / 1000}
-    //                 </p>
-    //                 <div ref={scatterplot_ref}></div>
-    //             </div>
-    //         </div>
-    //     </>
-    // );
+    return (
+        <>
+            <div className="flex-container">
+                <div>
+                    <p>
+                        {" "}
+                        {y_feature} vs {x_feature}, slope=
+                        {Math.round(slope_all * 1000) / 1000}
+                    </p>
+                    <div ref={scatterplot_ref}></div>
+                </div>
+            </div>
+        </>
+    );
 }
 
 interface plotHistoProps {

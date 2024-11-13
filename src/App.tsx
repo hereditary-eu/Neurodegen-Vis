@@ -105,6 +105,17 @@ function App() {
         });
     };
 
+    const [scatterplotFeatures, setScatterplotFeatures] = useState<
+        [string, string]
+    >(["insnpsi_age", "overall_domain_sum"]);
+
+    function heatmapSetsScatterplotFeatures(features: [string, string]) {
+        setScatterplotFeatures(features);
+    }
+
+    // heatmapSetsScatterplotFeatures(["insnpsi_age", "npsid_rep_moca_c"]);
+    // console.log("scatterplot_features", scatterplotFeatures);
+
     // 32 overall_domain_sum ... sum of all failed tests. (z-scores below -11)
     // 9.	npsid_rep_moca_c: Raw result of Montreal Cognitive Assessment (MoCA) test (rep can be ignored, it is related to the fact that the variable is repeated in the data base).
     // 10.	npsid_rep_mmse_c: Raw result of Mini-Mental State Examination (MMSE) test.
@@ -130,9 +141,6 @@ function App() {
             setDataLoaded(true);
         }
         load().catch(console.error);
-        // console.log("Data loaded!!!!")
-        // console.log(patients_data)
-        // setDataLoaded(true);
     }, []);
 
     console.log("Data loaded?", dataLoaded);
@@ -164,8 +172,25 @@ function App() {
                         <PlotCorHeatmap
                             patients_data={patients_data}
                             cov_features={selectedCovFeatures}
+                            setSelectedFeatures={heatmapSetsScatterplotFeatures}
                         />
                     </div>
+                    {scatterplotFeatures[0] !== "" &&
+                    scatterplotFeatures[1] !== "" ? (
+                        <div>
+                            <PlotScatterplot
+                                x_feature={scatterplotFeatures[0]}
+                                y_feature={scatterplotFeatures[1]}
+                                patients_data={patients_data}
+                                categorical_feature="rc_score_done"
+                                showCatLinReg={false}
+                                showCatAvg={false}
+                            />
+                        </div>
+                    ) : (
+                        <p> No features Selected for Scatterplot</p>
+                    )}
+
                     <div>
                         <LogPSX message="Start PCA" logElement={""} />
                         <PCA_analysis
