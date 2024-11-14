@@ -43,14 +43,19 @@ function getLoadingsForPlot(
 }
 
 interface PCAProps {
-    patients_data: Patient[];
-    num_features: string[];
+    patientsData: Patient[];
+    numFeatures: string[];
+    biplotFeatures: string[];
 }
 
-function PCA_analysis({ patients_data, num_features }: PCAProps) {
-    const patients_data_num = patients_data
+function PCA_analysis({
+    patientsData: patientsData,
+    numFeatures: numFeatures,
+    biplotFeatures: biplotFeatures,
+}: PCAProps) {
+    const patients_data_num = patientsData
         .map((patient) => {
-            const row = num_features.map((feature) => patient[feature]);
+            const row = numFeatures.map((feature) => patient[feature]);
             return row.includes(NaN) ? null : row;
         })
         .filter((row) => row !== null);
@@ -85,7 +90,9 @@ function PCA_analysis({ patients_data, num_features }: PCAProps) {
 
     const loadingMarks = [];
 
-    const show_features = [0, 1, 2, 3, 4, 6];
+    // const show_features = [0, 1, 2, 3, 4, 6];
+    let show_features = biplotFeatures.map((x) => numFeatures.indexOf(x));
+    console.log("show_features", show_features);
 
     for (let i = 0; i < show_features.length; i++) {
         let j = show_features[i];
@@ -93,7 +100,7 @@ function PCA_analysis({ patients_data, num_features }: PCAProps) {
             j,
             loadings,
             loadingScaleFactor,
-            num_features
+            numFeatures
         );
         loadingMarks.push(loadingMark.line, loadingMark.text);
     }

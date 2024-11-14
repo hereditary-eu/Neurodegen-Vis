@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import "./App.css";
+import "./dropdown.css";
 import * as d3 from "d3";
 // import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
@@ -16,10 +17,69 @@ interface logPSXProps {
     message: string;
     logElement: any;
 }
+
 function LogPSX({ message, logElement }: logPSXProps) {
     console.log(message, logElement);
     return <></>;
 }
+
+// Define props type for the dropdown component
+interface MultiSelectDropdownProps {
+    options: string[];
+    selectedOptions: string[];
+    setSelectedOptions: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
+    options,
+    selectedOptions,
+    setSelectedOptions,
+}) => {
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const handleCheckboxChange = (option: string) => {
+        if (selectedOptions.includes(option)) {
+            setSelectedOptions(
+                selectedOptions.filter((item) => item !== option)
+            );
+        } else {
+            setSelectedOptions([...selectedOptions, option]);
+        }
+    };
+    const max_length = 22;
+
+    return (
+        <div className="dropdown-container">
+            <div
+                className="dropdown-header"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+                {selectedOptions.join(", ").length > max_length // Set max length here
+                    ? `${selectedOptions.join(", ").slice(0, max_length)}..`
+                    : selectedOptions.join(", ") || "Select features"}
+                <span className="dropdown-arrow">▼</span>
+            </div>
+            {dropdownOpen && (
+                <div className="dropdown-options">
+                    {options.map((option) => (
+                        <div key={option} className="dropdown-option">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={selectedOptions.includes(option)}
+                                    onChange={() =>
+                                        handleCheckboxChange(option)
+                                    }
+                                />
+                                {option}
+                            </label>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
 
 function App() {
     const z_score_features: string[] = [
@@ -64,13 +124,13 @@ function App() {
         "visuosp_z_comp",
         "memory_z_comp",
         "language_z_comp",
+        "st_ter_daed",
+        "st_ter_leed",
+        "updrs_3_on",
         "rc_score_done",
         "sdmt_done",
         "flu_a_done",
         "phon_flu_done",
-        "st_ter_daed",
-        "st_ter_leed",
-        "updrs_3_on",
     ];
 
     const covFeatures_init: string[] = [
@@ -124,6 +184,24 @@ function App() {
     // 13. npsid_cog_stat : Cognitive status of the patient: 1=NoCognitiveImpairment; 2=MildCognitiveImpairment-single-domain; 3-MildCognitiveImpairment-multiple-domain; 4-Dementia
 
     // compare overall cognitve results, cognitve states, with this categorical ... done stuff.
+
+    // features for PCA, biplot axis:
+    const [biplotFeatures, setBiplotFeatures] = useState<string[]>([
+        "npsid_ddur_v",
+        "overall_domain_sum",
+        "insnpsi_age",
+    ]);
+
+    const handleSelectChange = (
+        event: React.ChangeEvent<HTMLSelectElement>
+    ) => {
+        // Convert the selected options to an array of strings
+        const selectedOptions = Array.from(
+            event.target.selectedOptions,
+            (option) => option.value
+        );
+        setBiplotFeatures(selectedOptions);
+    };
 
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
 
@@ -205,12 +283,24 @@ function App() {
                                     <p> No features Selected for Scatterplot</p>
                                 )}
                                 <div>
-                                    <h3 className="plot-headings">
-                                        PCA Analysis
-                                    </h3>
+                                    <div className="pca-heading-container">
+                                        <h3 className="plot-headings">
+                                            PCA Analysis
+                                        </h3>
+                                        <div>
+                                            <MultiSelectDropdown
+                                                options={numerical_keys_list}
+                                                selectedOptions={biplotFeatures}
+                                                setSelectedOptions={
+                                                    setBiplotFeatures
+                                                }
+                                            />
+                                        </div>
+                                    </div>
                                     <PCA_analysis
-                                        patients_data={patients_data}
-                                        num_features={numerical_keys_list}
+                                        patientsData={patients_data}
+                                        numFeatures={numerical_keys_list}
+                                        biplotFeatures={biplotFeatures}
                                     />
                                 </div>
                             </div>
