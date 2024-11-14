@@ -11,6 +11,8 @@ interface CorHeatmapProps {
     setSelectedFeatures: (selectedFeatures: [string, string]) => void;
 }
 
+const FONTSIZE = "14px";
+
 // Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
 function PlotCorHeatmap({
     patients_data,
@@ -34,8 +36,8 @@ function PlotCorHeatmap({
     const corr_heatmap = Plot.plot({
         width: heatmap_width, // Set the overall width of the heatmap
         height: heatmap_height, // Set the overall height of the heatmap (adjust for number of features)
-        marginLeft: 130,
-        marginBottom: 130,
+        marginLeft: 132,
+        marginBottom: 132,
         label: null,
         color: {
             scheme: "buylrd", // blue-red color scheme
@@ -69,7 +71,7 @@ function PlotCorHeatmap({
                 fontSize: 12, //fontsize of correlation values
             }),
         ],
-        style: "font-size: 13px;" + "--plot-axis-tick-rotate: 90deg;",
+        style: "font-size: " + FONTSIZE + "; --plot-axis-tick-rotate: 90deg;",
     });
 
     if (corr_heatmap_ref.current) {
@@ -97,14 +99,7 @@ function PlotCorHeatmap({
         })
         .style("cursor", "default");
 
-    return (
-        <>
-            <p>Covariance Matrix for selected Features.</p>
-            <div>
-                <div ref={corr_heatmap_ref}></div>
-            </div>
-        </>
-    );
+    return <div ref={corr_heatmap_ref}></div>;
 }
 
 interface ScatterplotProps {
@@ -139,9 +134,9 @@ function PlotScatterplot({
         y_feature,
         x_feature,
         patients_data,
-        categorical_feature,
     });
     console.log("--min max--");
+    console.log(min_x, max_x, min_y, max_y);
 
     // -- Linear Regression --
     // LinReg all
@@ -200,6 +195,7 @@ function PlotScatterplot({
     let colors: string[] = ["orange", "green"];
 
     const pd_scatterplot = Plot.plot({
+        marginBottom: 40,
         marks: [
             Plot.dot(patients_data, {
                 x: x_feature,
@@ -251,7 +247,7 @@ function PlotScatterplot({
             domain: [0, 1],
             range: colors,
         },
-        style: "--plot-background: black; font-size: 13px",
+        style: "--plot-background: black; font-size: " + FONTSIZE, //13px",
     });
 
     if (scatterplot_ref.current) {
@@ -261,16 +257,11 @@ function PlotScatterplot({
 
     return (
         <>
-            <div className="flex-container">
-                <div>
-                    <p>
-                        {" "}
-                        {y_feature} vs {x_feature}, slope=
-                        {Math.round(slope_all * 1000) / 1000}
-                    </p>
-                    <div ref={scatterplot_ref}></div>
-                </div>
-            </div>
+            <h3 className="plot-headings">
+                {y_feature} vs {x_feature}, slope=
+                {Math.round(slope_all * 1000) / 1000}
+            </h3>
+            <div ref={scatterplot_ref}></div>
         </>
     );
 }
@@ -346,7 +337,7 @@ function PlotAgeHisto({ patients_data, selected_feature }: plotHistoProps) {
         y: {
             label: "Frequency",
         },
-        style: "--plot-background: black; font-size: 11px",
+        style: "--plot-background: black; font-size: " + FONTSIZE,
     });
     const age_histo_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
     if (age_histo_ref.current) {
@@ -357,7 +348,7 @@ function PlotAgeHisto({ patients_data, selected_feature }: plotHistoProps) {
     console.log("Histogram plot created");
     return (
         <>
-            <div className="flex-container">
+            <div className="flex-container-row">
                 <div>
                     <p>Age Distribution</p>
                     <div ref={age_histo_ref}></div>

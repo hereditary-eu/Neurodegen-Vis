@@ -4,19 +4,14 @@ interface MinMaxPatProps {
     y_feature: string;
     x_feature: string;
     patients_data: Patient[];
-    categorical_feature: string;
-    show_dash?: boolean;
-    showCatLinReg?: boolean;
-    showCatAvg?: boolean;
 }
 
 function CalcMinMaxPatientsData({
     y_feature,
     x_feature,
     patients_data,
-    categorical_feature = "",
-    show_dash = false,
 }: MinMaxPatProps) {
+    console.log("min-max patients data started");
     const min_x = Math.min(
         ...patients_data.map((p) => p[x_feature]).filter((d) => !isNaN(d))
     );
@@ -31,11 +26,18 @@ function CalcMinMaxPatientsData({
     );
     const x_range = max_x - min_x;
     const y_range = max_y - min_y;
+    const marginFactor = 0.03;
+    console.log(marginFactor, "margin factor");
+    console.log(
+        "inside min-max",
+        min_x - x_range * marginFactor,
+        max_x + x_range * marginFactor
+    );
     return [
-        min_x - x_range * 0.05,
-        max_x + x_range * 0.05,
-        min_y - y_range * 0.05,
-        max_y + y_range * 0.05,
+        min_x - x_range * marginFactor,
+        max_x + x_range * marginFactor,
+        min_y - y_range * marginFactor,
+        max_y + y_range * marginFactor,
     ];
 }
 
@@ -45,6 +47,7 @@ interface MinMaxMatrixProps {
     feature_2: number;
 }
 function CalcMinMaxMatrix({ matrix, feature_1, feature_2 }: MinMaxMatrixProps) {
+    console.log("Min-max matrix started");
     const min_x = Math.min(
         ...matrix.map((p) => p[feature_1]).filter((d) => !isNaN(d))
     );
@@ -59,11 +62,12 @@ function CalcMinMaxMatrix({ matrix, feature_1, feature_2 }: MinMaxMatrixProps) {
     );
     const x_range = max_x - min_x;
     const y_range = max_y - min_y;
+    const marginFactor = 0.03;
     return [
-        min_x - x_range * 0.05,
-        max_x + x_range * 0.05,
-        min_y - y_range * 0.05,
-        max_y + y_range * 0.05,
+        min_x - x_range * marginFactor,
+        max_x + x_range * marginFactor,
+        min_y - y_range * marginFactor,
+        max_y + y_range * marginFactor,
     ];
 }
 

@@ -148,62 +148,82 @@ function App() {
         <>
             {dataLoaded ? (
                 <>
-                    <h1>Parkinson's disease analysis</h1>
-                    <h2>Select Features for the Correlation Heatmap:</h2>
-                    <div className="checkbox-container">
-                        {covFeatures.map((feature) => (
-                            <div key={feature}>
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedCovFeatures.includes(
-                                            feature
-                                        )}
-                                        onChange={() =>
-                                            handleCheckboxChange(feature)
+                    <div className="background-container">
+                        <h1 className="heading">
+                            Parkinson's disease analysis
+                        </h1>
+                        <div className="heatmap-scatterplots-grid">
+                            <div className="flex-container-column ">
+                                <h2>
+                                    Pearson Correlation for selected features
+                                </h2>
+                                <div className="checkbox-container">
+                                    {covFeatures.map((feature) => (
+                                        <div key={feature}>
+                                            <label>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedCovFeatures.includes(
+                                                        feature
+                                                    )}
+                                                    onChange={() =>
+                                                        handleCheckboxChange(
+                                                            feature
+                                                        )
+                                                    }
+                                                />
+                                                {feature}
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div>
+                                    <PlotCorHeatmap
+                                        patients_data={patients_data}
+                                        cov_features={selectedCovFeatures}
+                                        setSelectedFeatures={
+                                            heatmapSetsScatterplotFeatures
                                         }
                                     />
-                                    {feature}
-                                </label>
+                                </div>
                             </div>
-                        ))}
-                    </div>
-                    <div>
-                        <PlotCorHeatmap
-                            patients_data={patients_data}
-                            cov_features={selectedCovFeatures}
-                            setSelectedFeatures={heatmapSetsScatterplotFeatures}
-                        />
-                    </div>
-                    {scatterplotFeatures[0] !== "" &&
-                    scatterplotFeatures[1] !== "" ? (
-                        <div>
-                            <PlotScatterplot
-                                x_feature={scatterplotFeatures[0]}
-                                y_feature={scatterplotFeatures[1]}
-                                patients_data={patients_data}
-                                categorical_feature="rc_score_done"
-                                showCatLinReg={false}
-                                showCatAvg={false}
-                            />
-                        </div>
-                    ) : (
-                        <p> No features Selected for Scatterplot</p>
-                    )}
 
-                    <div>
-                        <LogPSX message="Start PCA" logElement={""} />
-                        <PCA_analysis
-                            patients_data={patients_data}
-                            num_features={numerical_keys_list}
-                        />
+                            <div className="container-column ">
+                                {scatterplotFeatures[0] !== "" &&
+                                scatterplotFeatures[1] !== "" ? (
+                                    <div>
+                                        <PlotScatterplot
+                                            x_feature={scatterplotFeatures[0]}
+                                            y_feature={scatterplotFeatures[1]}
+                                            patients_data={patients_data}
+                                            categorical_feature="rc_score_done"
+                                            showCatLinReg={false}
+                                            showCatAvg={false}
+                                        />
+                                    </div>
+                                ) : (
+                                    <p> No features Selected for Scatterplot</p>
+                                )}
+                                <div>
+                                    <h3 className="plot-headings">
+                                        PCA Analysis
+                                    </h3>
+                                    <PCA_analysis
+                                        patients_data={patients_data}
+                                        num_features={numerical_keys_list}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <div></div>
                 </>
             ) : (
                 <>
                     <p>loading data...</p>
                     <LogPSX
-                        message="loading data not finsihed fragment, data loaded?"
+                        message="Loading data not finsished"
                         logElement={dataLoaded}
                     />
                 </>

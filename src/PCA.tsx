@@ -4,6 +4,8 @@ import * as Plot from "@observablehq/plot";
 import { useEffect, useState, useRef } from "react";
 import { CalcMinMaxMatrix } from "./HelperFunctions";
 
+const FONTSIZE = "14px";
+
 function getLoadingsForPlot(
     feature_num: number,
     loadings: number[][],
@@ -46,25 +48,18 @@ interface PCAProps {
 }
 
 function PCA_analysis({ patients_data, num_features }: PCAProps) {
-    console.log("patients_data PCA", patients_data);
     const patients_data_num = patients_data
         .map((patient) => {
             const row = num_features.map((feature) => patient[feature]);
             return row.includes(NaN) ? null : row;
         })
         .filter((row) => row !== null);
-    console.log("patients_data_num", patients_data_num);
 
     // Create a new PCA instance and fit the data
     const pca = new PCA(patients_data_num, { scale: true, center: true });
 
-    // Get the principal components
-    const principalComponents = pca.getEigenvectors();
-
     const predictedData_object = pca.predict(patients_data_num);
     const predictedData: number[] = predictedData_object["data"];
-    console.log("predictedData_object", predictedData_object);
-    console.log("predictedData", predictedData);
 
     const [min_x, max_x, min_y, max_y] = CalcMinMaxMatrix({
         matrix: predictedData,
@@ -77,9 +72,7 @@ function PCA_analysis({ patients_data, num_features }: PCAProps) {
 
     const loadings = pca.getLoadings().data;
 
-    // let a = loadings.get(0, 0);
-
-    console.log("loadings", loadings);
+    // console.log("loadings", loadings);
 
     const biplotAxis = 0;
     const loadingScaleFactor = 2.2;
@@ -106,6 +99,7 @@ function PCA_analysis({ patients_data, num_features }: PCAProps) {
     }
 
     const pca_scatterplot = Plot.plot({
+        marginBottom: 40,
         marks: [
             Plot.dot(predictedData, {
                 x: (d) => d[0],
@@ -124,7 +118,7 @@ function PCA_analysis({ patients_data, num_features }: PCAProps) {
         y: {
             label: "Principal Component 2",
         },
-        style: "--plot-background: black; font-size: 11px",
+        style: "--plot-background: black; font-size: " + FONTSIZE,
     });
 
     const pca_scatterplot_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
@@ -133,12 +127,7 @@ function PCA_analysis({ patients_data, num_features }: PCAProps) {
         pca_scatterplot_ref.current.appendChild(pca_scatterplot);
     }
 
-    return (
-        <div>
-            <h2>PCA Analysis</h2>
-            <div ref={pca_scatterplot_ref} />
-        </div>
-    );
+    return <div ref={pca_scatterplot_ref} />;
 }
 
 export default PCA_analysis;
