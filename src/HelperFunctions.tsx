@@ -11,7 +11,7 @@ function CalcMinMaxPatientsData({
     x_feature,
     patients_data,
 }: MinMaxPatProps) {
-    console.log("min-max patients data started");
+    // console.log("min-max patients data started");
     const min_x = Math.min(
         ...patients_data.map((p) => p[x_feature]).filter((d) => !isNaN(d))
     );
@@ -27,12 +27,6 @@ function CalcMinMaxPatientsData({
     const x_range = max_x - min_x;
     const y_range = max_y - min_y;
     const marginFactor = 0.03;
-    console.log(marginFactor, "margin factor");
-    console.log(
-        "inside min-max",
-        min_x - x_range * marginFactor,
-        max_x + x_range * marginFactor
-    );
     return [
         min_x - x_range * marginFactor,
         max_x + x_range * marginFactor,

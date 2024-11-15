@@ -257,10 +257,10 @@ function PlotScatterplot({
 
     return (
         <>
-            <h3 className="plot-headings">
+            {/* <h3 className="plot-headings">
                 {y_feature} vs {x_feature}, slope=
                 {Math.round(slope_all * 1000) / 1000}
-            </h3>
+            </h3> */}
             <div ref={scatterplot_ref}></div>
         </>
     );
