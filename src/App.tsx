@@ -152,11 +152,13 @@ function App() {
         // console.log("z Methods", Object.keys(zTestMethodsMapping));
         if (Object.keys(zTestMethodsMapping).includes(features[1])) {
             setZTestMethods(zTestMethodsMapping[features[1]]);
+            setZTestCatFeature(zTestMethodsMapping[features[1]][0]);
         } else {
             setZTestMethods([]);
+            setZTestCatFeature("");
         }
-        console.log(features[1]);
-        console.log("z Methods", zTestMethodsMapping[features[1]]);
+        // console.log(features[1]);
+        // console.log("z Methods", zTestMethodsMapping[features[1]]);
     }
 
     // heatmapSetsScatterplotFeatures(["insnpsi_age", "npsid_rep_moca_c"]);
@@ -179,17 +181,6 @@ function App() {
         "exec_z_comp",
         "npsid_rep_mmse_c",
     ]);
-
-    const handleSelectChange = (
-        event: React.ChangeEvent<HTMLSelectElement>
-    ) => {
-        // Convert the selected options to an array of strings
-        const selectedOptions = Array.from(
-            event.target.selectedOptions,
-            (option) => option.value
-        );
-        setBiplotFeatures(selectedOptions);
-    };
 
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
 
@@ -265,6 +256,12 @@ function App() {
                                             </h3>
                                             <select
                                                 name="zTestCatFeature"
+                                                style={{
+                                                    visibility:
+                                                        zTestMethods.length > 0
+                                                            ? "visible"
+                                                            : "hidden",
+                                                }} // Use style attribute to set visibility
                                                 id="zTestCatFeature"
                                                 className="single-select-dropdown"
                                                 onChange={(e) =>
