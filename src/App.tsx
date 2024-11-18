@@ -6,6 +6,7 @@ import * as d3 from "d3";
 import { Patient } from "./Patient";
 import { categorial_keys_list } from "./categorical_keys_list";
 import { numerical_keys_list } from "./numerical_keys_list";
+import { zTestMethodsMapping } from "./zTestMethodsMapping";
 import PCA_analysis from "./PCA";
 import {
     PlotAgeHisto,
@@ -46,7 +47,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
             setSelectedOptions([...selectedOptions, option]);
         }
     };
-    const max_length = 22;
+    const max_length = 23;
 
     return (
         <div className="dropdown-container">
@@ -57,7 +58,8 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                 {selectedOptions.join(", ").length > max_length // Set max length here
                     ? `${selectedOptions.join(", ").slice(0, max_length)}..`
                     : selectedOptions.join(", ") || "Select features"}
-                <span className="dropdown-arrow">▼</span>
+                {/* <span className="dropdown-arrow">▼</span> */}
+                <span className="dropdown-arrow"></span>
             </div>
             {dropdownOpen && (
                 <div className="dropdown-options">
@@ -82,37 +84,6 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
 };
 
 function App() {
-    const z_score_features: string[] = [
-        "attent_z_comp",
-        "exec_z_comp",
-        "visuosp_z_comp",
-        "memory_z_comp",
-        "language_z_comp",
-        "npsid_rep_moca_c",
-        "npsid_rep_mmse_c",
-        "st_ter_daed",
-        "st_ter_leed",
-        "updrs_3_on",
-    ];
-
-    interface stringMap {
-        [key: string]: string;
-    }
-    const z_failed_tests: stringMap = {
-        attent_z_comp: "attent_sum_z",
-        exec_z_comp: "exec_sum_z",
-        visuosp_z_comp: "visuosp_sum_z",
-        memory_z_comp: "memory_sum_z",
-        language_z_comp: "language_sum_z",
-    };
-    const z_failed_tests_tot: stringMap = {
-        attent_z_comp: "attent_sum",
-        exec_z_comp: "exec_sum",
-        visuosp_z_comp: "visuosp_sum",
-        memory_z_comp: "memory_sum",
-        language_z_comp: "language_suz",
-    };
-
     const covFeatures: string[] = [
         "insnpsi_age",
         "npsid_ddur_v",
@@ -149,9 +120,8 @@ function App() {
         "updrs_3_on",
     ];
 
-    const [selectedCovFeatures, setSelectedCovFeatures] = useState<string[]>(
-        covFeatures_init // Initially select all features
-    );
+    const [selectedCovFeatures, setSelectedCovFeatures] =
+        useState<string[]>(covFeatures_init);
 
     const handleCheckboxChange = (feature: string) => {
         setSelectedCovFeatures((prevSelected) => {
@@ -167,10 +137,28 @@ function App() {
 
     const [scatterplotFeatures, setScatterplotFeatures] = useState<
         [string, string]
-    >(["insnpsi_age", "overall_domain_sum"]);
+    >(["insnpsi_age", "visuosp_z_comp"]);
+
+    const [zTestMethods, setZTestMethods] = useState<string[]>(
+        zTestMethodsMapping[scatterplotFeatures[1]]
+    );
+
+    const [zTestCatFeature, setZTestCatFeature] = useState<string>(
+        zTestMethods[0]
+    );
 
     function heatmapSetsScatterplotFeatures(features: [string, string]) {
         setScatterplotFeatures(features);
+        // console.log("z Methods", Object.keys(zTestMethodsMapping));
+        if (Object.keys(zTestMethodsMapping).includes(features[1])) {
+            setZTestMethods(zTestMethodsMapping[features[1]]);
+            setZTestCatFeature(zTestMethodsMapping[features[1]][0]);
+        } else {
+            setZTestMethods([]);
+            setZTestCatFeature("");
+        }
+        // console.log(features[1]);
+        // console.log("z Methods", zTestMethodsMapping[features[1]]);
     }
 
     // heatmapSetsScatterplotFeatures(["insnpsi_age", "npsid_rep_moca_c"]);
@@ -188,20 +176,11 @@ function App() {
     // features for PCA, biplot axis:
     const [biplotFeatures, setBiplotFeatures] = useState<string[]>([
         "npsid_ddur_v",
-        "overall_domain_sum",
         "insnpsi_age",
+        "visuosp_z_comp",
+        "exec_z_comp",
+        "npsid_rep_mmse_c",
     ]);
-
-    const handleSelectChange = (
-        event: React.ChangeEvent<HTMLSelectElement>
-    ) => {
-        // Convert the selected options to an array of strings
-        const selectedOptions = Array.from(
-            event.target.selectedOptions,
-            (option) => option.value
-        );
-        setBiplotFeatures(selectedOptions);
-    };
 
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
 
@@ -270,13 +249,44 @@ function App() {
                                 {scatterplotFeatures[0] !== "" &&
                                 scatterplotFeatures[1] !== "" ? (
                                     <div>
+                                        <div className="pca-heading-container">
+                                            <h3 className="plot-headings">
+                                                {scatterplotFeatures[1]} vs{" "}
+                                                {scatterplotFeatures[0]}
+                                            </h3>
+                                            <select
+                                                name="zTestCatFeature"
+                                                style={{
+                                                    visibility:
+                                                        zTestMethods.length > 0
+                                                            ? "visible"
+                                                            : "hidden",
+                                                }} // Use style attribute to set visibility
+                                                id="zTestCatFeature"
+                                                className="single-select-dropdown"
+                                                onChange={(e) =>
+                                                    setZTestCatFeature(
+                                                        e.target.value
+                                                    )
+                                                }
+                                            >
+                                                {zTestMethods.map((f) => (
+                                                    <option value={f}>
+                                                        {f}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
                                         <PlotScatterplot
                                             x_feature={scatterplotFeatures[0]}
                                             y_feature={scatterplotFeatures[1]}
                                             patients_data={patients_data}
-                                            categorical_feature="rc_score_done"
+                                            categorical_feature={
+                                                zTestCatFeature
+                                            }
                                             showCatLinReg={false}
-                                            showCatAvg={false}
+                                            showCatAvg={true}
                                         />
                                     </div>
                                 ) : (

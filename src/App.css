@@ -62,19 +62,23 @@ h1 {
     align-items: center;
     flex-wrap: wrap;
     gap: 1em;
+    font-size: 13px;
 }
 
 .pca-heading-container {
     display: flex;
     align-items: center;
     justify-content: space-between; /* Space between title and dropdown */
-    padding: 10px;
+    padding: 3px;
     /* Dark background color */
     /* background-color: #2c2c2c; */
 }
 
 .dropdown-container {
     text-align: right;
-    max-width: 210px;
+    max-width: 170px;
+    margin: 0;
+    padding: 0;
+
     /* Optionally, adjust width or max-width here */
 }

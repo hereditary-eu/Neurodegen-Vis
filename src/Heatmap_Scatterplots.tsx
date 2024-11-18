@@ -36,7 +36,7 @@ function PlotCorHeatmap({
     const corr_heatmap = Plot.plot({
         width: heatmap_width, // Set the overall width of the heatmap
         height: heatmap_height, // Set the overall height of the heatmap (adjust for number of features)
-        marginLeft: 132,
+        marginLeft: 134,
         marginBottom: 132,
         label: null,
         color: {
@@ -124,11 +124,17 @@ function PlotScatterplot({
     console.log("Scatterplot fun started");
     const scatterplot_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
 
-    console.log("scatterplot_ref.current", scatterplot_ref.current);
+    // console.log("scatterplot_ref.current", scatterplot_ref.current);
 
     patients_data = patients_data.filter(
         (p) => !isNaN(p[x_feature] && p[y_feature])
     );
+
+    const catFeatureSelected: boolean = categorical_feature !== "";
+    if (!catFeatureSelected) {
+        showCatAvg = false;
+        showCatLinReg = false;
+    }
 
     let [min_x, max_x, min_y, max_y] = CalcMinMaxPatientsData({
         y_feature,
@@ -200,8 +206,8 @@ function PlotScatterplot({
             Plot.dot(patients_data, {
                 x: x_feature,
                 y: y_feature,
-                stroke: categorical_feature,
                 tip: true,
+                ...(catFeatureSelected ? { stroke: categorical_feature } : {}),
             }),
             Plot.line(linRegDataAll, {
                 x: "x",
@@ -257,10 +263,10 @@ function PlotScatterplot({
 
     return (
         <>
-            <h3 className="plot-headings">
+            {/* <h3 className="plot-headings">
                 {y_feature} vs {x_feature}, slope=
                 {Math.round(slope_all * 1000) / 1000}
-            </h3>
+            </h3> */}
             <div ref={scatterplot_ref}></div>
         </>
     );
