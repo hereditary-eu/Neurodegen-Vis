@@ -53,87 +53,94 @@ function PCA_analysis({
     numFeatures: numFeatures,
     biplotFeatures: biplotFeatures,
 }: PCAProps) {
-    console.log("PCA_analysis started");
-    const patients_data_num = patientsData
-        .map((patient) => {
-            const row = numFeatures.map((feature) => patient[feature]);
-            return row.includes(NaN) ? null : row;
-        })
-        .filter((row) => row !== null);
+    // only called in UseEffect to ommit unecessary calculations
+    function createPlot() {
+        console.log("PCA_analysis started");
 
-    // Create a new PCA instance and fit the data
-    const pca = new PCA(patients_data_num, { scale: true, center: true });
+        const patients_data_num = patientsData
+            .map((patient) => {
+                const row = numFeatures.map((feature) => patient[feature]);
+                return row.includes(NaN) ? null : row;
+            })
+            .filter((row) => row !== null);
 
-    const predictedData_object = pca.predict(patients_data_num);
-    const predictedData: number[] = predictedData_object["data"];
+        // Create a new PCA instance and fit the data
+        const pca = new PCA(patients_data_num, { scale: true, center: true });
 
-    const [min_x, max_x, min_y, max_y] = CalcMinMaxMatrix({
-        matrix: predictedData,
-        feature_1: 0,
-        feature_2: 1,
-    });
+        const predictedData_object = pca.predict(patients_data_num);
+        const predictedData: number[] = predictedData_object["data"];
 
-    const diff_x = max_x - min_x;
-    const diff_y = max_y - min_y;
+        const [min_x, max_x, min_y, max_y] = CalcMinMaxMatrix({
+            matrix: predictedData,
+            feature_1: 0,
+            feature_2: 1,
+        });
 
-    const loadings = pca.getLoadings().data;
+        const diff_x = max_x - min_x;
+        const diff_y = max_y - min_y;
 
-    // console.log("loadings", loadings);
+        const loadings = pca.getLoadings().data;
 
-    const biplotAxis = 0;
-    const loadingScaleFactor = 2.2;
-    const scaleFactor = (diff_x ** 2 + diff_y ** 2) ** (1 / 2);
-    const scaleFactor2 =
-        (1 /
-            (loadings[biplotAxis][0] ** 2 + loadings[biplotAxis][1] ** 2) **
-                (1 / 2)) *
-        1.5;
+        // console.log("loadings", loadings);
 
-    const loadingMarks = [];
+        const biplotAxis = 0;
+        const loadingScaleFactor = 2.2;
+        const scaleFactor = (diff_x ** 2 + diff_y ** 2) ** (1 / 2);
+        const scaleFactor2 =
+            (1 /
+                (loadings[biplotAxis][0] ** 2 + loadings[biplotAxis][1] ** 2) **
+                    (1 / 2)) *
+            1.5;
 
-    // const show_features = [0, 1, 2, 3, 4, 6];
-    let show_features = biplotFeatures.map((x) => numFeatures.indexOf(x));
-    // console.log("show_features", show_features);
+        const loadingMarks = [];
 
-    for (let i = 0; i < show_features.length; i++) {
-        let j = show_features[i];
-        const loadingMark = getLoadingsForPlot(
-            j,
-            loadings,
-            loadingScaleFactor,
-            numFeatures
-        );
-        loadingMarks.push(loadingMark.line, loadingMark.text);
+        // const show_features = [0, 1, 2, 3, 4, 6];
+        let show_features = biplotFeatures.map((x) => numFeatures.indexOf(x));
+        // console.log("show_features", show_features);
+
+        for (let i = 0; i < show_features.length; i++) {
+            let j = show_features[i];
+            const loadingMark = getLoadingsForPlot(
+                j,
+                loadings,
+                loadingScaleFactor,
+                numFeatures
+            );
+            loadingMarks.push(loadingMark.line, loadingMark.text);
+        }
+
+        const pca_scatterplot = Plot.plot({
+            marginBottom: 40,
+            marks: [
+                Plot.dot(predictedData, {
+                    x: (d) => d[0],
+                    y: (d) => d[1],
+                    tip: true,
+                }),
+                Plot.ruleY([min_y]),
+                Plot.ruleX([min_x]),
+                Plot.ruleY([0]),
+                Plot.ruleX([0]),
+                ...loadingMarks,
+            ],
+            x: {
+                label: "Principal Component 1",
+            },
+            y: {
+                label: "Principal Component 2",
+            },
+            style: "--plot-background: black; font-size: " + FONTSIZE,
+        });
+        return pca_scatterplot;
     }
-
-    const pca_scatterplot = Plot.plot({
-        marginBottom: 40,
-        marks: [
-            Plot.dot(predictedData, {
-                x: (d) => d[0],
-                y: (d) => d[1],
-                tip: true,
-            }),
-            Plot.ruleY([min_y]),
-            Plot.ruleX([min_x]),
-            Plot.ruleY([0]),
-            Plot.ruleX([0]),
-            ...loadingMarks,
-        ],
-        x: {
-            label: "Principal Component 1",
-        },
-        y: {
-            label: "Principal Component 2",
-        },
-        style: "--plot-background: black; font-size: " + FONTSIZE,
-    });
 
     const pca_scatterplot_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
-    if (pca_scatterplot_ref.current) {
-        pca_scatterplot_ref.current.innerHTML = ""; // Clear the div
-        pca_scatterplot_ref.current.appendChild(pca_scatterplot);
-    }
+    useEffect(() => {
+        if (pca_scatterplot_ref.current) {
+            pca_scatterplot_ref.current.innerHTML = ""; // Clear the div
+            pca_scatterplot_ref.current.appendChild(createPlot());
+        }
+    }, [patientsData, numFeatures, biplotFeatures]);
 
     return <div ref={pca_scatterplot_ref} />;
 }

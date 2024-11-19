@@ -20,87 +20,95 @@ function PlotCorHeatmap({
     cov_features,
     setSelectedFeatures,
 }: CorHeatmapProps) {
-    // d3.cross returns the cartesian product (all possible combinations) of the two arrays
-    let correlations = d3.cross(cov_features, cov_features).map(([a, b]) => ({
-        a,
-        b,
-        correlation: pearsonCorrelation(
-            Plot.valueof(patients_data, a) ?? [],
-            Plot.valueof(patients_data, b) ?? []
-        ),
-    }));
-
-    const heatmap_width = cov_features.length * 65 + 165;
-    const heatmap_height = cov_features.length * 35 + 155;
-
-    const corr_heatmap = Plot.plot({
-        width: heatmap_width, // Set the overall width of the heatmap
-        height: heatmap_height, // Set the overall height of the heatmap (adjust for number of features)
-        marginLeft: 134,
-        marginBottom: 132,
-        label: null,
-        color: {
-            scheme: "buylrd", // blue-red color scheme
-            pivot: 0, // Zero as the midpoint
-            legend: true, // Display a color legend
-            label: "correlation", // Label for the legend
-        },
-        x: {
-            // label: "Features (X)",
-            domain: cov_features, // Order the x-axis according to cov_features
-            tickRotate: 90, // Rotate the x-axis tick labels by 90 degrees
-        },
-        y: {
-            // label: "Features (Y)",
-            domain: cov_features, // Order the y-axis according to cov_features
-        },
-        marks: [
-            Plot.cell(correlations, {
-                x: "a",
-                y: "b",
-                fill: "correlation",
-            }),
-            Plot.text(correlations, {
-                x: "a",
-                y: "b",
-                text: (d) => d.correlation.toFixed(2), // toFixed(2) to convert number to string and display only 2 decimal places
-                fill: (d) =>
-                    d.correlation > 0.8 || d.correlation < -0.6
-                        ? "white"
-                        : "black",
-                fontSize: 12, //fontsize of correlation values
-            }),
-        ],
-        style: "font-size: " + FONTSIZE + "; --plot-axis-tick-rotate: 90deg;",
-    });
-
-    // adapted from https://observablehq.com/@ambassadors/interactive-plot-dashboard
-    d3.select(corr_heatmap)
-        .selectAll("rect")
-        .on("click", function (d) {
-            let tar = d.target; // cell
-            // copy the children of the parent element to an array and get the index of the cell
-            let idx1d = [...tar.parentElement.children].indexOf(tar); // index of cell
-            const idx_x = Math.floor(idx1d / cov_features.length);
-            const idx_y = idx1d % cov_features.length;
-
-            console.log("Clicked on cell", idx_x, idx_y);
-            setSelectedFeatures([cov_features[idx_x], cov_features[idx_y]]);
-        })
-        .on("mouseover", function (d) {
-            d3.select(this).style("stroke", "black");
-        })
-        .on("mouseout", function (d) {
-            d3.select(this).style("stroke", "none");
-        })
-        .style("cursor", "default");
-
     const corr_heatmap_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
-    console.log("corr_heatmap_ref.current", corr_heatmap_ref.current);
-    if (corr_heatmap_ref.current) {
-        corr_heatmap_ref.current.innerHTML = ""; // Clear the div
-        corr_heatmap_ref.current.appendChild(corr_heatmap);
-    }
+
+    // only called in UseEffect to ommit unecessary calculations
+    useEffect(() => {
+        // d3.cross returns the cartesian product (all possible combinations) of the two arrays
+        console.log("PlotCorHeatmap fun started");
+        let correlations = d3
+            .cross(cov_features, cov_features)
+            .map(([a, b]) => ({
+                a,
+                b,
+                correlation: pearsonCorrelation(
+                    Plot.valueof(patients_data, a) ?? [],
+                    Plot.valueof(patients_data, b) ?? []
+                ),
+            }));
+
+        const heatmap_width = cov_features.length * 65 + 165;
+        const heatmap_height = cov_features.length * 35 + 155;
+
+        const corr_heatmap = Plot.plot({
+            width: heatmap_width, // Set the overall width of the heatmap
+            height: heatmap_height, // Set the overall height of the heatmap (adjust for number of features)
+            marginLeft: 134,
+            marginBottom: 132,
+            label: null,
+            color: {
+                scheme: "buylrd", // blue-red color scheme
+                pivot: 0, // Zero as the midpoint
+                legend: true, // Display a color legend
+                label: "correlation", // Label for the legend
+            },
+            x: {
+                // label: "Features (X)",
+                domain: cov_features, // Order the x-axis according to cov_features
+                tickRotate: 90, // Rotate the x-axis tick labels by 90 degrees
+            },
+            y: {
+                // label: "Features (Y)",
+                domain: cov_features, // Order the y-axis according to cov_features
+            },
+            marks: [
+                Plot.cell(correlations, {
+                    x: "a",
+                    y: "b",
+                    fill: "correlation",
+                }),
+                Plot.text(correlations, {
+                    x: "a",
+                    y: "b",
+                    text: (d) => d.correlation.toFixed(2), // toFixed(2) to convert number to string and display only 2 decimal places
+                    fill: (d) =>
+                        d.correlation > 0.8 || d.correlation < -0.6
+                            ? "white"
+                            : "black",
+                    fontSize: 12, //fontsize of correlation values
+                }),
+            ],
+            style:
+                "font-size: " + FONTSIZE + "; --plot-axis-tick-rotate: 90deg;",
+        });
+
+        // adapted from https://observablehq.com/@ambassadors/interactive-plot-dashboard
+        d3.select(corr_heatmap)
+            .selectAll("rect")
+            .on("click", function (d) {
+                let tar = d.target; // cell
+                // copy the children of the parent element to an array and get the index of the cell
+                let idx1d = [...tar.parentElement.children].indexOf(tar); // index of cell
+                const idx_x = Math.floor(idx1d / cov_features.length);
+                const idx_y = idx1d % cov_features.length;
+
+                console.log("Clicked on cell", idx_x, idx_y);
+                setSelectedFeatures([cov_features[idx_x], cov_features[idx_y]]);
+            })
+            .on("mouseover", function (d) {
+                d3.select(this).style("stroke", "black");
+            })
+            .on("mouseout", function (d) {
+                d3.select(this).style("stroke", "none");
+            })
+            .style("cursor", "default");
+
+        // console.log("corr_heatmap_ref.current", corr_heatmap_ref.current);
+        if (corr_heatmap_ref.current) {
+            corr_heatmap_ref.current.innerHTML = ""; // Clear the div
+            corr_heatmap_ref.current.appendChild(corr_heatmap);
+        }
+    }, [patients_data, cov_features]); //called every time an input changes
 
     return <div ref={corr_heatmap_ref}></div>;
 }
@@ -124,9 +132,9 @@ function PlotScatterplot({
     showCatAvg = false,
     showCatLinReg = false,
 }: ScatterplotProps) {
-    console.log("Scatterplot fun started");
-
+    // only called in UseEffect
     function createPlot() {
+        console.log("Scatterplot fun started");
         patients_data = patients_data.filter(
             (p) => !isNaN(p[x_feature] && p[y_feature])
         );
@@ -271,8 +279,8 @@ function PlotScatterplot({
     // useeffect renders after the first render and after every update.
     // Important, because otherwise scatterplot_ref.current would be null, because it would not rendered yet
     useEffect(() => {
-        console.log("use effect in scatterplot");
-        console.log("scatterplot_ref.current", scatterplot_ref.current);
+        // console.log("use effect in scatterplot");
+        // console.log("scatterplot_ref.current", scatterplot_ref.current);
         if (scatterplot_ref.current) {
             scatterplot_ref.current.innerHTML = ""; // Clear the div
             scatterplot_ref.current.appendChild(createPlot());
@@ -301,9 +309,8 @@ function PlotHisto({
     selected_feature,
     catFeature,
 }: plotHistoProps) {
-    console.log("plotHisto fun started");
-
     function createPlot() {
+        console.log("plotHisto fun started");
         const binNumber = 9;
 
         const catFeatureSelected: boolean = catFeature !== "";
