@@ -9,7 +9,7 @@ import { numerical_keys_list } from "./numerical_keys_list";
 import { zTestMethodsMapping } from "./zTestMethodsMapping";
 import PCA_analysis from "./PCA";
 import {
-    PlotAgeHisto,
+    PlotHisto,
     PlotCorHeatmap,
     PlotScatterplot,
 } from "./Heatmap_Scatterplots";
@@ -157,8 +157,6 @@ function App() {
             setZTestMethods([]);
             setZTestCatFeature("");
         }
-        // console.log(features[1]);
-        // console.log("z Methods", zTestMethodsMapping[features[1]]);
     }
 
     // heatmapSetsScatterplotFeatures(["insnpsi_age", "npsid_rep_moca_c"]);
@@ -250,10 +248,17 @@ function App() {
                                 scatterplotFeatures[1] !== "" ? (
                                     <div>
                                         <div className="pca-heading-container">
-                                            <h3 className="plot-headings">
-                                                {scatterplotFeatures[1]} vs{" "}
-                                                {scatterplotFeatures[0]}
-                                            </h3>
+                                            {scatterplotFeatures[0] ==
+                                            scatterplotFeatures[1] ? (
+                                                <h3 className="plot-headings">
+                                                    {scatterplotFeatures[1]}
+                                                </h3>
+                                            ) : (
+                                                <h3 className="plot-headings">
+                                                    {scatterplotFeatures[1]} vs{" "}
+                                                    {scatterplotFeatures[0]}
+                                                </h3>
+                                            )}
                                             <select
                                                 name="zTestCatFeature"
                                                 style={{
@@ -277,17 +282,31 @@ function App() {
                                                 ))}
                                             </select>
                                         </div>
-
-                                        <PlotScatterplot
-                                            x_feature={scatterplotFeatures[0]}
-                                            y_feature={scatterplotFeatures[1]}
-                                            patients_data={patients_data}
-                                            categorical_feature={
-                                                zTestCatFeature
-                                            }
-                                            showCatLinReg={false}
-                                            showCatAvg={true}
-                                        />
+                                        {scatterplotFeatures[0] ==
+                                        scatterplotFeatures[1] ? (
+                                            <PlotHisto
+                                                patients_data={patients_data}
+                                                selected_feature={
+                                                    scatterplotFeatures[0]
+                                                }
+                                                catFeature={zTestCatFeature}
+                                            />
+                                        ) : (
+                                            <PlotScatterplot
+                                                x_feature={
+                                                    scatterplotFeatures[0]
+                                                }
+                                                y_feature={
+                                                    scatterplotFeatures[1]
+                                                }
+                                                patients_data={patients_data}
+                                                categorical_feature={
+                                                    zTestCatFeature
+                                                }
+                                                showCatLinReg={false}
+                                                showCatAvg={true}
+                                            />
+                                        )}
                                     </div>
                                 ) : (
                                     <p> No features Selected for Scatterplot</p>

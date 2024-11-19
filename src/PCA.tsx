@@ -53,6 +53,7 @@ function PCA_analysis({
     numFeatures: numFeatures,
     biplotFeatures: biplotFeatures,
 }: PCAProps) {
+    console.log("PCA_analysis started");
     const patients_data_num = patientsData
         .map((patient) => {
             const row = numFeatures.map((feature) => patient[feature]);
@@ -92,7 +93,7 @@ function PCA_analysis({
 
     // const show_features = [0, 1, 2, 3, 4, 6];
     let show_features = biplotFeatures.map((x) => numFeatures.indexOf(x));
-    console.log("show_features", show_features);
+    // console.log("show_features", show_features);
 
     for (let i = 0; i < show_features.length; i++) {
         let j = show_features[i];
