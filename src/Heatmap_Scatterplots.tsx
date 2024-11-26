@@ -315,8 +315,9 @@ function PlotHisto({
 
         const catFeatureSelected: boolean = catFeature !== "";
 
+        let patients_data_map = patients_data;
         if (catFeatureSelected) {
-            patients_data = patients_data.map((p) => ({
+            patients_data_map = patients_data.map((p) => ({
                 ...p,
                 [catFeature]: p[catFeature] === 1 ? "Done" : "Not Done",
             }));
@@ -327,7 +328,7 @@ function PlotHisto({
             marginTop: 25,
             marks: [
                 Plot.rectY(
-                    patients_data,
+                    patients_data_map,
                     Plot.binX(
                         { y: "count", thresholds: binNumber },
                         {
