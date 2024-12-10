@@ -8,6 +8,7 @@ import { categorial_keys_list } from "./categorical_keys_list";
 import { numerical_keys_list } from "./numerical_keys_list";
 import { zTestMethodsMapping } from "./zTestMethodsMapping";
 import PCA_analysis from "./PCA";
+import OpenAI from "openai";
 import {
     PlotHisto,
     PlotCorHeatmap,
@@ -84,6 +85,39 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
 };
 
 function App() {
+    // test openAI
+    console.log("App started");
+
+    // chatGPT-----
+    const [prompt, setPrompt] = useState<string>("");
+    const [response, setResponse] = useState<string>("");
+
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    const openai = new OpenAI({
+        apiKey: apiKey,
+        dangerouslyAllowBrowser: true,
+    });
+
+    if (false) {
+        (async () => {
+            console.log("openai created", openai);
+
+            const completion = await openai.chat.completions.create({
+                model: "gpt-4o-mini",
+                messages: [
+                    { role: "system", content: "You are a helpful assistant." },
+                    {
+                        role: "user",
+                        content:
+                            "Write a haiku about recursion in programming.",
+                    },
+                ],
+            });
+            console.log(completion.choices[0].message.content);
+            // console.log(completion);
+        })();
+    }
+
     const covFeatures: string[] = [
         "insnpsi_age",
         "npsid_ddur_v",
@@ -334,9 +368,46 @@ function App() {
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div></div>
+                        <div>
+                            <h1>ChatGPT</h1>
+                            <input
+                                type="text"
+                                value={prompt}
+                                onChange={(e) => setPrompt(e.target.value)}
+                                placeholder="Enter your prompt here"
+                            />
+                            <button
+                                onClick={async () => {
+                                    const completion =
+                                        await openai.chat.completions.create({
+                                            model: "gpt-4o-mini",
+                                            messages: [
+                                                {
+                                                    role: "system",
+                                                    content:
+                                                        "You are a helpful assistant.",
+                                                },
+                                                {
+                                                    role: "user",
+                                                    content: prompt,
+                                                },
+                                            ],
+                                        });
+                                    // If so I dont get type error type string | null not assignable to type 'SetStateAction<string>'
+                                    if (completion.choices[0].message.content) {
+                                        setResponse(
+                                            completion.choices[0].message
+                                                .content
+                                        );
+                                    }
+                                }}
+                            >
+                                Submit
+                            </button>
+                            <p>{response}</p>
+                        </div>
+                    </div>
                 </>
             ) : (
                 <>
