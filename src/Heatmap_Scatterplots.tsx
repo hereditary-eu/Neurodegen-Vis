@@ -420,7 +420,7 @@ function pearsonCorrelation(x: number[], y: number[]) {
     if (y.length !== n)
         throw new Error("The two columns must have the same length.");
 
-    console.log("pearsonCorrelation fun started");
+    // console.log("pearsonCorrelation fun started");
     // if array empty, d3 mean returns Nan, so we set it to 0
     const x_mean: number = d3.mean(x) ?? 0;
     const y_mean: number = d3.mean(y) ?? 0;

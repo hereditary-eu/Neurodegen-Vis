@@ -14,6 +14,7 @@ import {
     PlotCorHeatmap,
     PlotScatterplot,
 } from "./Heatmap_Scatterplots";
+import dataFieldDescription from "./PD_DataFieldsDescription_plain.txt?raw";
 
 interface logPSXProps {
     message: string;
@@ -96,28 +97,8 @@ function App() {
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
     const openai = new OpenAI({
         apiKey: apiKey,
-        dangerouslyAllowBrowser: true,
+        dangerouslyAllowBrowser: true, // TODO, Allow the API to be used in the browser, not recommended for production
     });
-
-    if (false) {
-        (async () => {
-            console.log("openai created", openai);
-
-            const completion = await openai.chat.completions.create({
-                model: "gpt-4o-mini",
-                messages: [
-                    { role: "system", content: "You are a helpful assistant." },
-                    {
-                        role: "user",
-                        content:
-                            "Write a haiku about recursion in programming.",
-                    },
-                ],
-            });
-            console.log(completion.choices[0].message.content);
-            // console.log(completion);
-        })();
-    }
 
     const covFeatures: string[] = [
         "insnpsi_age",
@@ -390,7 +371,17 @@ function App() {
                                                 {
                                                     role: "system",
                                                     content:
-                                                        "You are a helpful assistant.",
+                                                        "You are a helpful assistant",
+                                                },
+                                                {
+                                                    role: "system",
+                                                    content:
+                                                        dataFieldDescription,
+                                                },
+                                                {
+                                                    role: "system",
+                                                    content:
+                                                        "Answer in 1 to 3 sentences.",
                                                 },
                                                 {
                                                     role: "user",
