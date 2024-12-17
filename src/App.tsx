@@ -89,7 +89,8 @@ function App() {
     console.log("App started");
 
     // chatGPT-----
-    const [prompt, setPrompt] = useState<string>("");
+    // use ref to avoid re-rendering for the input field for every key stroke
+    const promptRef = useRef<HTMLInputElement>(null);
     const [response, setResponse] = useState<string>("");
 
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
@@ -373,12 +374,15 @@ function App() {
                             <h1>ChatGPT</h1>
                             <input
                                 type="text"
-                                value={prompt}
-                                onChange={(e) => setPrompt(e.target.value)}
+                                ref={promptRef}
                                 placeholder="Enter your prompt here"
                             />
                             <button
                                 onClick={async () => {
+                                    const prompt =
+                                        promptRef.current?.value || ""; // Get the current value from the input
+                                    console.log("Prompt:", prompt);
+
                                     const completion =
                                         await openai.chat.completions.create({
                                             model: "gpt-4o-mini",
