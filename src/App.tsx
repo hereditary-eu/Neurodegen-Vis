@@ -15,6 +15,7 @@ import {
     PlotScatterplot,
 } from "./Heatmap_Scatterplots";
 import dataFieldDescription from "./PD_DataFieldsDescription_plain.txt?raw";
+import ReactMarkdown from "react-markdown";
 
 interface logPSXProps {
     message: string;
@@ -86,19 +87,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
 };
 
 function App() {
-    // test openAI
     console.log("App started");
-
-    // chatGPT-----
-    // use ref to avoid re-rendering for the input field for every key stroke
-    const promptRef = useRef<HTMLInputElement>(null);
-    const [response, setResponse] = useState<string>("");
-
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-    const openai = new OpenAI({
-        apiKey: apiKey,
-        dangerouslyAllowBrowser: true, // TODO, Allow the API to be used in the browser, not recommended for production
-    });
 
     const covFeatures: string[] = [
         "insnpsi_age",
@@ -198,6 +187,15 @@ function App() {
 
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
 
+    // correlations of format {a: "feature1", b: "feature2", correlation: 0.8}
+    const [pearsonCorr, setPearsonCorr] = useState<
+        {
+            a: string;
+            b: string;
+            correlation: number;
+        }[]
+    >([]);
+
     let emptyPatient: Patient = new Patient();
     const [patients_data, setData] = useState(Array(54).fill(emptyPatient)); // todo, hard coded 54
 
@@ -214,7 +212,69 @@ function App() {
         load().catch(console.error);
     }, []);
 
-    console.log("Data loaded?", dataLoaded);
+    // ------------------------- chatGPT -------------------------
+    // use ref to avoid re-rendering for the input field for every key stroke
+    const promptRef = useRef<HTMLInputElement>(null);
+    const [response, setResponse] = useState<string>("");
+    const [messageHisto, SetMessageHisto] = useState<
+        { role: "system" | "user" | "assistant"; content: string }[]
+    >([
+        { role: "system", content: "You are a helpful assistant." },
+        { role: "system", content: "Please give short answers" },
+        { role: "system", content: dataFieldDescription },
+    ]);
+
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    const openai = new OpenAI({
+        apiKey: apiKey,
+        dangerouslyAllowBrowser: true, // TODO, Allow the API to be used in the browser, not recommended for production
+    });
+
+    const handleChatSubmit = async () => {
+        const prompt = promptRef.current?.value || "";
+        if (!prompt) return;
+
+        // Append the new user message to the message history
+        const updatedMessages: {
+            role: "system" | "user" | "assistant";
+            content: string;
+        }[] = [...messageHisto, { role: "user", content: prompt }];
+        SetMessageHisto(updatedMessages);
+
+        try {
+            const completion = await openai.chat.completions.create({
+                model: "gpt-4o-mini",
+                messages: updatedMessages, // Send the entire conversation history
+            });
+
+            const assistantResponse =
+                completion.choices[0].message.content || "";
+
+            // Append the assistant's response to the message history
+            const updatedMessagesWithResponse: {
+                role: "system" | "user" | "assistant";
+                content: string;
+            }[] = [
+                ...updatedMessages,
+                {
+                    role: "system",
+                    content:
+                        "Pearson correlations from some features in format {a: 'feature1', b: 'feature2', correlation: 'number'}" +
+                        JSON.stringify(pearsonCorr),
+                },
+                { role: "assistant", content: assistantResponse },
+            ];
+            SetMessageHisto(updatedMessagesWithResponse);
+            console.log("message history", updatedMessagesWithResponse);
+
+            // Update the displayed response
+            setResponse(assistantResponse);
+        } catch (error) {
+            console.error("Error fetching response:", error);
+        }
+    };
+
+    // ------------------------- JSX -------------------------
     return (
         <>
             {dataLoaded ? (
@@ -255,6 +315,11 @@ function App() {
                                         setSelectedFeatures={
                                             heatmapSetsScatterplotFeatures
                                         }
+                                        setCorrelations={setPearsonCorr}
+                                    />
+                                    <LogPSX
+                                        message="correlations in JSX"
+                                        logElement={pearsonCorr}
                                     />
                                 </div>
                             </div>
@@ -352,55 +417,16 @@ function App() {
                         </div>
 
                         <div>
-                            <h1>ChatGPT</h1>
+                            <h2>ChatGPT</h2>
                             <input
                                 type="text"
                                 ref={promptRef}
                                 placeholder="Enter your prompt here"
                             />
-                            <button
-                                onClick={async () => {
-                                    const prompt =
-                                        promptRef.current?.value || ""; // Get the current value from the input
-                                    console.log("Prompt:", prompt);
-
-                                    const completion =
-                                        await openai.chat.completions.create({
-                                            model: "gpt-4o-mini",
-                                            messages: [
-                                                {
-                                                    role: "system",
-                                                    content:
-                                                        "You are a helpful assistant",
-                                                },
-                                                {
-                                                    role: "system",
-                                                    content:
-                                                        dataFieldDescription,
-                                                },
-                                                {
-                                                    role: "system",
-                                                    content:
-                                                        "Answer in 1 to 3 sentences.",
-                                                },
-                                                {
-                                                    role: "user",
-                                                    content: prompt,
-                                                },
-                                            ],
-                                        });
-                                    // If so I dont get type error type string | null not assignable to type 'SetStateAction<string>'
-                                    if (completion.choices[0].message.content) {
-                                        setResponse(
-                                            completion.choices[0].message
-                                                .content
-                                        );
-                                    }
-                                }}
-                            >
-                                Submit
-                            </button>
-                            <p>{response}</p>
+                            <button onClick={handleChatSubmit}>Submit</button>
+                            <div className="chatgpt-response">
+                                <ReactMarkdown>{response}</ReactMarkdown>
+                            </div>
                         </div>
                     </div>
                 </>

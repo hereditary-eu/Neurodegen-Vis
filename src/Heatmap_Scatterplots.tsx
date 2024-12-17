@@ -9,16 +9,23 @@ interface CorHeatmapProps {
     patients_data: Patient[];
     cov_features: string[];
     setSelectedFeatures: (selectedFeatures: [string, string]) => void;
+    setCorrelations: (
+        correlations: { a: string; b: string; correlation: number }[]
+    ) => void;
 }
 
 const FONTSIZE = "14px";
 const COLORS: string[] = ["orange", "green"];
+
+// correlations of the form {a: string, b: string, correlation: number from all combinations of cov_features}
+// correlations: {'string', 'string', 'number'}[]
 
 // Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
 function PlotCorHeatmap({
     patients_data,
     cov_features,
     setSelectedFeatures,
+    setCorrelations,
 }: CorHeatmapProps) {
     const corr_heatmap_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
 
@@ -36,6 +43,8 @@ function PlotCorHeatmap({
                     Plot.valueof(patients_data, b) ?? []
                 ),
             }));
+        console.log("correlations", correlations);
+        setCorrelations(correlations);
 
         const heatmap_width = cov_features.length * 65 + 165;
         const heatmap_height = cov_features.length * 35 + 155;
