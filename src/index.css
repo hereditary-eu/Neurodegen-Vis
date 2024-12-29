@@ -33,7 +33,7 @@ body {
 h1 {
     font-size: 2.8em !important;
     line-height: 1.1;
-margin: 0 0 1rem 0;
+    margin: 0 0 1rem 0;
     padding: 0;
 }
 
@@ -72,8 +72,7 @@ button:focus-visible {
 .dark-offcanvas {
     background-color: #1e1e1e !important; /* Dark background */
     color: white; /* Optional: Change text color for readability */
-  }
-
+}
 
 @media (prefers-color-scheme: light) {
     :root {

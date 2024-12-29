@@ -55,7 +55,20 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    width: 100%;
     gap: 1em;
+}
+
+.show-chatgpt-button {
+    /* Align button to the left */
+    margin-right: auto;
+    /* align-self: flex-start; */
+}
+
+.pearsonCorrelation-heading {
+    margin: 0; /* Removes default margin to prevent misalignment */
+    text-align: center; /* Centers text in case container size varies */
+    flex-grow: 1; /* Ensures the heading takes up space to remain centered */
 }
 
 .checkbox-container {
@@ -88,5 +101,6 @@
 }
 
 .chatgpt-response {
+    margin-top: 1em;
     /* text-align: left; */
 }

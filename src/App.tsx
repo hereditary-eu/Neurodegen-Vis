@@ -283,6 +283,11 @@ function App() {
         }
     };
 
+    // handle offcanvas
+    const [show, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+
     // ------------------------- JSX -------------------------
     return (
         <>
@@ -294,9 +299,58 @@ function App() {
                         </h1>
                         <div className="heatmap-scatterplots-grid">
                             <div className="flex-container-column ">
-                                <h2>
-                                    Pearson Correlation for selected features
-                                </h2>
+                                <div className="flex-container-row">
+                                    <Button
+                                        variant="dark"
+                                        onClick={handleShow}
+                                        className="show-chatgpt-button"
+                                    >
+                                        Show ChatGPT
+                                    </Button>
+                                    <h3 className="pearsonCorrelation-heading">
+                                        Pearson Correlation for selected
+                                        features
+                                    </h3>
+                                </div>
+                                {/* Offcanvas start */}
+
+                                <Offcanvas
+                                    show={show}
+                                    onHide={handleClose}
+                                    scroll={true}
+                                    backdrop={false}
+                                    placement="start"
+                                    className="dark-offcanvas"
+                                >
+                                    <Offcanvas.Header closeButton>
+                                        <Offcanvas.Title>
+                                            ChatGPT
+                                        </Offcanvas.Title>
+                                    </Offcanvas.Header>
+                                    <Offcanvas.Body>
+                                        <div>
+                                            <p>
+                                                Ask about the data fields, or
+                                                anything
+                                            </p>
+                                            <input
+                                                type="text"
+                                                ref={promptRef}
+                                                placeholder="Enter your prompt here"
+                                            />
+                                            <button onClick={handleChatSubmit}>
+                                                Submit
+                                            </button>
+                                            <div className="chatgpt-response">
+                                                <ReactMarkdown>
+                                                    {response}
+                                                </ReactMarkdown>
+                                            </div>
+                                        </div>
+                                    </Offcanvas.Body>
+                                </Offcanvas>
+                                {/* Offcanvas end */}
+
                                 <div className="checkbox-container">
                                     {covFeatures.map((feature) => (
                                         <div key={feature}>
@@ -422,19 +476,6 @@ function App() {
                                         biplotFeatures={biplotFeatures}
                                     />
                                 </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h2>ChatGPT</h2>
-                            <input
-                                type="text"
-                                ref={promptRef}
-                                placeholder="Enter your prompt here"
-                            />
-                            <button onClick={handleChatSubmit}>Submit</button>
-                            <div className="chatgpt-response">
-                                <ReactMarkdown>{response}</ReactMarkdown>
                             </div>
                         </div>
                     </div>
