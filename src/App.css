@@ -12,10 +12,14 @@
     justify-content: center;
 }
 
-h1 {
-    /* font-size: 2.5em; */
-    margin: 0 0 1rem 0;
-    padding: 0;
+.checkbox-container {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fill,
+        minmax(150px, 1fr)
+    ); /* Set each checkbox to have a minimum width */
+    gap: 10px; /* Spacing between checkboxes */
+    padding: 10px;
 }
 
 .plot-headings {

@@ -12,10 +12,12 @@
   "dependencies": {
     "@observablehq/plot": "^0.6.16",
     "@observablehq/runtime": "^5.9.9",
+    "bootstrap": "^5.3.3",
     "d3": "^7.9.0",
     "ml-pca": "^4.1.1",
     "openai": "^4.76.0",
     "react": "^18.3.1",
+    "react-bootstrap": "^2.10.7",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1"
   },

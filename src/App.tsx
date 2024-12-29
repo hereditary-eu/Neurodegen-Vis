@@ -1,4 +1,11 @@
 import { useEffect, useState, useRef } from "react";
+// import "bootstrap/dist/js/bootstrap.bundle.min.js";
+// import "bootstrap/dist/css/bootstrap.min.css";
+
+import "bootstrap/dist/css/bootstrap.min.css";
+import Button from "react-bootstrap/Button";
+import Offcanvas from "react-bootstrap/Offcanvas";
+
 import "./App.css";
 import "./dropdown.css";
 import * as d3 from "d3";
@@ -87,6 +94,8 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
 };
 
 function App() {
+    document.body.classList.add("bg-dark", "text-white");
+
     console.log("App started");
 
     const covFeatures: string[] = [
@@ -331,14 +340,14 @@ function App() {
                                         <div className="pca-heading-container">
                                             {scatterplotFeatures[0] ==
                                             scatterplotFeatures[1] ? (
-                                                <h3 className="plot-headings">
+                                                <h4 className="plot-headings">
                                                     {scatterplotFeatures[1]}
-                                                </h3>
+                                                </h4>
                                             ) : (
-                                                <h3 className="plot-headings">
+                                                <h4 className="plot-headings">
                                                     {scatterplotFeatures[1]} vs{" "}
                                                     {scatterplotFeatures[0]}
-                                                </h3>
+                                                </h4>
                                             )}
                                             <select
                                                 name="zTestCatFeature"
@@ -394,9 +403,9 @@ function App() {
                                 )}
                                 <div>
                                     <div className="pca-heading-container">
-                                        <h3 className="plot-headings">
+                                        <h4 className="plot-headings">
                                             PCA Analysis
-                                        </h3>
+                                        </h4>
                                         <div>
                                             <MultiSelectDropdown
                                                 options={numerical_keys_list}
