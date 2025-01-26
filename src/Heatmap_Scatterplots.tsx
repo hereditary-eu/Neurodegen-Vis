@@ -43,7 +43,7 @@ function PlotCorHeatmap({
                     Plot.valueof(patients_data, b) ?? []
                 ),
             }));
-        console.log("correlations", correlations);
+        // console.log("correlations", correlations);
         setCorrelations(correlations);
 
         const heatmap_width = cov_features.length * 65 + 165;

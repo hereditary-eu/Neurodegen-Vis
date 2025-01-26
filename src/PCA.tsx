@@ -57,21 +57,44 @@ function PCA_analysis({
     function createPlot() {
         console.log("PCA_analysis started");
 
+        // Step 1: Track the indices of valid rows
+        const validIndices: number[] = []; // Stores the original indices of valid rows
+
         const patients_data_num = patientsData
-            .map((patient) => {
+            .map((patient, index) => {
                 const row = numFeatures.map((feature) => patient[feature]);
-                return row.includes(NaN) ? null : row;
+                if (row.includes(NaN)) {
+                    return null; // Mark as invalid
+                }
+                validIndices.push(index); // Keep track of valid rows
+                return row;
             })
-            .filter((row) => row !== null);
+            .filter((row) => row !== null); // Remove invalid rows
 
-        // Create a new PCA instance and fit the data
+        // Step 2: Perform PCA on valid numerical data
         const pca = new PCA(patients_data_num, { scale: true, center: true });
+        const pcaProjections_object = pca.predict(patients_data_num);
+        const pcaProjections: number[][] = pcaProjections_object["data"];
 
-        const predictedData_object = pca.predict(patients_data_num);
-        const predictedData: number[] = predictedData_object["data"];
+        // Step 3: Map PCA projections back to the correct patients
+        validIndices.forEach((originalIndex, i) => {
+            const patient = patientsData[originalIndex]; // Retrieve the original patient
+            patient.principal_component_1 = pcaProjections[i][0];
+            patient.principal_component_2 = pcaProjections[i][1];
+            patient.valid_pc = true;
+        });
+
+        // Step 4: For patients with NaN values, set PC to NaN
+        patientsData.forEach((Patient, index) => {
+            if (!validIndices.includes(index)) {
+                Patient.principal_component_1 = NaN;
+                Patient.principal_component_2 = NaN;
+                Patient.valid_pc = false;
+            }
+        });
 
         const [min_x, max_x, min_y, max_y] = CalcMinMaxMatrix({
-            matrix: predictedData,
+            matrix: pcaProjections,
             feature_1: 0,
             feature_2: 1,
         });
@@ -112,7 +135,7 @@ function PCA_analysis({
         const pca_scatterplot = Plot.plot({
             marginBottom: 40,
             marks: [
-                Plot.dot(predictedData, {
+                Plot.dot(pcaProjections, {
                     x: (d) => d[0],
                     y: (d) => d[1],
                     tip: true,

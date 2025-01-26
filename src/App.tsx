@@ -23,6 +23,7 @@ import {
 } from "./Heatmap_Scatterplots";
 import dataFieldDescription from "./PD_DataFieldsDescription_plain.txt?raw";
 import ReactMarkdown from "react-markdown";
+import kMeans from "./Kmean";
 
 interface logPSXProps {
     message: string;
@@ -282,6 +283,37 @@ function App() {
             console.error("Error fetching response:", error);
         }
     };
+
+    // k-means clustering
+    const k = 2;
+
+    const clusteringData: number[][] = patients_data
+        .filter((patient) => patient.valid_pc)
+        .map((patient) => [
+            patient.principal_component_1,
+            patient.principal_component_2,
+        ]);
+
+    // index 48, 53 and 34 are NaN
+
+    // const patientCluster: number[];
+
+    if (clusteringData.length > 0) {
+        const patientCluster: number[] = kMeans(clusteringData, k);
+        console.log("patientClusster", patientCluster);
+
+        patients_data
+            .filter((patient) => patient.valid_pc)
+            .forEach((patient, index) => {
+                patient.k_mean_cluster = patientCluster[index];
+            });
+    }
+
+    patients_data
+        .filter((patient) => !patient.valid_pc)
+        .forEach((patient) => {
+            patient.k_mean_cluster = -1;
+        });
 
     // handle offcanvas
     const [show, setShow] = useState(false);

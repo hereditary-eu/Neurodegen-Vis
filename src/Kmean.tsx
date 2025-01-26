@@ -21,10 +21,24 @@ function euclideanDistance(point1: Point, point2: Point): number {
  * Initializes centroids using the k-means++ algorithm.
  */
 function initializeCentroids(data: Point[], k: number): Point[] {
+    console.log("initializing centroids...");
     const centroids: Point[] = [];
 
     // Randomly choose the first centroid
     centroids.push(data[Math.floor(Math.random() * data.length)]);
+
+    // Handle the case where all points are identical
+    const allPointsIdentical = data.every((point) =>
+        point.every((value, index) => value === data[0][index])
+    );
+
+    if (allPointsIdentical) {
+        // If all points are identical, duplicate the single unique point as centroids
+        while (centroids.length < k) {
+            centroids.push([...data[0]]);
+        }
+        return centroids;
+    }
 
     // Choose the remaining centroids
     while (centroids.length < k) {
@@ -39,6 +53,16 @@ function initializeCentroids(data: Point[], k: number): Point[] {
 
         // Compute the probability distribution based on squared distances
         const totalDistance = distances.reduce((sum, d) => sum + d ** 2, 0);
+        if (totalDistance === 0) {
+            // If total distance is zero, randomly pick remaining centroids
+            while (centroids.length < k) {
+                const randomPoint =
+                    data[Math.floor(Math.random() * data.length)];
+                centroids.push(randomPoint);
+            }
+            break;
+        }
+
         const probabilities = distances.map((d) => d ** 2 / totalDistance);
 
         // Pick a new centroid based on the probability distribution
@@ -124,12 +148,14 @@ function centroidsConverged(
  * @param k - Number of clusters.
  * @returns An array of cluster assignments for each point.
  */
-function kMeans(data: Point[], k: number, maxIterations = 100): number[] {
+function kMeans(data: number[][], k: number, maxIterations = 50): number[] {
+    console.log("k-menas clustering started");
     if (data.length === 0 || k <= 0) {
         throw new Error("Data must not be empty and k must be greater than 0.");
     }
 
     let centroids = initializeCentroids(data, k);
+    console.log("centroids initialized");
     let assignments: number[] = [];
 
     for (let iteration = 0; iteration < maxIterations; iteration++) {
@@ -137,6 +163,7 @@ function kMeans(data: Point[], k: number, maxIterations = 100): number[] {
         const newCentroids = updateCentroids(data, newAssignments, k);
 
         if (centroidsConverged(centroids, newCentroids)) {
+            console.log("k-means converged");
             break;
         }
 
@@ -147,19 +174,30 @@ function kMeans(data: Point[], k: number, maxIterations = 100): number[] {
     return assignments;
 }
 
-// Example usage:
-const data: number[][] = [
-    [1, 2],
-    [1, 4],
-    [1, 0],
-    [10, 2],
-    [10, 4],
-    [10, 0],
-    [7, 2],
-    [7, 4],
-    [7, 0],
-    [4, 2],
-];
-const k = 4;
-const result = kMeans(data, k);
-console.log(result);
+export default kMeans;
+
+// // Example usage:
+// const data: number[][] = [
+//     [1, 2],
+//     [1, 4],
+//     [1, 0],
+//     [10, 2],
+//     [10, 4],
+//     [10, 0],
+//     [7, 2],
+//     [7, 4],
+//     [7, 0],
+//     [4, 2],
+// ];
+
+// const data_2: number[][] = [
+//     [-1, -1],
+//     [-1, -1],
+//     [-1, -1],
+//     [-1, -1],
+//     [-1, -1],
+//     [-1, -1],
+// ];
+// const k = 3;
+// const result = kMeans(data_2, k);
+// console.log(result);
