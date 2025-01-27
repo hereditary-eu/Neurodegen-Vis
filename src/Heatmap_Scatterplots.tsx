@@ -238,6 +238,7 @@ function PlotScatterplot({
                     stroke: "white",
                     strokeWidth: 1.8,
                 }),
+                // If a categorical feature is selected, color the dots by category
                 ...(showCatLinReg || showCatAvg
                     ? [
                           Plot.line(linRegData0, {

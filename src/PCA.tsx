@@ -45,54 +45,96 @@ function getLoadingsForPlot(
 interface PCAProps {
     patientsData: Patient[];
     numFeatures: string[];
+    loadings: number[][];
     biplotFeatures: string[];
+    showKmeans: boolean;
+}
+
+//  todo, split into pca plotting and pca calculation
+
+interface PCAAnalysisProps {
+    patientsData: Patient[];
+    numFeatures: string[];
 }
 
 function PCA_analysis({
     patientsData: patientsData,
     numFeatures: numFeatures,
-    biplotFeatures: biplotFeatures,
-}: PCAProps) {
-    // only called in UseEffect to ommit unecessary calculations
-    function createPlot() {
-        console.log("PCA_analysis started");
+}: PCAAnalysisProps) {
+    console.log("PCA_analysis started");
 
-        // Step 1: Track the indices of valid rows
-        const validIndices: number[] = []; // Stores the original indices of valid rows
+    // Step 1: Track the indices of valid rows
+    const validIndices: number[] = []; // Stores the original indices of valid rows
 
-        const patients_data_num = patientsData
-            .map((patient, index) => {
-                const row = numFeatures.map((feature) => patient[feature]);
-                if (row.includes(NaN)) {
-                    return null; // Mark as invalid
-                }
-                validIndices.push(index); // Keep track of valid rows
-                return row;
-            })
-            .filter((row) => row !== null); // Remove invalid rows
+    const patients_data_num = patientsData
+        .map((patient, index) => {
+            const row = numFeatures.map((feature) => patient[feature]);
+            if (row.includes(NaN)) {
+                return null; // Mark as invalid
+            }
+            validIndices.push(index); // Keep track of valid rows
+            return row;
+        })
+        .filter((row) => row !== null); // Remove invalid rows
 
-        // Step 2: Perform PCA on valid numerical data
-        const pca = new PCA(patients_data_num, { scale: true, center: true });
-        const pcaProjections_object = pca.predict(patients_data_num);
+    // Step 2: Perform PCA on valid numerical data
+    const pca = new PCA(patients_data_num, { scale: true, center: true });
+    const pcaProjections_object = pca.predict(patients_data_num);
     const pcaProjections: number[][] = pcaProjections_object.to2DArray(); // Use appropriate method to get data
     // const pcaProjections: number[][] = pcaProjections_object["data"];
 
-        // Step 3: Map PCA projections back to the correct patients
-        validIndices.forEach((originalIndex, i) => {
-            const patient = patientsData[originalIndex]; // Retrieve the original patient
-            patient.principal_component_1 = pcaProjections[i][0];
-            patient.principal_component_2 = pcaProjections[i][1];
-            patient.valid_pc = true;
-        });
+    // Step 3: Map PCA projections back to the correct patients
+    validIndices.forEach((originalIndex, i) => {
+        const patient = patientsData[originalIndex]; // Retrieve the original patient
+        patient.principal_component_1 = pcaProjections[i][0];
+        patient.principal_component_2 = pcaProjections[i][1];
+        patient.valid_pc = true;
+    });
 
-        // Step 4: For patients with NaN values, set PC to NaN
-        patientsData.forEach((Patient, index) => {
-            if (!validIndices.includes(index)) {
-                Patient.principal_component_1 = NaN;
-                Patient.principal_component_2 = NaN;
-                Patient.valid_pc = false;
-            }
-        });
+    // Step 4: For patients with NaN values, set PC to NaN
+    patientsData.forEach((Patient, index) => {
+        if (!validIndices.includes(index)) {
+            Patient.principal_component_1 = NaN;
+            Patient.principal_component_2 = NaN;
+            Patient.valid_pc = false;
+        }
+    });
+
+    // const loadings = pca.getLoadings().data;
+    const loadings = pca.getLoadings().to2DArray(); // Use appropriate method to get data
+
+    return loadings;
+}
+
+interface PCAPlotProps {
+    patientsData: Patient[];
+    numFeatures: string[];
+    loadings: number[][];
+    biplotFeatures: string[];
+    showKmeans: boolean;
+}
+function PlotPcaBiplot({
+    patientsData: patientsData,
+    numFeatures: numFeatures,
+    biplotFeatures: biplotFeatures,
+    showKmeans: showKmeans,
+    loadings: loadings,
+}: PCAPlotProps) {
+    function createPlot() {
+        console.log("PCA Plot started");
+
+        const pcaProjections: number[][] = patientsData
+            .filter((patient) => patient.valid_pc)
+            .map((patient) => [
+                patient.principal_component_1,
+                patient.principal_component_2,
+            ]);
+
+        const validClusters: number[] = patientsData
+            .filter((patient) => patient.valid_pc)
+            .map((patient) => patient.k_mean_cluster);
+        console.log("validClusters", validClusters);
+        console.log("test");
 
         const [min_x, max_x, min_y, max_y] = CalcMinMaxMatrix({
             matrix: pcaProjections,
@@ -102,8 +144,6 @@ function PCA_analysis({
 
         const diff_x = max_x - min_x;
         const diff_y = max_y - min_y;
-
-        const loadings = pca.getLoadings().data;
 
         // console.log("loadings", loadings);
 
@@ -140,6 +180,14 @@ function PCA_analysis({
                     x: (d) => d[0],
                     y: (d) => d[1],
                     tip: true,
+                    ...(showKmeans
+                        ? {
+                              fill: (d, i) => {
+                                  // todo, set specific colors for each cluster
+                                  return validClusters[i];
+                              },
+                          }
+                        : {}),
                 }),
                 Plot.ruleY([min_y]),
                 Plot.ruleX([min_x]),
@@ -169,4 +217,4 @@ function PCA_analysis({
     return <div ref={pca_scatterplot_ref} />;
 }
 
-export default PCA_analysis;
+export { PCA_analysis, PlotPcaBiplot };

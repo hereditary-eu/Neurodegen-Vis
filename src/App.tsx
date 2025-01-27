@@ -14,7 +14,7 @@ import { Patient } from "./Patient";
 import { categorial_keys_list } from "./categorical_keys_list";
 import { numerical_keys_list } from "./numerical_keys_list";
 import { zTestMethodsMapping } from "./zTestMethodsMapping";
-import PCA_analysis from "./PCA";
+import { PCA_analysis, PlotPcaBiplot } from "./PCA";
 import OpenAI from "openai";
 import {
     PlotHisto,
@@ -209,6 +209,8 @@ function App() {
     let emptyPatient: Patient = new Patient();
     const [patients_data, setData] = useState(Array(54).fill(emptyPatient)); // todo, hard coded 54
 
+    // const [pcaLoadings, setPcaLoadings] = useState<number[][]>([]); // Use state to store pcaLoadings
+
     useEffect(() => {
         console.log("Loading data...");
         async function load() {
@@ -218,6 +220,13 @@ function App() {
             setData(loaded);
             console.log("Data loaded!", patients_data);
             setDataLoaded(true);
+
+            // // RUN PCA
+            // const newPcaLoadings = PCA_analysis({
+            //     patientsData: patients_data,
+            //     numFeatures: numerical_keys_list,
+            // });
+            // setPcaLoadings(newPcaLoadings); // Update state
         }
         load().catch(console.error);
     }, []);
@@ -284,36 +293,49 @@ function App() {
         }
     };
 
-    // k-means clustering
-    const k = 2;
-
-    const clusteringData: number[][] = patients_data
-        .filter((patient) => patient.valid_pc)
-        .map((patient) => [
-            patient.principal_component_1,
-            patient.principal_component_2,
-        ]);
-
-    // index 48, 53 and 34 are NaN
-
-    // const patientCluster: number[];
-
-    if (clusteringData.length > 0) {
-        const patientCluster: number[] = kMeans(clusteringData, k);
-        console.log("patientClusster", patientCluster);
-
-        patients_data
-            .filter((patient) => patient.valid_pc)
-            .forEach((patient, index) => {
-                patient.k_mean_cluster = patientCluster[index];
-            });
+    // // ------------------------- PCA -------------------------
+    let pcaLoadings: number[][] = [];
+    console.log("PCA loadings before", pcaLoadings);
+    if (dataLoaded) {
+        pcaLoadings = PCA_analysis({
+            patientsData: patients_data,
+            numFeatures: numerical_keys_list,
+        });
+        console.log("PCA loadings", pcaLoadings);
     }
 
-    patients_data
-        .filter((patient) => !patient.valid_pc)
-        .forEach((patient) => {
-            patient.k_mean_cluster = -1;
-        });
+    if (dataLoaded) {
+        // numFeatures={numerical_keys_list}
+        // k-means clustering
+        const k = 3;
+        const clusteringData: number[][] = patients_data
+            .filter((patient) => patient.valid_pc)
+            .map((patient) => [
+                patient.principal_component_1,
+                patient.principal_component_2,
+            ]);
+
+        // index 48, 53 and 34 are NaN
+
+        // const patientCluster: number[];
+
+        if (clusteringData.length > 0) {
+            const patientCluster: number[] = kMeans(clusteringData, k);
+            console.log("patientClusster", patientCluster);
+
+            patients_data
+                .filter((patient) => patient.valid_pc)
+                .forEach((patient, index) => {
+                    patient.k_mean_cluster = patientCluster[index];
+                });
+        }
+
+        patients_data
+            .filter((patient) => !patient.valid_pc)
+            .forEach((patient) => {
+                patient.k_mean_cluster = -1;
+            });
+    }
 
     // handle offcanvas
     const [show, setShow] = useState(false);
@@ -502,10 +524,12 @@ function App() {
                                             />
                                         </div>
                                     </div>
-                                    <PCA_analysis
+                                    <PlotPcaBiplot
                                         patientsData={patients_data}
                                         numFeatures={numerical_keys_list}
+                                        loadings={pcaLoadings}
                                         biplotFeatures={biplotFeatures}
+                                        showKmeans={true}
                                     />
                                 </div>
                             </div>
