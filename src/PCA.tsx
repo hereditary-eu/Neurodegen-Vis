@@ -74,7 +74,8 @@ function PCA_analysis({
         // Step 2: Perform PCA on valid numerical data
         const pca = new PCA(patients_data_num, { scale: true, center: true });
         const pcaProjections_object = pca.predict(patients_data_num);
-        const pcaProjections: number[][] = pcaProjections_object["data"];
+    const pcaProjections: number[][] = pcaProjections_object.to2DArray(); // Use appropriate method to get data
+    // const pcaProjections: number[][] = pcaProjections_object["data"];
 
         // Step 3: Map PCA projections back to the correct patients
         validIndices.forEach((originalIndex, i) => {

@@ -36,7 +36,7 @@ function CalcMinMaxPatientsData({
 }
 
 interface MinMaxMatrixProps {
-    matrix: number[];
+    matrix: number[][];
     feature_1: number;
     feature_2: number;
 }
