@@ -1,7 +1,7 @@
 import { Patient } from "./Patient";
 import { PCA } from "ml-pca";
 import * as Plot from "@observablehq/plot";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { CalcMinMaxMatrix } from "./HelperFunctions";
 
 const FONTSIZE = "14px";
@@ -41,16 +41,6 @@ function getLoadingsForPlot(
         }),
     };
 }
-
-interface PCAProps {
-    patientsData: Patient[];
-    numFeatures: string[];
-    loadings: number[][];
-    biplotFeatures: string[];
-    showKmeans: boolean;
-}
-
-//  todo, split into pca plotting and pca calculation
 
 interface PCAAnalysisProps {
     patientsData: Patient[];
@@ -134,7 +124,6 @@ function PlotPcaBiplot({
             .filter((patient) => patient.valid_pc)
             .map((patient) => patient.k_mean_cluster);
         console.log("validClusters", validClusters);
-        console.log("test");
 
         const [min_x, max_x, min_y, max_y] = CalcMinMaxMatrix({
             matrix: pcaProjections,
@@ -142,23 +131,9 @@ function PlotPcaBiplot({
             feature_2: 1,
         });
 
-        const diff_x = max_x - min_x;
-        const diff_y = max_y - min_y;
-
-        // console.log("loadings", loadings);
-
-        const biplotAxis = 0;
         const loadingScaleFactor = 2.2;
-        const scaleFactor = (diff_x ** 2 + diff_y ** 2) ** (1 / 2);
-        const scaleFactor2 =
-            (1 /
-                (loadings[biplotAxis][0] ** 2 + loadings[biplotAxis][1] ** 2) **
-                    (1 / 2)) *
-            1.5;
-
         const loadingMarks = [];
 
-        // const show_features = [0, 1, 2, 3, 4, 6];
         let show_features = biplotFeatures.map((x) => numFeatures.indexOf(x));
         // console.log("show_features", show_features);
 

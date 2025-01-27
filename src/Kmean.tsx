@@ -1,3 +1,4 @@
+import { Patient } from "./Patient";
 type Point = number[];
 
 type ClusterResult = {
@@ -174,7 +175,45 @@ function kMeans(data: number[][], k: number, maxIterations = 50): number[] {
     return assignments;
 }
 
-export default kMeans;
+function RunKmeans(
+    patientData: Patient[],
+    setPatientDataFunc: Function,
+    k: number
+) {
+    const clusteringData: number[][] = patientData
+        .filter((patient) => patient.valid_pc)
+        .map((patient) => [
+            patient.principal_component_1,
+            patient.principal_component_2,
+        ]);
+
+    // index 48, 53 and 34 are NaN
+
+    // const patientCluster: number[];
+
+    if (clusteringData.length > 0) {
+        const patientCluster: number[] = kMeans(clusteringData, k);
+        console.log("patientClusster", patientCluster);
+
+        patientData
+            .filter((patient) => patient.valid_pc)
+            .forEach((patient, index) => {
+                patient.k_mean_cluster = patientCluster[index];
+            });
+    }
+
+    patientData
+        .filter((patient) => !patient.valid_pc)
+        .forEach((patient) => {
+            patient.k_mean_cluster = -1;
+        });
+
+    // deep copy, so that setPatientData does update the state
+    // state comparison only does shallow comparison, so if we update the state directly, it will not update the state
+    setPatientDataFunc(patientData.map((patient) => ({ ...patient })));
+}
+
+export { kMeans, RunKmeans };
 
 // // Example usage:
 // const data: number[][] = [

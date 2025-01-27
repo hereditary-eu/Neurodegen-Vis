@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import "./App.css";
 import * as d3 from "d3";
 import * as Plot from "@observablehq/plot";
@@ -104,10 +104,10 @@ function PlotCorHeatmap({
                 console.log("Clicked on cell", idx_x, idx_y);
                 setSelectedFeatures([cov_features[idx_x], cov_features[idx_y]]);
             })
-            .on("mouseover", function (d) {
+            .on("mouseover", function () {
                 d3.select(this).style("stroke", "black");
             })
-            .on("mouseout", function (d) {
+            .on("mouseout", function () {
                 d3.select(this).style("stroke", "none");
             })
             .style("cursor", "default");

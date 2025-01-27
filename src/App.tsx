@@ -23,7 +23,7 @@ import {
 } from "./Heatmap_Scatterplots";
 import dataFieldDescription from "./PD_DataFieldsDescription_plain.txt?raw";
 import ReactMarkdown from "react-markdown";
-import kMeans from "./Kmean";
+import { kMeans, RunKmeans } from "./Kmean";
 
 interface logPSXProps {
     message: string;
@@ -206,29 +206,49 @@ function App() {
         }[]
     >([]);
 
+    // todo, hard coded 54
     let emptyPatient: Patient = new Patient();
-    const [patients_data, setData] = useState(Array(54).fill(emptyPatient)); // todo, hard coded 54
+    const [patients_data, setPatientData] = useState<Patient[]>(
+        Array(54).fill(emptyPatient)
+    );
+    function setPatientDataFunc(data: Patient[]) {
+        console.log("Setting data...");
+        setPatientData(data);
+    }
 
-    // const [pcaLoadings, setPcaLoadings] = useState<number[][]>([]); // Use state to store pcaLoadings
+    const [pcaLoadings, setPcaLoadings] = useState<number[][]>([]); // Use state to store pcaLoadings
+
+    // kmeans
+    const [k, setK] = useState<number>(1);
 
     useEffect(() => {
         console.log("Loading data...");
-        async function load() {
-            let loaded = (
-                await d3.csv("dataset/PD_SampleData_Curated.csv")
-            ).map((r) => Patient.fromJson(r));
-            setData(loaded);
-            console.log("Data loaded!", patients_data);
-            setDataLoaded(true);
+        async function loadAndProcessData() {
+            try {
+                // Step 1: Load Data
+                const patientDataLoaded = (
+                    await d3.csv("dataset/PD_SampleData_Curated.csv")
+                ).map((r) => Patient.fromJson(r));
+                console.log("Data loaded!", patientDataLoaded);
 
-            // // RUN PCA
-            // const newPcaLoadings = PCA_analysis({
-            //     patientsData: patients_data,
-            //     numFeatures: numerical_keys_list,
-            // });
-            // setPcaLoadings(newPcaLoadings); // Update state
+                // Step 2: Run PCA Analysis
+                const newPcaLoadings = PCA_analysis({
+                    patientsData: patientDataLoaded,
+                    numFeatures: numerical_keys_list,
+                });
+
+                // Run Kmeans
+                RunKmeans(patientDataLoaded, setPatientDataFunc, k);
+
+                // Step 3: Update State
+                setPatientData(patientDataLoaded);
+                setPcaLoadings(newPcaLoadings);
+                setDataLoaded(true); // Set this last to indicate both processes are done
+            } catch (error) {
+                console.error("Error loading data or running PCA:", error);
+            }
         }
-        load().catch(console.error);
+        loadAndProcessData();
     }, []);
 
     // ------------------------- chatGPT -------------------------
@@ -294,48 +314,16 @@ function App() {
     };
 
     // // ------------------------- PCA -------------------------
-    let pcaLoadings: number[][] = [];
-    console.log("PCA loadings before", pcaLoadings);
-    if (dataLoaded) {
-        pcaLoadings = PCA_analysis({
-            patientsData: patients_data,
-            numFeatures: numerical_keys_list,
-        });
-        console.log("PCA loadings", pcaLoadings);
-    }
-
-    if (dataLoaded) {
-        // numFeatures={numerical_keys_list}
-        // k-means clustering
-        const k = 3;
-        const clusteringData: number[][] = patients_data
-            .filter((patient) => patient.valid_pc)
-            .map((patient) => [
-                patient.principal_component_1,
-                patient.principal_component_2,
-            ]);
-
-        // index 48, 53 and 34 are NaN
-
-        // const patientCluster: number[];
-
-        if (clusteringData.length > 0) {
-            const patientCluster: number[] = kMeans(clusteringData, k);
-            console.log("patientClusster", patientCluster);
-
-            patients_data
-                .filter((patient) => patient.valid_pc)
-                .forEach((patient, index) => {
-                    patient.k_mean_cluster = patientCluster[index];
-                });
-        }
-
-        patients_data
-            .filter((patient) => !patient.valid_pc)
-            .forEach((patient) => {
-                patient.k_mean_cluster = -1;
-            });
-    }
+    // useEffect(() => {
+    //     if (dataLoaded) {
+    //         console.log("Running PCA second useEffect...");
+    //         const newPcaLoadings = PCA_analysis({
+    //             patientsData: patients_data,
+    //             numFeatures: numerical_keys_list,
+    //         });
+    //         setPcaLoadings(newPcaLoadings);
+    //     }
+    // }, [dataLoaded, patients_data, numerical_keys_list]);
 
     // handle offcanvas
     const [show, setShow] = useState(false);
@@ -524,12 +512,41 @@ function App() {
                                             />
                                         </div>
                                     </div>
+                                    <div className="kmeans-container">
+                                        <label htmlFor="kmeans-input">
+                                            Number of Clusters (k):{" "}
+                                        </label>
+                                        <input
+                                            type="number"
+                                            id="kmeans-input"
+                                            value={k}
+                                            onChange={(e) =>
+                                                setK(Number(e.target.value))
+                                            }
+                                            min="1"
+                                            max="20"
+                                        />
+                                        <Button
+                                            variant="dark"
+                                            onClick={() =>
+                                                RunKmeans(
+                                                    patients_data,
+                                                    setPatientDataFunc,
+                                                    k
+                                                )
+                                            }
+                                            className="run-kmeans-button"
+                                        >
+                                            Run
+                                        </Button>
+                                    </div>
+
                                     <PlotPcaBiplot
                                         patientsData={patients_data}
                                         numFeatures={numerical_keys_list}
                                         loadings={pcaLoadings}
                                         biplotFeatures={biplotFeatures}
-                                        showKmeans={true}
+                                        showKmeans={!(k === 1)}
                                     />
                                 </div>
                             </div>
