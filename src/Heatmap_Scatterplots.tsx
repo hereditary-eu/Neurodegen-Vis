@@ -16,6 +16,28 @@ interface CorHeatmapProps {
 
 const FONTSIZE = "14px";
 const COLORS: string[] = ["orange", "green"];
+const CLUSTERCOLORS = [
+    "#ffffff", //white => cluster -1
+    "#1f77b4", // Blue
+    "#ff7f0e", // Orange
+    "#2ca02c", // Green
+    "#9467bd", // Purple
+    "#8c564b", // Brown
+    "#e377c2", // Pink
+    "#7f7f7f", // Gray
+    "#bcbd22", // Yellow-Green
+    "#17becf", // Cyan
+    "#aec7e8", // Light Blue
+    "#ffbb78", // Light Orange
+    "#98df8a", // Light Green
+    "#ff9896", // Light Red
+    "#c5b0d5", // Light Purple
+    "#c49c94", // Tan
+    "#f7b6d2", // Light Pink
+    "#c7c7c7", // Light Gray
+    "#dbdb8d", // Light Yellow-Green
+    "#9edae5", // Light Cyan
+];
 
 // correlations of the form {a: string, b: string, correlation: number from all combinations of cov_features}
 // correlations: {'string', 'string', 'number'}[]
@@ -127,6 +149,7 @@ interface ScatterplotProps {
     x_feature: string;
     patients_data: Patient[];
     categorical_feature: string;
+    k_mean_clusters: number;
     show_dash?: boolean;
     showCatLinReg?: boolean;
     showCatAvg?: boolean;
@@ -137,6 +160,7 @@ function PlotScatterplot({
     x_feature,
     patients_data,
     categorical_feature,
+    k_mean_clusters: k_mean_cluster,
     show_dash = false,
     showCatAvg = false,
     showCatLinReg = false,
@@ -148,7 +172,23 @@ function PlotScatterplot({
             (p) => !isNaN(p[x_feature] && p[y_feature])
         );
 
-        const catFeatureSelected: boolean = categorical_feature !== "";
+        let catFeatureSelected: boolean =
+            categorical_feature !== "" && categorical_feature !== "None";
+        console.log("catFeatureSelected", catFeatureSelected);
+
+        let colors = COLORS;
+        let k_mean_cluster_sel = false;
+        if (categorical_feature === "k_mean_cluster") {
+            if (k_mean_cluster === 1) {
+                catFeatureSelected = false;
+            } else {
+                k_mean_cluster_sel = true;
+                colors = CLUSTERCOLORS;
+                showCatAvg = false;
+                showCatLinReg = false;
+            }
+        }
+
         if (!catFeatureSelected) {
             showCatAvg = false;
             showCatLinReg = false;
@@ -219,8 +259,6 @@ function PlotScatterplot({
         linReg_y = linReg_x.map((x) => slope * x + intercept);
         const linRegData1 = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
 
-        // let colors: string[] = ["orange", "green"];
-
         const pd_scatterplot = Plot.plot({
             marginBottom: 35,
             marks: [
@@ -244,13 +282,13 @@ function PlotScatterplot({
                           Plot.line(linRegData0, {
                               x: "x",
                               y: "y",
-                              stroke: COLORS[0],
+                              stroke: colors[0],
                               strokeWidth: 3,
                           }),
                           Plot.line(linRegData1, {
                               x: "x",
                               y: "y",
-                              stroke: COLORS[1],
+                              stroke: colors[1],
                               strokeWidth: 2.5,
                           }),
                       ]
@@ -276,8 +314,12 @@ function PlotScatterplot({
                 domain: [min_y, max_y],
             },
             color: {
-                domain: [0, 1],
-                range: COLORS,
+                // set domian to [0, 1] if not k_mean_cluster
+
+                // domain: catFeatureSelected ? [0, 1] : [],
+                // domain: [0, 1],
+                ...(!k_mean_cluster_sel ? { domain: [0, 1] } : {}),
+                range: colors,
             },
             style: "--plot-background: black; font-size: " + FONTSIZE, //13px",
         });
@@ -323,7 +365,9 @@ function PlotHisto({
         console.log("plotHisto fun started");
         const binNumber = 9;
 
-        const catFeatureSelected: boolean = catFeature !== "";
+        const catFeatureSelected: boolean =
+            catFeature !== "" && catFeature !== "None";
+        console.log("catFeatureSelected", catFeatureSelected);
 
         let patients_data_map = patients_data;
         if (catFeatureSelected) {

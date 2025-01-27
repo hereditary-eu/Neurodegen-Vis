@@ -6,6 +6,28 @@ import { CalcMinMaxMatrix } from "./HelperFunctions";
 
 const FONTSIZE = "14px";
 
+const CLUSTERCOLORS = [
+    "#1f77b4", // Blue
+    "#ff7f0e", // Orange
+    "#2ca02c", // Green
+    "#9467bd", // Purple
+    "#8c564b", // Brown
+    "#e377c2", // Pink
+    "#7f7f7f", // Gray
+    "#bcbd22", // Yellow-Green
+    "#17becf", // Cyan
+    "#aec7e8", // Light Blue
+    "#ffbb78", // Light Orange
+    "#98df8a", // Light Green
+    "#ff9896", // Light Red
+    "#c5b0d5", // Light Purple
+    "#c49c94", // Tan
+    "#f7b6d2", // Light Pink
+    "#c7c7c7", // Light Gray
+    "#dbdb8d", // Light Yellow-Green
+    "#9edae5", // Light Cyan
+];
+
 function getLoadingsForPlot(
     feature_num: number,
     loadings: number[][],
@@ -123,7 +145,7 @@ function PlotPcaBiplot({
         const validClusters: number[] = patientsData
             .filter((patient) => patient.valid_pc)
             .map((patient) => patient.k_mean_cluster);
-        console.log("validClusters", validClusters);
+        // console.log("validClusters", validClusters);
 
         const [min_x, max_x, min_y, max_y] = CalcMinMaxMatrix({
             matrix: pcaProjections,
@@ -155,12 +177,21 @@ function PlotPcaBiplot({
                     x: (d) => d[0],
                     y: (d) => d[1],
                     tip: true,
+                    title: (d, i) =>
+                        "Cluster " +
+                        validClusters[i] +
+                        "\n" + // Cluster number
+                        "PC 1: " +
+                        d[0].toFixed(2) +
+                        "\n" + // PC1
+                        "PC 2: " +
+                        d[1].toFixed(2), // PC2
                     ...(showKmeans
                         ? {
-                              fill: (d, i) => {
-                                  // todo, set specific colors for each cluster
-                                  return validClusters[i];
-                              },
+                              stroke: (d, i) =>
+                                  CLUSTERCOLORS[
+                                      validClusters[i] % CLUSTERCOLORS.length
+                                  ], // Cluster colors
                           }
                         : {}),
                 }),

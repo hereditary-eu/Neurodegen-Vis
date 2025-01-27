@@ -11,7 +11,7 @@ import "./dropdown.css";
 import * as d3 from "d3";
 // import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
-import { categorial_keys_list } from "./categorical_keys_list";
+// import { categorial_keys_list } from "./categorical_keys_list";
 import { numerical_keys_list } from "./numerical_keys_list";
 import { zTestMethodsMapping } from "./zTestMethodsMapping";
 import { PCA_analysis, PlotPcaBiplot } from "./PCA";
@@ -23,7 +23,7 @@ import {
 } from "./Heatmap_Scatterplots";
 import dataFieldDescription from "./PD_DataFieldsDescription_plain.txt?raw";
 import ReactMarkdown from "react-markdown";
-import { kMeans, RunKmeans } from "./Kmean";
+import { RunKmeans } from "./Kmean";
 
 interface logPSXProps {
     message: string;
@@ -155,22 +155,29 @@ function App() {
     >(["insnpsi_age", "visuosp_z_comp"]);
 
     const [zTestMethods, setZTestMethods] = useState<string[]>(
-        zTestMethodsMapping[scatterplotFeatures[1]]
+        ["None", "k_mean_cluster"].concat(
+            zTestMethodsMapping[scatterplotFeatures[1]]
+        )
     );
 
-    const [zTestCatFeature, setZTestCatFeature] = useState<string>(
-        zTestMethods[0]
-    );
+    const [zTestMethod, setZTestMethod] = useState<string>(zTestMethods[1]);
 
     function heatmapSetsScatterplotFeatures(features: [string, string]) {
         setScatterplotFeatures(features);
+
+        let scatterplotCatFeatures: string[] = ["None", "k_mean_cluster"];
         // console.log("z Methods", Object.keys(zTestMethodsMapping));
         if (Object.keys(zTestMethodsMapping).includes(features[1])) {
-            setZTestMethods(zTestMethodsMapping[features[1]]);
-            setZTestCatFeature(zTestMethodsMapping[features[1]][0]);
+            // scatterplotCatFeatures;
+            scatterplotCatFeatures = scatterplotCatFeatures.concat(
+                zTestMethodsMapping[features[0]]
+            );
+
+            setZTestMethods(scatterplotCatFeatures);
+            setZTestMethod(scatterplotCatFeatures[1]);
         } else {
-            setZTestMethods([]);
-            setZTestCatFeature("");
+            setZTestMethods(["None", "k_mean_cluster"]);
+            setZTestMethod("k_mean_cluster");
         }
     }
 
@@ -219,7 +226,8 @@ function App() {
     const [pcaLoadings, setPcaLoadings] = useState<number[][]>([]); // Use state to store pcaLoadings
 
     // kmeans
-    const [k, setK] = useState<number>(1);
+    const k_init = 2;
+    const [k, setK] = useState<number>(k_init);
 
     useEffect(() => {
         console.log("Loading data...");
@@ -422,10 +430,6 @@ function App() {
                                         }
                                         setCorrelations={setPearsonCorr}
                                     />
-                                    <LogPSX
-                                        message="correlations in JSX"
-                                        logElement={pearsonCorr}
-                                    />
                                 </div>
                             </div>
 
@@ -455,8 +459,9 @@ function App() {
                                                 }} // Use style attribute to set visibility
                                                 id="zTestCatFeature"
                                                 className="single-select-dropdown"
+                                                value={zTestMethod}
                                                 onChange={(e) =>
-                                                    setZTestCatFeature(
+                                                    setZTestMethod(
                                                         e.target.value
                                                     )
                                                 }
@@ -475,7 +480,7 @@ function App() {
                                                 selected_feature={
                                                     scatterplotFeatures[0]
                                                 }
-                                                catFeature={zTestCatFeature}
+                                                catFeature={zTestMethod}
                                             />
                                         ) : (
                                             <PlotScatterplot
@@ -487,8 +492,9 @@ function App() {
                                                 }
                                                 patients_data={patients_data}
                                                 categorical_feature={
-                                                    zTestCatFeature
+                                                    zTestMethod
                                                 }
+                                                k_mean_clusters={k}
                                                 showCatLinReg={false}
                                                 showCatAvg={true}
                                             />
