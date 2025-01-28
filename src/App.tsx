@@ -117,6 +117,8 @@ function App() {
         "sdmt_done",
         "flu_a_done",
         "phon_flu_done",
+        "principal_component_1",
+        "principal_component_2",
     ];
 
     const covFeatures_init: string[] = [

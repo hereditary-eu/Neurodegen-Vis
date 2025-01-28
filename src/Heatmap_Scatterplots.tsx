@@ -15,42 +15,39 @@ interface CorHeatmapProps {
 }
 
 const FONTSIZE = "14px";
-const COLORS: string[] = ["orange", "green"];
-// const COLORS: { [key: number]: string } = {
-//     0: "orange",
-//     1: "green",
-// };
-
-// todo, set cluster to color, not just with order
-const COLOR_2: { [key: number]: string } = {
-    [-1]: "#ffffff", // white => cluster -1
-    0: "#1f77b4", // Blue
-    2: "#ff7f0e", // Orange
+const COLORS: { [key: number]: string } = {
+    0: "orange",
+    1: "green",
+};
+const COLORS_HISTO: { [key: string]: string } = {
+    Done: "orange",
+    "Not Done": "green",
 };
 
-const CLUSTERCOLORS: string[] = [
-    "#ffffff", // white => cluster -1
-    "#1f77b4", // Blue
-    "#ff7f0e", // Orange
-    "#2ca02c", // Green
-    "#9467bd", // Purple
-    "#8c564b", // Brown
-    "#e377c2", // Pink
-    "#7f7f7f", // Gray
-    "#bcbd22", // Yellow-Green
-    "#17becf", // Cyan
-    "#aec7e8", // Light Blue
-    "#ffbb78", // Light Orange
-    "#98df8a", // Light Green
-    "#ff9896", // Light Red
-    "#c5b0d5", // Light Purple
-    "#c49c94", // Tan
-    "#f7b6d2", // Light Pink
-    "#c7c7c7", // Light Gray
-    "#dbdb8d", // Light Yellow-Green
-    "#9edae5", // Light Cyan
-    "#dadaeb", // Light Light Blue
-];
+// // todo, set cluster to color, not just with order
+const CLUSTERCOLORS: { [key: number]: string } = {
+    [-1]: "#ffffff", // white => cluster -1
+    0: "#1f77b4", // Blue
+    1: "#ff7f0e", // Orange
+    2: "#2ca02c", // Green
+    3: "#9467bd", // Purple
+    4: "#8c564b", // Brown
+    5: "#e377c2", // Pink
+    6: "#7f7f7f", // Gray
+    7: "#bcbd22", // Yellow-Green
+    8: "#17becf", // Cyan
+    9: "#aec7e8", // Light Blue
+    10: "#ffbb78", // Light Orange
+    11: "#98df8a", // Light Green
+    12: "#ff9896", // Light Red
+    13: "#c5b0d5", // Light Purple
+    14: "#c49c94", // Tan
+    15: "#f7b6d2", // Light Pink
+    16: "#c7c7c7", // Light Gray
+    17: "#dbdb8d", // Light Yellow-Green
+    18: "#9edae5", // Light Cyan
+    19: "#dadaeb", // Light Light Blue
+};
 
 // correlations of the form {a: string, b: string, correlation: number from all combinations of cov_features}
 // correlations: {'string', 'string', 'number'}[]
@@ -280,7 +277,9 @@ function PlotScatterplot({
                     y: y_feature,
                     tip: true,
                     ...(catFeatureSelected
-                        ? { stroke: categorical_feature }
+                        ? {
+                              stroke: (d) => colors[d[categorical_feature]],
+                          }
                         : {}),
                 }),
                 Plot.line(linRegDataAll, {
@@ -326,14 +325,13 @@ function PlotScatterplot({
                 label: y_feature,
                 domain: [min_y, max_y],
             },
-            color: {
-                // set domian to [0, 1] if not k_mean_cluster
-
-                // domain: catFeatureSelected ? [0, 1] : [],
-                // domain: [0, 1],
-                ...(!k_mean_cluster_sel ? { domain: [0, 1] } : {}),
-                range: colors,
-            },
+            // color: {
+            //     // set domian to [0, 1] if not k_mean_cluster
+            //     // domain: catFeatureSelected ? [0, 1] : [],
+            //     // domain: [0, 1],
+            //     // ...(!k_mean_cluster_sel ? { domain: [0, 1] } : {}),
+            //     // range: colors,
+            // },
             style: "--plot-background: black; font-size: " + FONTSIZE, //13px",
         });
         return pd_scatterplot;
@@ -384,7 +382,7 @@ function PlotHisto({
             catFeature !== "" && catFeature !== "None";
         console.log("catFeatureSelected", catFeatureSelected);
 
-        let colors = COLORS;
+        let colors = COLORS_HISTO;
         let k_mean_cluster_sel = false;
         if (catFeature === "k_mean_cluster") {
             if (k_mean_clusters === 1) {
@@ -414,7 +412,11 @@ function PlotHisto({
                         { y: "count", thresholds: binNumber },
                         {
                             x: selected_feature,
-                            ...(catFeatureSelected ? { fill: catFeature } : {}),
+                            ...(catFeatureSelected
+                                ? {
+                                      fill: (d) => colors[d[catFeature]],
+                                  }
+                                : {}),
                         }
                     )
                 ),
@@ -446,7 +448,7 @@ function PlotHisto({
                 ...(!k_mean_cluster_sel && catFeatureSelected
                     ? { domain: ["Not Done", "Done"] }
                     : {}),
-                range: colors,
+                range: Object.values(colors),
             },
             style: "--plot-background: black; font-size: " + FONTSIZE,
         });
