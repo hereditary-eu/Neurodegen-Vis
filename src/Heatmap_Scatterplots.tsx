@@ -16,8 +16,20 @@ interface CorHeatmapProps {
 
 const FONTSIZE = "14px";
 const COLORS: string[] = ["orange", "green"];
-const CLUSTERCOLORS = [
-    "#ffffff", //white => cluster -1
+// const COLORS: { [key: number]: string } = {
+//     0: "orange",
+//     1: "green",
+// };
+
+// todo, set cluster to color, not just with order
+const COLOR_2: { [key: number]: string } = {
+    [-1]: "#ffffff", // white => cluster -1
+    0: "#1f77b4", // Blue
+    2: "#ff7f0e", // Orange
+};
+
+const CLUSTERCOLORS: string[] = [
+    "#ffffff", // white => cluster -1
     "#1f77b4", // Blue
     "#ff7f0e", // Orange
     "#2ca02c", // Green
@@ -37,6 +49,7 @@ const CLUSTERCOLORS = [
     "#c7c7c7", // Light Gray
     "#dbdb8d", // Light Yellow-Green
     "#9edae5", // Light Cyan
+    "#dadaeb", // Light Light Blue
 ];
 
 // correlations of the form {a: string, b: string, correlation: number from all combinations of cov_features}
@@ -160,7 +173,7 @@ function PlotScatterplot({
     x_feature,
     patients_data,
     categorical_feature,
-    k_mean_clusters: k_mean_cluster,
+    k_mean_clusters,
     show_dash = false,
     showCatAvg = false,
     showCatLinReg = false,
@@ -179,7 +192,7 @@ function PlotScatterplot({
         let colors = COLORS;
         let k_mean_cluster_sel = false;
         if (categorical_feature === "k_mean_cluster") {
-            if (k_mean_cluster === 1) {
+            if (k_mean_clusters === 1) {
                 catFeatureSelected = false;
             } else {
                 k_mean_cluster_sel = true;
@@ -354,23 +367,37 @@ interface plotHistoProps {
     patients_data: Patient[];
     selected_feature: string;
     catFeature: string;
+    k_mean_clusters: number;
 }
 
 function PlotHisto({
     patients_data,
     selected_feature,
     catFeature,
+    k_mean_clusters,
 }: plotHistoProps) {
     function createPlot() {
         console.log("plotHisto fun started");
         const binNumber = 9;
 
-        const catFeatureSelected: boolean =
+        let catFeatureSelected: boolean =
             catFeature !== "" && catFeature !== "None";
         console.log("catFeatureSelected", catFeatureSelected);
 
-        let patients_data_map = patients_data;
-        if (catFeatureSelected) {
+        let colors = COLORS;
+        let k_mean_cluster_sel = false;
+        if (catFeature === "k_mean_cluster") {
+            if (k_mean_clusters === 1) {
+                catFeatureSelected = false;
+            } else {
+                k_mean_cluster_sel = true;
+                colors = CLUSTERCOLORS;
+            }
+        }
+
+        // dont define as Patient[], because than the map function does not work
+        let patients_data_map: { [key: string]: any }[] = patients_data;
+        if (catFeatureSelected && !k_mean_cluster_sel) {
             patients_data_map = patients_data.map((p) => ({
                 ...p,
                 [catFeature]: p[catFeature] === 1 ? "Done" : "Not Done",
@@ -392,6 +419,16 @@ function PlotHisto({
                     )
                 ),
                 Plot.ruleY([0]),
+                // Plot.tip(
+                //     patients_data_map,
+                //     Plot.binX(
+                //         { y: "count", thresholds: binNumber },
+                //         {
+                //             x: selected_feature,
+                //             ...(catFeatureSelected ? { fill: catFeature } : {}),
+                //         }
+                //     )
+                // ),
                 // Plot.ruleX([0])
             ],
             x: {
@@ -403,10 +440,13 @@ function PlotHisto({
                 grid: true,
             },
             color: {
-                // legend: true,
-                domain: ["Not Done", "Done"],
-                // domain: [0, 1],
-                range: COLORS,
+                // ...(catFeatureSelected ? { legend: true } : {}),
+                // domain: ["Not Done", "Done"],
+                legend: true,
+                ...(!k_mean_cluster_sel && catFeatureSelected
+                    ? { domain: ["Not Done", "Done"] }
+                    : {}),
+                range: colors,
             },
             style: "--plot-background: black; font-size: " + FONTSIZE,
         });

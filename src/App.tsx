@@ -480,6 +480,7 @@ function App() {
                                                 selected_feature={
                                                     scatterplotFeatures[0]
                                                 }
+                                                k_mean_clusters={k}
                                                 catFeature={zTestMethod}
                                             />
                                         ) : (
