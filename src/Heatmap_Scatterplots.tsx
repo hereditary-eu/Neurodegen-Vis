@@ -107,6 +107,7 @@ function PlotCorHeatmap({
                     x: "a",
                     y: "b",
                     fill: "correlation",
+                    className: "heatmap-cell",
                 }),
                 Plot.text(correlations, {
                     x: "a",
@@ -117,6 +118,7 @@ function PlotCorHeatmap({
                             ? "white"
                             : "black",
                     fontSize: 12, //fontsize of correlation values
+                    className: "heatmap-cell",
                 }),
             ],
             style:
@@ -124,23 +126,54 @@ function PlotCorHeatmap({
         });
 
         // adapted from https://observablehq.com/@ambassadors/interactive-plot-dashboard
+        const rects = d3.select(corr_heatmap).selectAll("rect");
+        console.log("rects", rects);
         d3.select(corr_heatmap)
-            .selectAll("rect")
-            .on("click", function (d) {
-                let tar = d.target; // cell
-                // copy the children of the parent element to an array and get the index of the cell
-                let idx1d = [...tar.parentElement.children].indexOf(tar); // index of cell
-                const idx_x = Math.floor(idx1d / cov_features.length);
-                const idx_y = idx1d % cov_features.length;
+            // .selectAll("rect")
+            .on("click", function (event) {
+                let target = event.target; // cell
+                if (target.parentElement.classList.contains("heatmap-cell")) {
+                    // copy the children of the parent element to an array and get the index of the cell
+                    let idx1d = [...target.parentElement.children].indexOf(
+                        target
+                    );
+                    const idx_x = Math.floor(idx1d / cov_features.length);
+                    const idx_y = idx1d % cov_features.length;
 
-                console.log("Clicked on cell", idx_x, idx_y);
-                setSelectedFeatures([cov_features[idx_x], cov_features[idx_y]]);
+                    console.log("Clicked on cell", idx_x, idx_y);
+                    setSelectedFeatures([
+                        cov_features[idx_x],
+                        cov_features[idx_y],
+                    ]);
+                }
             })
-            .on("mouseover", function () {
-                d3.select(this).style("stroke", "black");
+            .on("pointerover", function (event) {
+                let target = event.target; // cell
+
+                // check if target has class head-map-cell
+                if (target.parentElement.classList.contains("heatmap-cell")) {
+                    let idx1d = [...target.parentElement.children].indexOf(
+                        target
+                    );
+
+                    // highlight the according rectangle from rects
+                    d3.select(rects.nodes()[idx1d])
+                        .style("stroke", "black")
+                        .style("stroke-width", 2);
+                }
             })
-            .on("mouseout", function () {
-                d3.select(this).style("stroke", "none");
+            .on("pointerout", function (event) {
+                let target = event.target; // Get the target of the pointer event
+
+                // Ensure the target is part of a heatmap cell (either the rectangle or the text)
+                if (target.parentElement.classList.contains("heatmap-cell")) {
+                    let idx1d = [...target.parentElement.children].indexOf(
+                        target
+                    );
+
+                    // Reset the stroke on the corresponding rect
+                    d3.select(rects.nodes()[idx1d]).style("stroke", "none");
+                }
             })
             .style("cursor", "default");
 
