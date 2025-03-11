@@ -156,6 +156,7 @@ function PlotCorHeatmap({
                         target
                     );
 
+                    d3.select(target).style("cursor", "pointer");
                     // highlight the according rectangle from rects
                     d3.select(rects.nodes()[idx1d])
                         .style("stroke", "black")
@@ -174,8 +175,9 @@ function PlotCorHeatmap({
                     // Reset the stroke on the corresponding rect
                     d3.select(rects.nodes()[idx1d]).style("stroke", "none");
                 }
-            })
-            .style("cursor", "default");
+            });
+        // .style("cursor", "default");
+        // .style("cursor", "pointer");
 
         // console.log("corr_heatmap_ref.current", corr_heatmap_ref.current);
         if (corr_heatmap_ref.current) {

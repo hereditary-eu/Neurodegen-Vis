@@ -435,7 +435,7 @@ function App() {
                                 </div>
                             </div>
 
-                            <div className="container-column ">
+                            <div className="flex-container-column ">
                                 {scatterplotFeatures[0] !== "" &&
                                 scatterplotFeatures[1] !== "" ? (
                                     <div>
