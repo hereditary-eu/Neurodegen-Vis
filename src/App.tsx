@@ -15,7 +15,10 @@ import { Patient } from "./Patient";
 import { numerical_keys_list } from "./numerical_keys_list";
 import { zTestMethodsMapping } from "./zTestMethodsMapping";
 import { PCA_analysis, PlotPcaBiplot } from "./PCA";
-import OpenAI from "openai";
+// import { handleChatSubmit, handleChatSubmitSuggest } from "./ChatGPT";
+import { handleChatSubmitSuggest } from "./ChatGPT";
+import { handleChatSubmit } from "./ChatGPT";
+import { MessageHistory } from "./ChatGPT";
 import {
     PlotHisto,
     PlotCorHeatmap,
@@ -275,7 +278,7 @@ function App() {
                     patientDataLoaded
                 );
                 setPearsonCorr(correlations);
-                SetMessageHisto([
+                setMessageHisto([
                     ...messageHisto,
                     {
                         role: "system",
@@ -295,58 +298,11 @@ function App() {
     // use ref to avoid re-rendering for the input field for every key stroke
     const promptRef = useRef<HTMLInputElement>(null);
     const [response, setResponse] = useState<string>("");
-    const [messageHisto, SetMessageHisto] = useState<
-        { role: "system" | "user" | "assistant"; content: string }[]
-    >([
+    const [messageHisto, setMessageHisto] = useState<MessageHistory[]>([
         { role: "system", content: "You are a helpful assistant." },
         { role: "system", content: "Please give short answers" },
         { role: "system", content: dataFieldDescription },
     ]);
-
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-    const openai = new OpenAI({
-        apiKey: apiKey,
-        dangerouslyAllowBrowser: true, // TODO, Allow the API to be used in the browser, not recommended for production
-    });
-
-    const handleChatSubmit = async () => {
-        // Get the user's prompt from the input field
-        const prompt = promptRef.current?.value || "";
-        if (!prompt) return;
-
-        // Append the new user message to the message history
-        const updatedMessages: {
-            role: "system" | "user" | "assistant";
-            content: string;
-        }[] = [...messageHisto, { role: "user", content: prompt }];
-        SetMessageHisto(updatedMessages);
-
-        try {
-            const completion = await openai.chat.completions.create({
-                model: "gpt-4o-mini",
-                messages: updatedMessages, // Send the entire conversation history
-            });
-
-            const assistantResponse =
-                completion.choices[0].message.content || "";
-
-            // Append the assistant's response to the message history
-            const updatedMessagesWithResponse: {
-                role: "system" | "user" | "assistant";
-                content: string;
-            }[] = [
-                ...updatedMessages,
-                { role: "assistant", content: assistantResponse },
-            ];
-            SetMessageHisto(updatedMessagesWithResponse);
-            console.log("message history", updatedMessagesWithResponse);
-
-            // Update the displayed response
-            setResponse(assistantResponse);
-        } catch (error) {
-            console.error("Error fetching response:", error);
-        }
-    };
 
     // // ------------------------- PCA -------------------------
     // useEffect(() => {
@@ -415,8 +371,39 @@ function App() {
                                                 ref={promptRef}
                                                 placeholder="Enter your prompt here"
                                             />
-                                            <button onClick={handleChatSubmit}>
+                                            <button
+                                                onClick={() =>
+                                                    handleChatSubmit({
+                                                        prompt:
+                                                            promptRef.current
+                                                                ?.value || "",
+                                                        messageHisto:
+                                                            messageHisto,
+                                                        setMessageHisto:
+                                                            setMessageHisto,
+                                                        setResponse:
+                                                            setResponse,
+                                                    })
+                                                }
+                                            >
                                                 Submit
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleChatSubmitSuggest({
+                                                        prompt:
+                                                            promptRef.current
+                                                                ?.value || "",
+                                                        messageHisto:
+                                                            messageHisto,
+                                                        setMessageHisto:
+                                                            setMessageHisto,
+                                                        setResponse:
+                                                            setResponse,
+                                                    })
+                                                }
+                                            >
+                                                Highlight Suggestions
                                             </button>
                                             <div className="chatgpt-response">
                                                 <ReactMarkdown>
