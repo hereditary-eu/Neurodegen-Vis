@@ -20,10 +20,13 @@ import {
     PlotHisto,
     PlotCorHeatmap,
     PlotScatterplot,
+    pearsonCorrelation,
 } from "./Heatmap_Scatterplots";
 import dataFieldDescription from "./PD_DataFieldsDescription_plain.txt?raw";
 import ReactMarkdown from "react-markdown";
 import { RunKmeans } from "./Kmean";
+
+import * as Plot from "@observablehq/plot";
 
 interface logPSXProps {
     message: string;
@@ -231,6 +234,18 @@ function App() {
     const k_init = 2;
     const [k, setK] = useState<number>(k_init);
 
+    function calcCorrelations(covFeatures: string[], patientsData: Patient[]) {
+        let correlations = d3.cross(covFeatures, covFeatures).map(([a, b]) => ({
+            a,
+            b,
+            correlation: pearsonCorrelation(
+                Plot.valueof(patientsData, a) ?? [],
+                Plot.valueof(patientsData, b) ?? []
+            ),
+        }));
+        return correlations;
+    }
+
     useEffect(() => {
         console.log("Loading data...");
         async function loadAndProcessData() {
@@ -254,6 +269,21 @@ function App() {
                 setPatientData(patientDataLoaded);
                 setPcaLoadings(newPcaLoadings);
                 setDataLoaded(true); // Set this last to indicate both processes are done
+
+                const correlations = calcCorrelations(
+                    covFeatures_init,
+                    patientDataLoaded
+                );
+                setPearsonCorr(correlations);
+                SetMessageHisto([
+                    ...messageHisto,
+                    {
+                        role: "system",
+                        content:
+                            "Pearson correlations from some features in format {a: 'feature1', b: 'feature2', correlation: 'number'}" +
+                            JSON.stringify(correlations),
+                    },
+                ]);
             } catch (error) {
                 console.error("Error loading data or running PCA:", error);
             }
@@ -280,6 +310,7 @@ function App() {
     });
 
     const handleChatSubmit = async () => {
+        // Get the user's prompt from the input field
         const prompt = promptRef.current?.value || "";
         if (!prompt) return;
 
@@ -305,12 +336,6 @@ function App() {
                 content: string;
             }[] = [
                 ...updatedMessages,
-                {
-                    role: "system",
-                    content:
-                        "Pearson correlations from some features in format {a: 'feature1', b: 'feature2', correlation: 'number'}" +
-                        JSON.stringify(pearsonCorr),
-                },
                 { role: "assistant", content: assistantResponse },
             ];
             SetMessageHisto(updatedMessagesWithResponse);

@@ -562,4 +562,4 @@ function pearsonCorrelation(x: number[], y: number[]) {
     return cov_xy / Math.sqrt(sigma_xx * sigma_yy);
 }
 
-export { PlotHisto, PlotScatterplot, PlotCorHeatmap };
+export { PlotHisto, PlotScatterplot, PlotCorHeatmap, pearsonCorrelation };
