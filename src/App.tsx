@@ -105,6 +105,9 @@ function App() {
 
     console.log("App started");
 
+    // all features should be all the keys from the Patient class
+    const allFeatures = Object.keys(new Patient());
+
     const covFeatures: string[] = [
         "insnpsi_age",
         "npsid_ddur_v",
@@ -188,18 +191,6 @@ function App() {
             setZTestMethod("k_mean_cluster");
         }
     }
-
-    // heatmapSetsScatterplotFeatures(["insnpsi_age", "npsid_rep_moca_c"]);
-    // console.log("scatterplot_features", scatterplotFeatures);
-
-    // 32 overall_domain_sum ... sum of all failed tests. (z-scores below -11)
-    // 9.	npsid_rep_moca_c: Raw result of Montreal Cognitive Assessment (MoCA) test (rep can be ignored, it is related to the fact that the variable is repeated in the data base).
-    // 10.	npsid_rep_mmse_c: Raw result of Mini-Mental State Examination (MMSE) test.
-
-    // categorical features:
-    // 13. npsid_cog_stat : Cognitive status of the patient: 1=NoCognitiveImpairment; 2=MildCognitiveImpairment-single-domain; 3-MildCognitiveImpairment-multiple-domain; 4-Dementia
-
-    // compare overall cognitve results, cognitve states, with this categorical ... done stuff.
 
     // features for PCA, biplot axis:
     const [biplotFeatures, setBiplotFeatures] = useState<string[]>([
@@ -300,21 +291,36 @@ function App() {
     const [response, setResponse] = useState<string>("");
     const [messageHisto, setMessageHisto] = useState<MessageHistory[]>([
         { role: "system", content: "You are a helpful assistant." },
-        { role: "system", content: "Please give short answers" },
+        { role: "system", content: "Please give short answers to all prompts" },
         { role: "system", content: dataFieldDescription },
     ]);
+    const [gptFeatureSuggestion, setGptFeatureSuggestion] = useState<
+        [string, string]
+    >(["", ""]);
 
-    // // ------------------------- PCA -------------------------
-    // useEffect(() => {
-    //     if (dataLoaded) {
-    //         console.log("Running PCA second useEffect...");
-    //         const newPcaLoadings = PCA_analysis({
-    //             patientsData: patients_data,
-    //             numFeatures: numerical_keys_list,
-    //         });
-    //         setPcaLoadings(newPcaLoadings);
-    //     }
-    // }, [dataLoaded, patients_data, numerical_keys_list]);
+    function handleGPTFeatureSuggestion(featureList: string[]) {
+        // console.log("Features, ", featureList);
+
+        // check if the features are valid in in the data
+        if (featureList.every((feature) => allFeatures.includes(feature))) {
+            console.log("Valid feature suggestion: ", featureList);
+            setScatterplotFeatures([featureList[0], featureList[1]]);
+            setGptFeatureSuggestion([featureList[0], featureList[1]]);
+            return;
+        } else {
+            console.log("Invalid feature suggestion: ", featureList);
+            // setMessageHisto([
+            //     ...messageHisto,
+            //     {
+            //         role: "system",
+            //         content:
+            //             "Invalid features, please try again with valid features",
+            //     },
+            // ]);
+        }
+
+        return;
+    }
 
     // handle offcanvas
     const [show, setShow] = useState(false);
@@ -338,7 +344,7 @@ function App() {
                                         onClick={handleShow}
                                         className="show-chatgpt-button"
                                     >
-                                        Show ChatGPT
+                                        Show Chat assistant.
                                     </Button>
                                     <h3 className="pearsonCorrelation-heading">
                                         Pearson Correlation for selected
@@ -361,33 +367,7 @@ function App() {
                                         </Offcanvas.Title>
                                     </Offcanvas.Header>
                                     <Offcanvas.Body>
-                                        <div>
-                                            <p>
-                                                Ask about the data fields, or
-                                                anything
-                                            </p>
-                                            <input
-                                                type="text"
-                                                ref={promptRef}
-                                                placeholder="Enter your prompt here"
-                                            />
-                                            <button
-                                                onClick={() =>
-                                                    handleChatSubmit({
-                                                        prompt:
-                                                            promptRef.current
-                                                                ?.value || "",
-                                                        messageHisto:
-                                                            messageHisto,
-                                                        setMessageHisto:
-                                                            setMessageHisto,
-                                                        setResponse:
-                                                            setResponse,
-                                                    })
-                                                }
-                                            >
-                                                Submit
-                                            </button>
+                                        <div className="chatGPT-suggest-button">
                                             <button
                                                 onClick={() =>
                                                     handleChatSubmitSuggest({
@@ -400,11 +380,45 @@ function App() {
                                                             setMessageHisto,
                                                         setResponse:
                                                             setResponse,
+                                                        handleGPTFeatureSuggestions:
+                                                            handleGPTFeatureSuggestion,
                                                     })
                                                 }
                                             >
-                                                Highlight Suggestions
+                                                Suggest Features
                                             </button>
+                                        </div>
+                                        <div>
+                                            <p>Or ask your questions.</p>
+                                            <div className="chatGPT-prompt">
+                                                <input
+                                                    type="text"
+                                                    ref={promptRef}
+                                                    placeholder="Enter your prompt here"
+                                                />
+                                                <button
+                                                    onClick={() =>
+                                                        handleChatSubmit({
+                                                            prompt:
+                                                                promptRef
+                                                                    .current
+                                                                    ?.value ||
+                                                                "",
+                                                            messageHisto:
+                                                                messageHisto,
+                                                            setMessageHisto:
+                                                                setMessageHisto,
+                                                            setResponse:
+                                                                setResponse,
+                                                            handleGPTFeatureSuggestions:
+                                                                handleGPTFeatureSuggestion,
+                                                        })
+                                                    }
+                                                >
+                                                    Submit
+                                                </button>
+                                            </div>
+
                                             <div className="chatgpt-response">
                                                 <ReactMarkdown>
                                                     {response}
@@ -439,6 +453,10 @@ function App() {
                                     <PlotCorHeatmap
                                         patients_data={patients_data}
                                         cov_features={selectedCovFeatures}
+                                        selectedFeatures={scatterplotFeatures}
+                                        gptFeatureSuggestion={
+                                            gptFeatureSuggestion
+                                        }
                                         setSelectedFeatures={
                                             heatmapSetsScatterplotFeatures
                                         }

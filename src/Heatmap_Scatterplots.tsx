@@ -5,15 +5,6 @@ import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
 import { CalcMinMaxPatientsData } from "./HelperFunctions";
 
-interface CorHeatmapProps {
-    patients_data: Patient[];
-    cov_features: string[];
-    setSelectedFeatures: (selectedFeatures: [string, string]) => void;
-    setCorrelations: (
-        correlations: { a: string; b: string; correlation: number }[]
-    ) => void;
-}
-
 const FONTSIZE = "14px";
 const COLORS: { [key: number]: string } = {
     0: "orange",
@@ -52,10 +43,21 @@ const CLUSTERCOLORS: { [key: number]: string } = {
 // correlations of the form {a: string, b: string, correlation: number from all combinations of cov_features}
 // correlations: {'string', 'string', 'number'}[]
 
-// Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
+interface CorHeatmapProps {
+    patients_data: Patient[];
+    cov_features: string[];
+    selectedFeatures: [string, string];
+    gptFeatureSuggestion: [string, string];
+    setSelectedFeatures: (selectedFeatures: [string, string]) => void;
+    setCorrelations: (
+        correlations: { a: string; b: string; correlation: number }[]
+    ) => void;
+} // Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
 function PlotCorHeatmap({
     patients_data,
     cov_features,
+    selectedFeatures,
+    gptFeatureSuggestion,
     setSelectedFeatures,
     setCorrelations,
 }: CorHeatmapProps) {
@@ -65,6 +67,7 @@ function PlotCorHeatmap({
     useEffect(() => {
         // d3.cross returns the cartesian product (all possible combinations) of the two arrays
         console.log("PlotCorHeatmap fun started");
+        console.log("selectedFeatures", selectedFeatures);
         let correlations = d3
             .cross(cov_features, cov_features)
             .map(([a, b]) => ({
@@ -127,7 +130,15 @@ function PlotCorHeatmap({
 
         // adapted from https://observablehq.com/@ambassadors/interactive-plot-dashboard
         const rects = d3.select(corr_heatmap).selectAll("rect");
-        console.log("rects", rects);
+
+        function HighlightCell(idx1d: number) {
+            rects.style("fill-opacity", "1"); // Reset fill opacity for all cells
+            rects.style("stroke", "none"); // Reset stroke for all cells
+
+            // Change only the fill opacity, so the stroke remains fully visible
+            d3.select(rects.nodes()[idx1d]).style("fill-opacity", "0.5");
+        }
+
         d3.select(corr_heatmap)
             // .selectAll("rect")
             .on("click", function (event) {
@@ -145,6 +156,10 @@ function PlotCorHeatmap({
                         cov_features[idx_x],
                         cov_features[idx_y],
                     ]);
+
+                    // highlight cell
+                    // d3.select(rects.nodes()[idx1d]).style("stroke", "purple");
+                    HighlightCell(idx1d);
                 }
             })
             .on("pointerover", function (event) {
@@ -160,7 +175,7 @@ function PlotCorHeatmap({
                     // highlight the according rectangle from rects
                     d3.select(rects.nodes()[idx1d])
                         .style("stroke", "black")
-                        .style("stroke-width", 2);
+                        .style("stroke-width", 3.5);
                 }
             })
             .on("pointerout", function (event) {
@@ -176,15 +191,58 @@ function PlotCorHeatmap({
                     d3.select(rects.nodes()[idx1d]).style("stroke", "none");
                 }
             });
-        // .style("cursor", "default");
-        // .style("cursor", "pointer");
 
-        // console.log("corr_heatmap_ref.current", corr_heatmap_ref.current);
+        // ✅ **Highlight cell on first render
+        const defaultIdxX = cov_features.indexOf(selectedFeatures[0]);
+        const defaultIdxY = cov_features.indexOf(selectedFeatures[1]);
+
+        if (defaultIdxX !== -1 && defaultIdxY !== -1) {
+            const defaultIdx1d =
+                defaultIdxX * cov_features.length + defaultIdxY;
+            HighlightCell(defaultIdx1d);
+        }
+
         if (corr_heatmap_ref.current) {
             corr_heatmap_ref.current.innerHTML = ""; // Clear the div
             corr_heatmap_ref.current.appendChild(corr_heatmap);
         }
     }, [patients_data, cov_features]); //called every time an input changes
+
+    // New effect for updating the cell highlight when selectedFeatures or GPT suggestions change
+    useEffect(() => {
+        console.log("Update cell highlight for ChatGPT suggestion");
+        if (corr_heatmap_ref.current) {
+            const rects = d3.select(corr_heatmap_ref.current).selectAll("rect");
+
+            function HighlightCell(idx1d: number) {
+                rects.style("fill-opacity", "1"); // Reset fill opacity for all cells
+                rects.style("stroke", "none"); // Reset stroke for all cells
+
+                // Highlight cell with purple border
+                d3.select(rects.nodes()[idx1d])
+                    .style("stroke", "purple")
+                    .style("stroke-width", 4);
+
+                // Keep the border for 5 seconds
+                setTimeout(() => {
+                    d3.select(rects.nodes()[idx1d]).style("stroke", "none");
+                }, 4000);
+
+                // Change only the fill opacity, so the stroke remains fully visible
+                d3.select(rects.nodes()[idx1d]).style("fill-opacity", "0.5");
+            }
+
+            // Calculate the index based on the new selected features (or GPT suggestion)
+            const idx_x = cov_features.indexOf(selectedFeatures[0]);
+            const idx_y = cov_features.indexOf(selectedFeatures[1]);
+            if (idx_x !== -1 && idx_y !== -1) {
+                const idx1d = idx_x * cov_features.length + idx_y;
+
+                // Update the highlighting without re-rendering the whole plot
+                HighlightCell(idx1d);
+            }
+        }
+    }, [gptFeatureSuggestion]);
 
     return <div ref={corr_heatmap_ref}></div>;
 }

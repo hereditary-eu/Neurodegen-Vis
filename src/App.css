@@ -112,6 +112,19 @@
     /* Optionally, adjust width or max-width here */
 }
 
+/* CHatGPT offCanvas Window */
+
+.chatGPT-suggest-button {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1em;
+}
+
+.chatGPT-prompt {
+    display: flex;
+    gap: 10px; /* Adjust spacing as needed */
+}
+
 .chatgpt-response {
     margin-top: 1em;
     /* text-align: left; */
