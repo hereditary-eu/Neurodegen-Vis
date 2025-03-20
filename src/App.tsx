@@ -144,6 +144,8 @@ function App() {
         "st_ter_daed",
         "st_ter_leed",
         "updrs_3_on",
+        "pc1",
+        "pc2",
     ];
 
     const [selectedCovFeatures, setSelectedCovFeatures] =
@@ -194,11 +196,14 @@ function App() {
 
     // features for PCA, biplot axis:
     const [biplotFeatures, setBiplotFeatures] = useState<string[]>([
-        "npsid_ddur_v",
-        "insnpsi_age",
-        "visuosp_z_comp",
+        // "npsid_ddur_v",
+        // "insnpsi_age",
+        "overall_domain_sum",
+        // "visuosp_z_comp",
         "exec_z_comp",
         "npsid_rep_mmse_c",
+        "language_z_comp",
+        "attent_z_comp",
     ]);
 
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
@@ -290,7 +295,14 @@ function App() {
     const promptRef = useRef<HTMLInputElement>(null);
     const [response, setResponse] = useState<string>("");
     const [messageHisto, setMessageHisto] = useState<MessageHistory[]>([
-        { role: "system", content: "You are a helpful assistant." },
+        {
+            role: "system",
+            content:
+                "You are a helpful assistant, try to help the user understand a visual analytics dashboard." +
+                "The data is about Parkinson's disease patients, which are analyzed to learn more about the disease" +
+                "The dashboard consits of a pearson correlation heatmap, a scatterplot and a PCA biplot. It is possbile to run a k-means clustering algorithm on the PCA data." +
+                "",
+        },
         { role: "system", content: "Please give short answers to all prompts" },
         { role: "system", content: dataFieldDescription },
     ]);

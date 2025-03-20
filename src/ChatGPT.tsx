@@ -78,7 +78,7 @@ const handleChatSubmitSuggest = async ({
 
     let featureList: string[] = ["", ""];
     let prompt_2 =
-        "What could be two to interesting features to analyze in a scatterplot?. Your answer should be the two features, seperated through a coma. No additional text.";
+        "What could be two to interesting features to analyze in a scatterplot, if there, consider previous prompts?. Your answer should be the two features, seperated through a coma. No additional text.";
     // Append the new user message to the message history
     const updatedMessages: MessageHistory[] = [
         ...messageHisto,
