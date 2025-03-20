@@ -126,8 +126,8 @@ function App() {
         "sdmt_done",
         "flu_a_done",
         "phon_flu_done",
-        "principal_component_1",
-        "principal_component_2",
+        "pc1",
+        "pc2",
     ];
 
     const covFeatures_init: string[] = [
@@ -181,7 +181,7 @@ function App() {
         if (Object.keys(zTestMethodsMapping).includes(features[1])) {
             // scatterplotCatFeatures;
             scatterplotCatFeatures = scatterplotCatFeatures.concat(
-                zTestMethodsMapping[features[0]]
+                zTestMethodsMapping[features[1]]
             );
 
             setZTestMethods(scatterplotCatFeatures);

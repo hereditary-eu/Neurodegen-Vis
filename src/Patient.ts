@@ -102,8 +102,8 @@ export class Patient {
     st_ter_daed: number = -1;
     // Additions for analysis
     k_mean_cluster: number = -1;
-    principal_component_1: number = NaN;
-    principal_component_2: number = NaN;
+    pc1: number = NaN;
+    pc2: number = NaN;
     valid_pc = false;
 
     static fromJson(json: any): Patient {

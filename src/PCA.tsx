@@ -98,16 +98,16 @@ function PCA_analysis({
     // Step 3: Map PCA projections back to the correct patients
     validIndices.forEach((originalIndex, i) => {
         const patient = patientsData[originalIndex]; // Retrieve the original patient
-        patient.principal_component_1 = pcaProjections[i][0];
-        patient.principal_component_2 = pcaProjections[i][1];
+        patient.pc1 = pcaProjections[i][0];
+        patient.pc2 = pcaProjections[i][1];
         patient.valid_pc = true;
     });
 
     // Step 4: For patients with NaN values, set PC to NaN
     patientsData.forEach((Patient, index) => {
         if (!validIndices.includes(index)) {
-            Patient.principal_component_1 = NaN;
-            Patient.principal_component_2 = NaN;
+            Patient.pc1 = NaN;
+            Patient.pc2 = NaN;
             Patient.valid_pc = false;
         }
     });
@@ -137,10 +137,7 @@ function PlotPcaBiplot({
 
         const pcaProjections: number[][] = patientsData
             .filter((patient) => patient.valid_pc)
-            .map((patient) => [
-                patient.principal_component_1,
-                patient.principal_component_2,
-            ]);
+            .map((patient) => [patient.pc1, patient.pc2]);
 
         const validClusters: number[] = patientsData
             .filter((patient) => patient.valid_pc)
@@ -178,6 +175,9 @@ function PlotPcaBiplot({
                     y: (d) => d[1],
                     tip: true,
                     title: (d, i) =>
+                        "Patient ID: " +
+                        patientsData[i]["record_id"] +
+                        "\n" +
                         "Cluster " +
                         validClusters[i] +
                         "\n" + // Cluster number

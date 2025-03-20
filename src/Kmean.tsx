@@ -182,10 +182,7 @@ function RunKmeans(
 ) {
     const clusteringData: number[][] = patientData
         .filter((patient) => patient.valid_pc)
-        .map((patient) => [
-            patient.principal_component_1,
-            patient.principal_component_2,
-        ]);
+        .map((patient) => [patient.pc1, patient.pc2]);
 
     // index 48, 53 and 34 are NaN
 

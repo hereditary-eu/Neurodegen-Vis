@@ -368,12 +368,35 @@ function PlotScatterplot({
                 Plot.dot(patients_data, {
                     x: x_feature,
                     y: y_feature,
-                    tip: true,
                     ...(catFeatureSelected
                         ? {
                               stroke: (d) => colors[d[categorical_feature]],
                           }
                         : {}),
+                    tip: true,
+                    title: (d) =>
+                        "Patient ID: " +
+                        d["record_id"] +
+                        "\n" +
+                        (catFeatureSelected
+                            ? k_mean_cluster_sel
+                                ? "Cluster: " + d[categorical_feature] + "\n"
+                                : categorical_feature +
+                                  ": " +
+                                  d[categorical_feature] +
+                                  "\n"
+                            : "") +
+                        x_feature +
+                        ": " +
+                        (typeof d[x_feature] === "number"
+                            ? d[x_feature].toFixed(2)
+                            : d[x_feature]) +
+                        "\n" +
+                        y_feature +
+                        ": " +
+                        (typeof d[y_feature] === "number"
+                            ? d[y_feature].toFixed(2)
+                            : d[y_feature]),
                 }),
                 Plot.line(linRegDataAll, {
                     x: "x",
