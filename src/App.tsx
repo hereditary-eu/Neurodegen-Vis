@@ -112,6 +112,8 @@ function App() {
     const covFeatures: string[] = [
         "insnpsi_age",
         "npsid_ddur_v",
+        "ins_npsi_sex",
+        "npsid_yearsed",
         "overall_domain_sum",
         "npsid_rep_moca_c",
         "npsid_rep_mmse_c",
@@ -134,6 +136,8 @@ function App() {
     const covFeatures_init: string[] = [
         "insnpsi_age",
         "npsid_ddur_v",
+        "npsid_yearsed",
+        "ins_npsi_sex",
         "overall_domain_sum",
         "npsid_rep_moca_c",
         "npsid_rep_mmse_c",
@@ -169,7 +173,7 @@ function App() {
     >(["insnpsi_age", "visuosp_z_comp"]);
 
     const [zTestMethods, setZTestMethods] = useState<string[]>(
-        ["None", "k_mean_cluster"].concat(
+        ["None", "k_mean_cluster", "z_diagnosis"].concat(
             zTestMethodsMapping[scatterplotFeatures[1]]
         )
     );
@@ -179,7 +183,11 @@ function App() {
     function heatmapSetsScatterplotFeatures(features: [string, string]) {
         setScatterplotFeatures(features);
 
-        let scatterplotCatFeatures: string[] = ["None", "k_mean_cluster"];
+        let scatterplotCatFeatures: string[] = [
+            "None",
+            "k_mean_cluster",
+            "z_diagnosis",
+        ];
         // console.log("z Methods", Object.keys(zTestMethodsMapping));
         if (Object.keys(zTestMethodsMapping).includes(features[1])) {
             // scatterplotCatFeatures;
@@ -190,7 +198,7 @@ function App() {
             setZTestMethods(scatterplotCatFeatures);
             setZTestMethod(scatterplotCatFeatures[1]);
         } else {
-            setZTestMethods(["None", "k_mean_cluster"]);
+            setZTestMethods(["None", "k_mean_cluster", "z_diagnosis"]);
             setZTestMethod("k_mean_cluster");
         }
     }
@@ -309,7 +317,10 @@ function App() {
             content:
                 " Please answer all questions in a short and concise manner.",
         },
-        { role: "system", content: dataFieldDescription },
+        {
+            role: "system",
+            content: "Description of the features:" + dataFieldDescription,
+        },
     ]);
     const [gptFeatureSuggestion, setGptFeatureSuggestion] = useState<
         [string, string]

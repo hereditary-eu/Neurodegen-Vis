@@ -1,6 +1,7 @@
 export const numerical_keys_list: string[] = [
     "insnpsi_age",
     "npsid_ddur_v",
+    "npsid_yearsed",
     "overall_domain_sum",
     "npsid_rep_moca_c",
     "npsid_rep_mmse_c",

@@ -277,10 +277,16 @@ function PlotScatterplot({
 
         let catFeatureSelected: boolean =
             categorical_feature !== "" && categorical_feature !== "None";
-        console.log("catFeatureSelected", catFeatureSelected);
+        console.log(
+            "catFeatureSelected: ",
+            catFeatureSelected,
+            "categorical_feature: ",
+            categorical_feature
+        );
 
         let colors = COLORS;
         let k_mean_cluster_sel = false;
+        let z_diagnosis_sel = false; // for z_diagnosis, we need to set the color to 0 and 1
         if (categorical_feature === "k_mean_cluster") {
             if (k_mean_clusters === 1) {
                 catFeatureSelected = false;
@@ -290,6 +296,12 @@ function PlotScatterplot({
                 showCatAvg = false;
                 showCatLinReg = false;
             }
+        }
+        if (categorical_feature === "z_diagnosis") {
+            showCatAvg = false;
+            showCatLinReg = false;
+            z_diagnosis_sel = true; // for z_diagnosis, we need to set the color to 0 and 1
+            // colors = CLUSTERCOLORS;
         }
 
         if (!catFeatureSelected) {
@@ -370,7 +382,16 @@ function PlotScatterplot({
                     y: y_feature,
                     ...(catFeatureSelected
                         ? {
-                              stroke: (d) => colors[d[categorical_feature]],
+                              // if z_ziagnosis_sel
+                              ...(z_diagnosis_sel
+                                  ? {
+                                        stroke: categorical_feature,
+                                        // fill: categorical_feature,
+                                    }
+                                  : {
+                                        stroke: (d) =>
+                                            colors[d[categorical_feature]],
+                                    }),
                           }
                         : {}),
                     tip: true,
@@ -441,13 +462,15 @@ function PlotScatterplot({
                 label: y_feature,
                 domain: [min_y, max_y],
             },
-            // color: {
-            //     // set domian to [0, 1] if not k_mean_cluster
-            //     // domain: catFeatureSelected ? [0, 1] : [],
-            //     // domain: [0, 1],
-            //     // ...(!k_mean_cluster_sel ? { domain: [0, 1] } : {}),
-            //     // range: colors,
-            // },
+            color: {
+                // set domian to [0, 1] if not k_mean_cluster
+                // domain: catFeatureSelected ? [0, 1] : [],
+                // domain: [0, 1],
+                // ...(!k_mean_cluster_sel ? { domain: [0, 1] } : {}),
+                // range: colors,
+                // ...(catFeatureSelected ? { legend: true } : {}),
+                // legend: true,
+            },
             style: "--plot-background: black; font-size: " + FONTSIZE, //13px",
         });
         return pd_scatterplot;
@@ -500,6 +523,7 @@ function PlotHisto({
 
         let colors = COLORS_HISTO;
         let k_mean_cluster_sel = false;
+        let z_diagnosis_sel = false; // for z_diagnosis, we need to set the color to 0 and 1
         if (catFeature === "k_mean_cluster") {
             if (k_mean_clusters === 1) {
                 catFeatureSelected = false;
@@ -508,10 +532,14 @@ function PlotHisto({
                 colors = CLUSTERCOLORS;
             }
         }
+        if (catFeature === "z_diagnosis") {
+            z_diagnosis_sel = true; // for z_diagnosis, we need to set the color to 0 and 1
+            // colors = CLUSTERCOLORS;
+        }
 
         // dont define as Patient[], because than the map function does not work
         let patients_data_map: { [key: string]: any }[] = patients_data;
-        if (catFeatureSelected && !k_mean_cluster_sel) {
+        if (catFeatureSelected && !k_mean_cluster_sel && !z_diagnosis_sel) {
             patients_data_map = patients_data.map((p) => ({
                 ...p,
                 [catFeature]: p[catFeature] === 1 ? "Done" : "Not Done",
@@ -530,7 +558,12 @@ function PlotHisto({
                             x: selected_feature,
                             ...(catFeatureSelected
                                 ? {
-                                      fill: (d) => colors[d[catFeature]],
+                                      ...(z_diagnosis_sel
+                                          ? { fill: catFeature }
+                                          : {
+                                                fill: (d) =>
+                                                    colors[d[catFeature]],
+                                            }),
                                   }
                                 : {}),
                         }
@@ -558,13 +591,13 @@ function PlotHisto({
                 grid: true,
             },
             color: {
-                // ...(catFeatureSelected ? { legend: true } : {}),
+                ...(catFeatureSelected ? { legend: true } : {}),
                 // domain: ["Not Done", "Done"],
                 legend: true,
-                ...(!k_mean_cluster_sel && catFeatureSelected
+                ...(!k_mean_cluster_sel && !z_diagnosis_sel
                     ? { domain: ["Not Done", "Done"] }
                     : {}),
-                range: Object.values(colors),
+                ...(z_diagnosis_sel ? {} : { range: Object.values(colors) }),
             },
             style: "--plot-background: black; font-size: " + FONTSIZE,
         });
