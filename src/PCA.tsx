@@ -135,16 +135,20 @@ function PlotPcaBiplot({
     function createPlot() {
         console.log("PCA Plot started");
 
-        const pcaProjections: number[][] = patientsData
-            .filter((patient) => patient.valid_pc)
-            .map((patient) => [patient.pc1, patient.pc2]);
+        const patientsDataValid = patientsData.filter(
+            (patient) => patient.valid_pc
+        );
 
-        const validClusters: number[] = patientsData
-            .filter((patient) => patient.valid_pc)
-            .map((patient) => patient.k_mean_cluster);
-        // console.log("validClusters", validClusters);
+        const pcaProjections: number[][] = patientsDataValid.map((patient) => [
+            patient.pc1,
+            patient.pc2,
+        ]);
 
-        const [min_x, max_x, min_y, max_y] = CalcMinMaxMatrix({
+        const validClusters: number[] = patientsDataValid.map(
+            (patient) => patient.k_mean_cluster
+        );
+
+        const [min_x, , min_y] = CalcMinMaxMatrix({
             matrix: pcaProjections,
             feature_1: 0,
             feature_2: 1,
@@ -176,7 +180,7 @@ function PlotPcaBiplot({
                     tip: true,
                     title: (d, i) =>
                         "Patient ID: " +
-                        patientsData[i]["record_id"] +
+                        patientsDataValid[i]["record_id"] +
                         "\n" +
                         "Cluster " +
                         validClusters[i] +
@@ -185,10 +189,24 @@ function PlotPcaBiplot({
                         d[0].toFixed(2) +
                         "\n" + // PC1
                         "PC 2: " +
-                        d[1].toFixed(2), // PC2
+                        d[1].toFixed(2) +
+                        "\n" + // PC2
+                        biplotFeatures
+                            .map(
+                                (feature) =>
+                                    feature +
+                                    ": " +
+                                    (typeof patientsDataValid[i][feature] ===
+                                    "number"
+                                        ? patientsDataValid[i][feature].toFixed(
+                                              2
+                                          )
+                                        : patientsDataValid[i][feature])
+                            )
+                            .join("\n"), // Show all biplot feature values
                     ...(showKmeans
                         ? {
-                              stroke: (d, i) =>
+                              stroke: (_, i) =>
                                   CLUSTERCOLORS[
                                       validClusters[i] % CLUSTERCOLORS.length
                                   ], // Cluster colors

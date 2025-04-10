@@ -197,14 +197,15 @@ function App() {
 
     // features for PCA, biplot axis:
     const [biplotFeatures, setBiplotFeatures] = useState<string[]>([
-        // "npsid_ddur_v",
+        "npsid_ddur_v",
         // "insnpsi_age",
         "overall_domain_sum",
         // "visuosp_z_comp",
-        "exec_z_comp",
+        // "exec_z_comp",
         "npsid_rep_mmse_c",
-        "language_z_comp",
-        "attent_z_comp",
+        "npsid_rep_moca_c",
+        // "language_z_comp",
+        // "attent_z_comp",
     ]);
 
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
