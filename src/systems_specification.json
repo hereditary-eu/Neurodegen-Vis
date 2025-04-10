@@ -1,0 +1,59 @@
+{
+    "systemName": "Parkinson's Disease Visual analytics dashboard",
+    "systemDescription": "The Dataset consists of 50 patients with parkinsons Disease, the dashboard should highlight the dependency between features, cluster similar patients.",
+    "views": [
+        {
+            "viewName": "Pearson Correlation Heatmap",
+            "visualizationType": "Heatmap",
+            "encoding": {
+                "x": "Feature X",
+                "y": "Feature Y",
+                "color": "Pearson Correlation Coefficient"
+            },
+            "interactions": {
+                "click": "Update scatterplot with selected feature pair"
+            }
+        },
+        {
+            "viewName": "Feature Scatterplot",
+            "visualizationType": "Scatterplot",
+            "encoding": {
+                "x": "Feature selected from heatmap",
+                "y": "Feature selected from heatmap",
+                "color": {
+                    "options": [
+                        "None",
+                        "Cluster (k-means)",
+                        "Test method of Y-axis feature (available only for z-)"
+                    ]
+                }
+            },
+            "interactions": {
+                "dropdown": "Change color encoding"
+            }
+        },
+        {
+            "viewName": "PCA Biplot",
+            "visualizationType": "Biplot (Scatterplot + Loadings)",
+            "encoding": {
+                "x": "Principal Component 1",
+                "y": "Principal Component 2",
+                "color": "Cluster assignment (k-means)",
+                "arrow": "Feature loadings (optional)"
+            },
+            "interactions": {
+                "dropdown": "Toggle loading vectors (on/off)",
+                "numeric_input": "Set number of clusters (k)",
+                "button": "Run PCA and apply k-means clustering"
+            }
+        }
+    ],
+    "viewRelationships": [
+        {
+            "sourceView": "Pearson Correlation Heatmap",
+            "targetView": "Feature Scatterplot",
+            "interactionType": "Filter",
+            "description": "Selecting a heatmap cell sets the X and Y features for the scatterplot"
+        }
+    ]
+}

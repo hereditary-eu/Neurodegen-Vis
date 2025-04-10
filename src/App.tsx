@@ -28,6 +28,7 @@ import {
 import dataFieldDescription from "./PD_DataFieldsDescription_plain.txt?raw";
 import ReactMarkdown from "react-markdown";
 import { RunKmeans } from "./Kmean";
+import systemsSpecificifications from "./systems_specification.json";
 
 import * as Plot from "@observablehq/plot";
 
@@ -298,12 +299,15 @@ function App() {
         {
             role: "system",
             content:
-                "You are a helpful assistant, try to help the user understand a visual analytics dashboard." +
-                "The data is about Parkinson's disease patients, which are analyzed to learn more about the disease" +
-                "The dashboard consits of a pearson correlation heatmap, a scatterplot and a PCA biplot. It is possbile to run a k-means clustering algorithm on the PCA data." +
-                "",
+                "You are a helpful AI assistant, which helps user to understand a visual analytics dashboard." +
+                "This are the specifications of the Dashboard: " +
+                JSON.stringify(systemsSpecificifications),
         },
-        { role: "system", content: "Please give short answers to all prompts" },
+        {
+            role: "system",
+            content:
+                " Please answer all questions in a short and concise manner.",
+        },
         { role: "system", content: dataFieldDescription },
     ]);
     const [gptFeatureSuggestion, setGptFeatureSuggestion] = useState<
