@@ -127,5 +127,75 @@
 
 .chatgpt-response {
     margin-top: 1em;
-    /* text-align: left; */
+    text-align: left;
+}
+
+/* side panel*/
+.side-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 300px;
+    background-color: #212529;
+    color: white;
+    padding: 1rem;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1045;
+}
+
+.side-panel.visible {
+    transform: translateX(0);
+}
+
+.side-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.side-panel-body {
+    overflow-y: auto;
+    max-height: calc(100vh - 60px);
+}
+
+.side-panel .chatGPT-prompt input {
+    width: 70%;
+    margin-right: 0.5rem;
+}
+
+/* --------------- */
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+.sidebar {
+    width: 400px;
+    background-color: #212529;
+    color: white;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.sidebar-body {
+    flex-grow: 1;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    overflow-y: auto;
 }
