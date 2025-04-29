@@ -351,9 +351,9 @@ function App() {
     }
 
     // handle offcanvas
-    const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+    const [showGPT, setShowGPT] = useState(false);
+    const handleClose = () => setShowGPT(false);
+    const handleShow = () => setShowGPT(!showGPT);
 
     // ------------------------- JSX -------------------------
     return (
@@ -368,7 +368,7 @@ function App() {
                         <div className="app-container">
                             {/* Offcanvas start */}
 
-                            {show && (
+                            {showGPT && (
                                 <div className="sidebar">
                                     <div className="sidebar-header">
                                         <h5>ChatGPT</h5>
