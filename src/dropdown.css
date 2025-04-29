@@ -3,7 +3,9 @@
 .dropdown-container {
     position: relative;
     display: inline-block;
-    width: 250px;
+
+    width: 170px;
+
     cursor: pointer;
     background-color: transparent; /* Transparent background */
     /* Dark grey border */
