@@ -365,16 +365,16 @@ function App() {
                             Parkinson's disease analysis
                         </h1>
 
-                        <div className="app-container">
+                        <div className="panels-container">
                             {/* Offcanvas start */}
 
                             {showGPT && (
-                                <div className="sidebar">
-                                    <div className="sidebar-header">
+                                <div className="sidepanel">
+                                    <div className="sidepanel-header">
                                         <h5>ChatGPT</h5>
                                         <button onClick={handleClose}>×</button>
                                     </div>
-                                    <div className="sidebar-body">
+                                    <div className="sidepanel-body">
                                         <div className="chatGPT-suggest-button">
                                             <button
                                                 onClick={() =>
@@ -394,7 +394,7 @@ function App() {
                                             </button>
                                         </div>
                                         <p>Or ask your questions.</p>
-                                        <div className="chatGPT-prompt">
+                                        <div className="chatGPT-prompt-container">
                                             <input
                                                 type="text"
                                                 ref={promptRef}
@@ -427,196 +427,216 @@ function App() {
                             )}
 
                             {/* Offcanvas end */}
-
-                            <div className="heatmap-scatterplots-grid">
-                                <div className="flex-container-column ">
-                                    <div className="flex-container-row">
-                                        <Button
-                                            variant="dark"
-                                            onClick={handleShow}
-                                            className="show-chatgpt-button"
-                                        >
-                                            Show Chat assistant.
-                                        </Button>
-                                        <h3 className="pearsonCorrelation-heading">
-                                            Pearson Correlation for selected
-                                            features
-                                        </h3>
-                                    </div>
-
-                                    <div className="checkbox-container">
-                                        {covFeatures.map((feature) => (
-                                            <div key={feature}>
-                                                <label>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedCovFeatures.includes(
-                                                            feature
-                                                        )}
-                                                        onChange={() =>
-                                                            handleCheckboxChange(
-                                                                feature
-                                                            )
-                                                        }
-                                                    />
-                                                    {feature}
-                                                </label>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div>
-                                        <PlotCorHeatmap
-                                            patients_data={patients_data}
-                                            cov_features={selectedCovFeatures}
-                                            selectedFeatures={
-                                                scatterplotFeatures
-                                            }
-                                            gptFeatureSuggestion={
-                                                gptFeatureSuggestion
-                                            }
-                                            setSelectedFeatures={
-                                                heatmapSetsScatterplotFeatures
-                                            }
-                                            setCorrelations={setPearsonCorr}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex-container-column ">
-                                    {scatterplotFeatures[0] !== "" &&
-                                    scatterplotFeatures[1] !== "" ? (
-                                        <div>
-                                            <div className="pca-heading-container">
-                                                {scatterplotFeatures[0] ==
-                                                scatterplotFeatures[1] ? (
-                                                    <h4 className="plot-headings">
-                                                        {scatterplotFeatures[1]}
-                                                    </h4>
-                                                ) : (
-                                                    <h4 className="plot-headings">
-                                                        {scatterplotFeatures[1]}{" "}
-                                                        vs{" "}
-                                                        {scatterplotFeatures[0]}
-                                                    </h4>
-                                                )}
-                                                <select
-                                                    name="zTestCatFeature"
-                                                    style={{
-                                                        visibility:
-                                                            zTestMethods.length >
-                                                            0
-                                                                ? "visible"
-                                                                : "hidden",
-                                                    }} // Use style attribute to set visibility
-                                                    id="zTestCatFeature"
-                                                    className="single-select-dropdown"
-                                                    value={zTestMethod}
-                                                    onChange={(e) =>
-                                                        setZTestMethod(
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                >
-                                                    {zTestMethods.map((f) => (
-                                                        <option value={f}>
-                                                            {f}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            {scatterplotFeatures[0] ==
-                                            scatterplotFeatures[1] ? (
-                                                <PlotHisto
-                                                    patients_data={
-                                                        patients_data
-                                                    }
-                                                    selected_feature={
-                                                        scatterplotFeatures[0]
-                                                    }
-                                                    k_mean_clusters={k}
-                                                    catFeature={zTestMethod}
-                                                />
-                                            ) : (
-                                                <PlotScatterplot
-                                                    x_feature={
-                                                        scatterplotFeatures[0]
-                                                    }
-                                                    y_feature={
-                                                        scatterplotFeatures[1]
-                                                    }
-                                                    patients_data={
-                                                        patients_data
-                                                    }
-                                                    categorical_feature={
-                                                        zTestMethod
-                                                    }
-                                                    k_mean_clusters={k}
-                                                    showCatLinReg={false}
-                                                    showCatAvg={true}
-                                                />
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <p>
-                                            {" "}
-                                            No features Selected for Scatterplot
-                                        </p>
-                                    )}
-                                    <div>
-                                        <div className="pca-heading-container">
-                                            <h4 className="plot-headings">
-                                                PCA Analysis
-                                            </h4>
-                                            <div>
-                                                <MultiSelectDropdown
-                                                    options={
-                                                        numerical_keys_list
-                                                    }
-                                                    selectedOptions={
-                                                        biplotFeatures
-                                                    }
-                                                    setSelectedOptions={
-                                                        setBiplotFeatures
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="kmeans-container">
-                                            <label htmlFor="kmeans-input">
-                                                Number of Clusters (k):{" "}
-                                            </label>
-                                            <input
-                                                type="number"
-                                                id="kmeans-input"
-                                                value={k}
-                                                onChange={(e) =>
-                                                    setK(Number(e.target.value))
-                                                }
-                                                min="1"
-                                                max="20"
-                                            />
+                            <div className="main-panel">
+                                <div className="heatmap-scatterplots-grid">
+                                    <div className="flex-container-column ">
+                                        <div className="flex-container-row">
                                             <Button
                                                 variant="dark"
-                                                onClick={() =>
-                                                    RunKmeans(
-                                                        patients_data,
-                                                        setPatientDataFunc,
-                                                        k
-                                                    )
-                                                }
-                                                className="run-kmeans-button"
+                                                onClick={handleShow}
+                                                className="show-chatgpt-button"
                                             >
-                                                Run
+                                                Show Chat assistant.
                                             </Button>
+                                            <h3 className="pearsonCorrelation-heading">
+                                                Pearson Correlation for selected
+                                                features
+                                            </h3>
                                         </div>
 
-                                        <PlotPcaBiplot
-                                            patientsData={patients_data}
-                                            numFeatures={numerical_keys_list}
-                                            loadings={pcaLoadings}
-                                            biplotFeatures={biplotFeatures}
-                                            showKmeans={!(k === 1)}
-                                        />
+                                        <div className="checkbox-container">
+                                            {covFeatures.map((feature) => (
+                                                <div key={feature}>
+                                                    <label>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedCovFeatures.includes(
+                                                                feature
+                                                            )}
+                                                            onChange={() =>
+                                                                handleCheckboxChange(
+                                                                    feature
+                                                                )
+                                                            }
+                                                        />
+                                                        {feature}
+                                                    </label>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div>
+                                            <PlotCorHeatmap
+                                                patients_data={patients_data}
+                                                cov_features={
+                                                    selectedCovFeatures
+                                                }
+                                                selectedFeatures={
+                                                    scatterplotFeatures
+                                                }
+                                                gptFeatureSuggestion={
+                                                    gptFeatureSuggestion
+                                                }
+                                                setSelectedFeatures={
+                                                    heatmapSetsScatterplotFeatures
+                                                }
+                                                setCorrelations={setPearsonCorr}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-container-column ">
+                                        {scatterplotFeatures[0] !== "" &&
+                                        scatterplotFeatures[1] !== "" ? (
+                                            <div>
+                                                <div className="pca-heading-container">
+                                                    {scatterplotFeatures[0] ==
+                                                    scatterplotFeatures[1] ? (
+                                                        <h4 className="plot-headings">
+                                                            {
+                                                                scatterplotFeatures[1]
+                                                            }
+                                                        </h4>
+                                                    ) : (
+                                                        <h4 className="plot-headings">
+                                                            {
+                                                                scatterplotFeatures[1]
+                                                            }{" "}
+                                                            vs{" "}
+                                                            {
+                                                                scatterplotFeatures[0]
+                                                            }
+                                                        </h4>
+                                                    )}
+                                                    <select
+                                                        name="zTestCatFeature"
+                                                        style={{
+                                                            visibility:
+                                                                zTestMethods.length >
+                                                                0
+                                                                    ? "visible"
+                                                                    : "hidden",
+                                                        }} // Use style attribute to set visibility
+                                                        id="zTestCatFeature"
+                                                        className="single-select-dropdown"
+                                                        value={zTestMethod}
+                                                        onChange={(e) =>
+                                                            setZTestMethod(
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                    >
+                                                        {zTestMethods.map(
+                                                            (f) => (
+                                                                <option
+                                                                    value={f}
+                                                                >
+                                                                    {f}
+                                                                </option>
+                                                            )
+                                                        )}
+                                                    </select>
+                                                </div>
+                                                {scatterplotFeatures[0] ==
+                                                scatterplotFeatures[1] ? (
+                                                    <PlotHisto
+                                                        patients_data={
+                                                            patients_data
+                                                        }
+                                                        selected_feature={
+                                                            scatterplotFeatures[0]
+                                                        }
+                                                        k_mean_clusters={k}
+                                                        catFeature={zTestMethod}
+                                                    />
+                                                ) : (
+                                                    <PlotScatterplot
+                                                        x_feature={
+                                                            scatterplotFeatures[0]
+                                                        }
+                                                        y_feature={
+                                                            scatterplotFeatures[1]
+                                                        }
+                                                        patients_data={
+                                                            patients_data
+                                                        }
+                                                        categorical_feature={
+                                                            zTestMethod
+                                                        }
+                                                        k_mean_clusters={k}
+                                                        showCatLinReg={false}
+                                                        showCatAvg={true}
+                                                    />
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <p>
+                                                {" "}
+                                                No features Selected for
+                                                Scatterplot
+                                            </p>
+                                        )}
+                                        <div>
+                                            <div className="pca-heading-container">
+                                                <h4 className="plot-headings">
+                                                    PCA Analysis
+                                                </h4>
+                                                <div>
+                                                    <MultiSelectDropdown
+                                                        options={
+                                                            numerical_keys_list
+                                                        }
+                                                        selectedOptions={
+                                                            biplotFeatures
+                                                        }
+                                                        setSelectedOptions={
+                                                            setBiplotFeatures
+                                                        }
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="kmeans-container">
+                                                <label htmlFor="kmeans-input">
+                                                    Number of Clusters (k):{" "}
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    id="kmeans-input"
+                                                    value={k}
+                                                    onChange={(e) =>
+                                                        setK(
+                                                            Number(
+                                                                e.target.value
+                                                            )
+                                                        )
+                                                    }
+                                                    min="1"
+                                                    max="20"
+                                                />
+                                                <Button
+                                                    variant="dark"
+                                                    onClick={() =>
+                                                        RunKmeans(
+                                                            patients_data,
+                                                            setPatientDataFunc,
+                                                            k
+                                                        )
+                                                    }
+                                                    className="run-kmeans-button"
+                                                >
+                                                    Run
+                                                </Button>
+                                            </div>
+
+                                            <PlotPcaBiplot
+                                                patientsData={patients_data}
+                                                numFeatures={
+                                                    numerical_keys_list
+                                                }
+                                                loadings={pcaLoadings}
+                                                biplotFeatures={biplotFeatures}
+                                                showKmeans={!(k === 1)}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

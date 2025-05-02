@@ -1,14 +1,15 @@
-/* --- Dropdown menu --- */
-/* Dropdown Container - Transparent Background with Dark Grey Tone */
+/* ======================
+    Multi-Select Dropdown    
+====================== */
 .dropdown-container {
+    width: 170px;
+
     position: relative;
     display: inline-block;
-    width: 250px;
     cursor: pointer;
     background-color: transparent; /* Transparent background */
     /* Dark grey border */
     border: 1px solid #777;
-
     border-radius: 2px;
     padding: 0px 5px 0px 3px;
     color: #fff; /* White text */
@@ -98,6 +99,9 @@
     text-align: center;
 }
 
+/* ======================
+    Single-Select Dropdown    
+====================== */
 .single-select-dropdown {
     border: 1px solid #777;
     border-radius: 2px;
