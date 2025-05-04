@@ -368,66 +368,68 @@ function App() {
                         <div className="panels-container">
                             {/* Offcanvas start */}
 
-                            {showGPT && (
-                                <div className="sidepanel">
-                                    <div className="sidepanel-header">
-                                        <h5>ChatGPT</h5>
-                                        <button onClick={handleClose}>×</button>
+                            <div
+                                className={`sidepanel ${showGPT ? "expanded" : "collapsed"}`}
+                            >
+                                <div className="sidepanel-header">
+                                    <h5>ChatGPT</h5>
+                                    <button onClick={handleClose}>×</button>
+                                </div>
+                                <div className="sidepanel-body">
+                                    <div className="chatGPT-suggest-button">
+                                        <button
+                                            onClick={() =>
+                                                handleChatSubmitSuggest({
+                                                    prompt:
+                                                        promptRef.current
+                                                            ?.value || "",
+                                                    messageHisto,
+                                                    setMessageHisto,
+                                                    setResponse,
+                                                    handleGPTFeatureSuggestions:
+                                                        handleGPTFeatureSuggestion,
+                                                })
+                                            }
+                                        >
+                                            Suggest Features
+                                        </button>
                                     </div>
-                                    <div className="sidepanel-body">
-                                        <div className="chatGPT-suggest-button">
-                                            <button
-                                                onClick={() =>
-                                                    handleChatSubmitSuggest({
-                                                        prompt:
-                                                            promptRef.current
-                                                                ?.value || "",
-                                                        messageHisto,
-                                                        setMessageHisto,
-                                                        setResponse,
-                                                        handleGPTFeatureSuggestions:
-                                                            handleGPTFeatureSuggestion,
-                                                    })
-                                                }
-                                            >
-                                                Suggest Features
-                                            </button>
-                                        </div>
-                                        <p>Or ask your questions.</p>
-                                        <div className="chatGPT-prompt-container">
-                                            <input
-                                                type="text"
-                                                ref={promptRef}
-                                                placeholder="Enter your prompt here"
-                                            />
-                                            <button
-                                                onClick={() =>
-                                                    handleChatSubmit({
-                                                        prompt:
-                                                            promptRef.current
-                                                                ?.value || "",
-                                                        messageHisto,
-                                                        setMessageHisto,
-                                                        setResponse,
-                                                        handleGPTFeatureSuggestions:
-                                                            handleGPTFeatureSuggestion,
-                                                    })
-                                                }
-                                            >
-                                                Submit
-                                            </button>
-                                        </div>
-                                        <div className="chatgpt-response">
-                                            <ReactMarkdown>
-                                                {response}
-                                            </ReactMarkdown>
-                                        </div>
+                                    <p>Or ask your questions.</p>
+                                    <div className="chatGPT-prompt-container">
+                                        <input
+                                            type="text"
+                                            ref={promptRef}
+                                            placeholder="Enter your prompt here"
+                                        />
+                                        <button
+                                            onClick={() =>
+                                                handleChatSubmit({
+                                                    prompt:
+                                                        promptRef.current
+                                                            ?.value || "",
+                                                    messageHisto,
+                                                    setMessageHisto,
+                                                    setResponse,
+                                                    handleGPTFeatureSuggestions:
+                                                        handleGPTFeatureSuggestion,
+                                                })
+                                            }
+                                        >
+                                            Submit
+                                        </button>
+                                    </div>
+                                    <div className="chatgpt-response">
+                                        <ReactMarkdown>
+                                            {response}
+                                        </ReactMarkdown>
                                     </div>
                                 </div>
-                            )}
+                            </div>
 
                             {/* Offcanvas end */}
-                            <div className="main-panel">
+                            <div
+                                className={`mainpanel ${showGPT ? "sp-expanded" : "sp-collapsed"}`}
+                            >
                                 <div className="heatmap-scatterplots-grid">
                                     <div className="flex-container-column ">
                                         <div className="flex-container-row">

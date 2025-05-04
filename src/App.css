@@ -4,7 +4,7 @@
 #root {
     /* width: 95%; */
     /* margin: 0 auto; */
-    margin: 0 2%;
+    margin: 0 0%;
     padding: 1rem;
 }
 
@@ -55,18 +55,33 @@
 }
 
 .sidepanel {
-    width: 500px;
     background-color: #212529;
-    color: white;
     padding: 1rem;
     overflow-y: auto;
+    transition: width 0.3s ease;
+}
+
+.sidepanel.expanded {
+    width: 590px;
+}
+
+.sidepanel.collapsed {
+    width: 0;
+    padding: 0;
+    border: none;
 }
 
 .mainpanel {
-    flex-grow: 1;
+    /* flex-grow: 1; */
     padding: 2rem;
-    background-color: #f8f9fa;
-    overflow-y: auto;
+}
+
+.mainpanel.sp-expanded {
+    margin: 0% 0% 0% 0%;
+}
+
+.mainpanel.sp-collapsed {
+    margin: 0% 2% 0% 2%;
 }
 
 /* ======================
