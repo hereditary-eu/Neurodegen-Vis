@@ -435,9 +435,9 @@ function App() {
                             <div
                                 className={`mainpanel ${showGPT ? "sp-expanded" : "sp-collapsed"}`}
                             >
-                                <h1 className="heading">
+                                {/* <h1 className="heading">
                                     Parkinson's disease analysis
-                                </h1>
+                                </h1> */}
                                 <div className="heatmap-scatterplots-grid">
                                     <div className="flex-container-column ">
                                         <div className="flex-container-row">

@@ -1,3 +1,7 @@
+:root {
+    --side-panel-width: 350px;
+}
+
 /* ===============
    Root Container
 ================= */
@@ -56,14 +60,29 @@
 
 .sidepanel {
     /* background-color: #212529; */
-    background-color: #191c1f;
+
+    /* Version flexibel */
+    /* background-color: #191c1f;
+    background-color: #141618;
+    padding: 1rem;
+    overflow-y: auto;
+    transition: width 0.3s ease; */
+
+    /* Version Fixed */
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #141618;
     padding: 1rem;
     overflow-y: auto;
     transition: width 0.3s ease;
+    /* Overlays content */
+    z-index: 10;
 }
 
 .sidepanel.expanded {
-    width: 590px;
+    width: var(--side-panel-width);
 }
 
 .sidepanel.collapsed {
@@ -79,6 +98,7 @@
 
 .mainpanel.sp-expanded {
     margin: 0% 0% 0% 0%;
+    margin-left: var(--side-panel-width);
 }
 
 .mainpanel.sp-collapsed {
@@ -98,6 +118,7 @@
 
 .sidepanel-body {
     flex-grow: 1;
+    text-align: left;
 }
 
 .chatGPT-suggest-button {
