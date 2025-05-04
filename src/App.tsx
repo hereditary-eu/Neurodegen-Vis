@@ -373,7 +373,12 @@ function App() {
                             >
                                 <div className="sidepanel-header">
                                     <h5>ChatGPT</h5>
-                                    <button onClick={handleClose}>×</button>
+                                    <button
+                                        type="button"
+                                        className="btn-close btn-close-white"
+                                        aria-label="Close"
+                                        onClick={handleClose}
+                                    ></button>
                                 </div>
                                 <div className="sidepanel-body">
                                     <div className="chatGPT-suggest-button">
@@ -430,6 +435,9 @@ function App() {
                             <div
                                 className={`mainpanel ${showGPT ? "sp-expanded" : "sp-collapsed"}`}
                             >
+                                <h1 className="heading">
+                                    Parkinson's disease analysis
+                                </h1>
                                 <div className="heatmap-scatterplots-grid">
                                     <div className="flex-container-column ">
                                         <div className="flex-container-row">

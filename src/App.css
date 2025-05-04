@@ -55,7 +55,8 @@
 }
 
 .sidepanel {
-    background-color: #212529;
+    /* background-color: #212529; */
+    background-color: #191c1f;
     padding: 1rem;
     overflow-y: auto;
     transition: width 0.3s ease;
