@@ -18,7 +18,8 @@ interface ChatGPTProps {
     prompt: string;
     messageHisto: MessageHistory[];
     setMessageHisto: (messageHisto: MessageHistory[]) => void;
-    setResponse: (response: string) => void;
+    shownMessages: MessageHistory[];
+    setShownMessages: (shownMessages: MessageHistory[]) => void;
     handleGPTFeatureSuggestions: (featureList: string[]) => void;
 }
 
@@ -26,7 +27,8 @@ const handleChatSubmit = async ({
     prompt,
     messageHisto,
     setMessageHisto,
-    setResponse,
+    shownMessages,
+    setShownMessages,
 }: ChatGPTProps) => {
     if (!prompt) {
         console.log("Prompt is empty");
@@ -42,7 +44,12 @@ const handleChatSubmit = async ({
     // usless, only updated after the function call
     // setMessageHisto(updatedMessages);
 
-    setResponse("Generating response...");
+    // setResponse("Generating response...");
+    setShownMessages([
+        ...shownMessages,
+        { role: "user", content: prompt },
+        { role: "assistant", content: "Generating response..." },
+    ]);
 
     try {
         const completion = await openai.chat.completions.create({
@@ -61,7 +68,12 @@ const handleChatSubmit = async ({
         console.log("message history", updatedMessagesWithResponse);
 
         // Update the displayed response
-        setResponse(assistantResponse);
+        // setResponse(assistantResponse);
+        setShownMessages([
+            ...shownMessages,
+            { role: "user", content: prompt },
+            { role: "assistant", content: assistantResponse },
+        ]);
     } catch (error) {
         console.error("Error fetching response:", error);
     }
@@ -71,10 +83,16 @@ const handleChatSubmitSuggest = async ({
     prompt,
     messageHisto,
     setMessageHisto,
-    setResponse,
+    shownMessages,
+    setShownMessages,
     handleGPTFeatureSuggestions,
 }: ChatGPTProps) => {
-    setResponse("Generating suggestions...");
+    // setResponse("Generating suggestions...");
+    setShownMessages([
+        ...shownMessages,
+        { role: "user", content: "Suggest Features!" },
+        { role: "assistant", content: "Generating response..." },
+    ]);
 
     let featureList: string[] = ["", ""];
     let prompt_2 =
@@ -133,7 +151,11 @@ const handleChatSubmitSuggest = async ({
         console.log("message history", updatedMessagesWithResponse_2);
 
         // Update the displayed response
-        setResponse(assistantResponse_2);
+        setShownMessages([
+            ...shownMessages,
+            { role: "user", content: "Suggest Features!" },
+            { role: "assistant", content: assistantResponse_2 },
+        ]);
     } catch (error) {
         console.error("Error fetching response:", error);
     }
@@ -143,4 +165,18 @@ const handleChatSubmitSuggest = async ({
     return featureList;
 };
 
-export { handleChatSubmit, handleChatSubmitSuggest };
+interface clearGPTHistoryProps {
+    setMessageHisto: (messageHisto: MessageHistory[]) => void;
+    setShownMessages: (shownMessages: MessageHistory[]) => void;
+}
+const clearGPTHistory = ({
+    setMessageHisto,
+    setShownMessages,
+}: clearGPTHistoryProps) => {
+    // Clear the message history
+    setMessageHisto([]);
+    setShownMessages([]);
+    console.log("Cleared message history");
+};
+
+export { handleChatSubmit, handleChatSubmitSuggest, clearGPTHistory };

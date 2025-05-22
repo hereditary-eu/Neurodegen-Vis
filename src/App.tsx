@@ -8,6 +8,8 @@ import Button from "react-bootstrap/Button";
 
 import "./App.css";
 import "./dropdown.css";
+import "./css/GPT-sidePanel.css";
+
 import * as d3 from "d3";
 // import * as Plot from "@observablehq/plot";
 import { Patient } from "./Patient";
@@ -16,9 +18,12 @@ import { numerical_keys_list } from "./numerical_keys_list";
 import { zTestMethodsMapping } from "./zTestMethodsMapping";
 import { PCA_analysis, PlotPcaBiplot } from "./PCA";
 // import { handleChatSubmit, handleChatSubmitSuggest } from "./ChatGPT";
-import { handleChatSubmitSuggest } from "./ChatGPT";
-import { handleChatSubmit } from "./ChatGPT";
-import { MessageHistory } from "./ChatGPT";
+import {
+    handleChatSubmitSuggest,
+    clearGPTHistory,
+    handleChatSubmit,
+    MessageHistory,
+} from "./ChatGPT";
 import {
     PlotHisto,
     PlotCorHeatmap,
@@ -303,7 +308,8 @@ function App() {
     // ------------------------- chatGPT -------------------------
     // use ref to avoid re-rendering for the input field for every key stroke
     const promptRef = useRef<HTMLInputElement>(null);
-    const [response, setResponse] = useState<string>("");
+    // const [response, setResponse] = useState<string>("");
+    const [shownMessages, setShownMessages] = useState<MessageHistory[]>([]);
     const [messageHisto, setMessageHisto] = useState<MessageHistory[]>([
         {
             role: "system",
@@ -350,6 +356,12 @@ function App() {
         return;
     }
 
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [shownMessages]);
+
     // handle offcanvas
     const [showGPT, setShowGPT] = useState(false);
     const handleClose = () => setShowGPT(false);
@@ -381,52 +393,92 @@ function App() {
                                     ></button>
                                 </div>
                                 <div className="sidepanel-body">
-                                    <div className="chatGPT-suggest-button">
-                                        <button
-                                            onClick={() =>
-                                                handleChatSubmitSuggest({
-                                                    prompt:
-                                                        promptRef.current
-                                                            ?.value || "",
-                                                    messageHisto,
-                                                    setMessageHisto,
-                                                    setResponse,
-                                                    handleGPTFeatureSuggestions:
-                                                        handleGPTFeatureSuggestion,
-                                                })
-                                            }
-                                        >
-                                            Suggest Features
-                                        </button>
+                                    <div className="gpt-prompt-container">
+                                        <div className="container-suggest-clear-button">
+                                            <button
+                                                onClick={() =>
+                                                    clearGPTHistory({
+                                                        setMessageHisto,
+                                                        setShownMessages,
+                                                    })
+                                                }
+                                            >
+                                                Clear History
+                                            </button>
+
+                                            <div className="chatGPT-suggest-button">
+                                                <button
+                                                    onClick={() =>
+                                                        handleChatSubmitSuggest(
+                                                            {
+                                                                prompt:
+                                                                    promptRef
+                                                                        .current
+                                                                        ?.value ||
+                                                                    "",
+                                                                messageHisto,
+                                                                setMessageHisto,
+                                                                shownMessages,
+                                                                setShownMessages,
+                                                                handleGPTFeatureSuggestions:
+                                                                    handleGPTFeatureSuggestion,
+                                                            }
+                                                        )
+                                                    }
+                                                >
+                                                    Suggest Features
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <p>Or ask your questions.</p>
+                                        <div className="GPT-textInput-container">
+                                            <input
+                                                type="text"
+                                                ref={promptRef}
+                                                placeholder="Enter your prompt here"
+                                            />
+                                            <button
+                                                onClick={() =>
+                                                    handleChatSubmit({
+                                                        prompt:
+                                                            promptRef.current
+                                                                ?.value || "",
+                                                        messageHisto,
+                                                        setMessageHisto,
+                                                        shownMessages,
+                                                        setShownMessages,
+                                                        handleGPTFeatureSuggestions:
+                                                            handleGPTFeatureSuggestion,
+                                                    })
+                                                }
+                                            >
+                                                Submit
+                                            </button>
+                                        </div>
                                     </div>
-                                    <p>Or ask your questions.</p>
-                                    <div className="chatGPT-prompt-container">
-                                        <input
-                                            type="text"
-                                            ref={promptRef}
-                                            placeholder="Enter your prompt here"
-                                        />
-                                        <button
-                                            onClick={() =>
-                                                handleChatSubmit({
-                                                    prompt:
-                                                        promptRef.current
-                                                            ?.value || "",
-                                                    messageHisto,
-                                                    setMessageHisto,
-                                                    setResponse,
-                                                    handleGPTFeatureSuggestions:
-                                                        handleGPTFeatureSuggestion,
-                                                })
-                                            }
-                                        >
-                                            Submit
-                                        </button>
-                                    </div>
-                                    <div className="chatgpt-response">
-                                        <ReactMarkdown>
-                                            {response}
-                                        </ReactMarkdown>
+                                    <div className="chatgpt-messages">
+                                        {shownMessages
+                                            .filter(
+                                                (msg) =>
+                                                    msg.role === "user" ||
+                                                    msg.role === "assistant"
+                                            )
+                                            .map((msg, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className={`chatgpt-message ${
+                                                        msg.role === "user"
+                                                            ? "user-message"
+                                                            : "assistant-message"
+                                                    }`}
+                                                >
+                                                    <ReactMarkdown>
+                                                        {msg.content}
+                                                    </ReactMarkdown>
+                                                </div>
+                                            ))}
+                                        <div ref={messagesEndRef} />
                                     </div>
                                 </div>
                             </div>

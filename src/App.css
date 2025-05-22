@@ -1,7 +1,3 @@
-:root {
-    --side-panel-width: 350px;
-}
-
 /* ===============
    Root Container
 ================= */
@@ -58,39 +54,6 @@
     width: 100%;
 }
 
-.sidepanel {
-    /* background-color: #212529; */
-
-    /* Version flexibel */
-    /* background-color: #191c1f;
-    background-color: #141618;
-    padding: 1rem;
-    overflow-y: auto;
-    transition: width 0.3s ease; */
-
-    /* Version Fixed */
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    background-color: #141618;
-    padding: 1rem;
-    overflow-y: auto;
-    transition: width 0.3s ease;
-    /* Overlays content */
-    z-index: 10;
-}
-
-.sidepanel.expanded {
-    width: var(--side-panel-width);
-}
-
-.sidepanel.collapsed {
-    width: 0;
-    padding: 0;
-    border: none;
-}
-
 .mainpanel {
     /* flex-grow: 1; */
     padding: 2rem;
@@ -103,38 +66,6 @@
 
 .mainpanel.sp-collapsed {
     margin: 0% 2% 0% 2%;
-}
-
-/* ======================
-   GPT side-panel
-====================== */
-.sidepanel-header {
-    display: flex;
-    flex-direction: row; /* Explicit */
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.sidepanel-body {
-    flex-grow: 1;
-    text-align: left;
-}
-
-.chatGPT-suggest-button {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 1em;
-}
-
-.chatGPT-prompt-container {
-    display: flex;
-    gap: 10px;
-}
-
-.chatgpt-response {
-    margin-top: 1em;
-    text-align: left;
 }
 
 /* ======================
