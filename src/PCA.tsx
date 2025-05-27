@@ -59,7 +59,7 @@ function getLoadingsForPlot(
             // dx: 10,
             dy: -10 * Math.sign(loadingsForPlot[1].y),
             fontSize: 13,
-            fill: "red",
+            fill: "white",
         }),
     };
 }
@@ -155,7 +155,10 @@ function PlotPcaBiplot({
         });
 
         const loadingScaleFactor = 2.2;
-        const loadingMarks = [];
+        // const loadingMarks = [];
+
+        const loadingLines: Plot.Mark[] = [];
+        const loadingTexts: Plot.Mark[] = [];
 
         let show_features = biplotFeatures.map((x) => numFeatures.indexOf(x));
         // console.log("show_features", show_features);
@@ -168,8 +171,12 @@ function PlotPcaBiplot({
                 loadingScaleFactor,
                 numFeatures
             );
-            loadingMarks.push(loadingMark.line, loadingMark.text);
+            loadingLines.push(loadingMark.line);
+            loadingTexts.push(loadingMark.text);
+            // loadingMarks.push(loadingMark.line, loadingMark.text);
         }
+
+        const loadingMarks = [...loadingLines, ...loadingTexts];
 
         const pca_scatterplot = Plot.plot({
             marginBottom: 40,

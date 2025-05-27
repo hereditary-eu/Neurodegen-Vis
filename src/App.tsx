@@ -384,7 +384,7 @@ function App() {
                                 className={`sidepanel ${showGPT ? "expanded" : "collapsed"}`}
                             >
                                 <div className="sidepanel-header">
-                                    <h5>ChatGPT</h5>
+                                    <h5>Chatbot</h5>
                                     <button
                                         type="button"
                                         className="btn-close btn-close-white"
