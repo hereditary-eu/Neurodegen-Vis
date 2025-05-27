@@ -6,8 +6,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Button from "react-bootstrap/Button";
 // import Offcanvas from "react-bootstrap/Offcanvas";
 
-import "./App.css";
-import "./dropdown.css";
+import "./css/App.css";
+import "./css/dropdown.css";
 import "./css/GPT-sidePanel.css";
 
 import * as d3 from "d3";
