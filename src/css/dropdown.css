@@ -9,7 +9,7 @@
     cursor: pointer;
     background-color: transparent; /* Transparent background */
     /* Dark grey border */
-    border: 1px solid #777;
+    border: 2px solid #777;
     border-radius: 2px;
     padding: 0px 5px 0px 3px;
     color: #fff; /* White text */
@@ -50,7 +50,13 @@
     /* Dark grey tone */
     background-color: #222;
     /* Dark grey border */
-    border: 1px solid #444;
+
+    /* border: 1px solid #444; */
+
+    border-width: 5px;
+    border-color: #777;
+    /* border-color: red; */
+
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     z-index: 1000;
@@ -83,7 +89,8 @@
     appearance: none;
     background-color: #333; /* Dark grey checkbox background */
     /* Slightly lighter grey border */
-    border: 2px solid #555;
+
+    border: 2px solid #777;
 }
 
 .dropdown-option input[type="checkbox"]:checked {
@@ -103,9 +110,16 @@
     Single-Select Dropdown    
 ====================== */
 .single-select-dropdown {
-    border: 1px solid #777;
+    /* border: 1px solid #777; */
+    border-width: 2px;
+    border-color: #777;
+
     border-radius: 2px;
     font-size: 12.5px;
     /* appearance: none; */
     /* font-family: Arial, Helvetica, sans-serif; */
+    /* color: red;
+     */
+    background-color: #222222;
+    color: #fff; /* White text */
 }

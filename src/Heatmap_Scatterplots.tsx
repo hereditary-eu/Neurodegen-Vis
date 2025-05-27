@@ -226,7 +226,7 @@ function PlotCorHeatmap({
                 // Keep the border for 5 seconds
                 setTimeout(() => {
                     d3.select(rects.nodes()[idx1d]).style("stroke", "none");
-                }, 4000);
+                }, 10000);
 
                 // Change only the fill opacity, so the stroke remains fully visible
                 d3.select(rects.nodes()[idx1d]).style("fill-opacity", "0.5");

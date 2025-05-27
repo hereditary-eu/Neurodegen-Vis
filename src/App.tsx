@@ -395,7 +395,8 @@ function App() {
                                 <div className="sidepanel-body">
                                     <div className="gpt-prompt-container">
                                         <div className="container-suggest-clear-button">
-                                            <button
+                                            <Button
+                                                variant="dark"
                                                 onClick={() =>
                                                     clearGPTHistory({
                                                         setMessageHisto,
@@ -404,10 +405,11 @@ function App() {
                                                 }
                                             >
                                                 Clear History
-                                            </button>
+                                            </Button>
 
                                             <div className="chatGPT-suggest-button">
-                                                <button
+                                                <Button
+                                                    variant="dark"
                                                     onClick={() =>
                                                         handleChatSubmitSuggest(
                                                             {
@@ -427,7 +429,7 @@ function App() {
                                                     }
                                                 >
                                                     Suggest Features
-                                                </button>
+                                                </Button>
                                             </div>
                                         </div>
 
@@ -438,7 +440,8 @@ function App() {
                                                 ref={promptRef}
                                                 placeholder="Enter your prompt here"
                                             />
-                                            <button
+                                            <Button
+                                                variant="dark"
                                                 onClick={() =>
                                                     handleChatSubmit({
                                                         prompt:
@@ -454,7 +457,7 @@ function App() {
                                                 }
                                             >
                                                 Submit
-                                            </button>
+                                            </Button>
                                         </div>
                                     </div>
                                     <div className="chatgpt-messages">

@@ -2,7 +2,7 @@
    GPT side-panel
 ====================== */
 :root {
-    --side-panel-width: 340px;
+    --side-panel-width: 350px;
 }
 
 .sidepanel.expanded {

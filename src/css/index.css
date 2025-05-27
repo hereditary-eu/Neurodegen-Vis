@@ -106,3 +106,14 @@ button:focus-visible {
     filter: invert(1);
     opacity: 1;
 }
+
+input {
+    color: white;
+    /* background-color: #2b2a33; */
+    background-color: #2f2f2f;
+
+    border-radius: 2px;
+    border-color: #777;
+    border-width: 2px;
+    border-style: solid;
+}
