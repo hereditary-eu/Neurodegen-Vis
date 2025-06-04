@@ -9,9 +9,17 @@ import "./css/Chat-sidePanel.css";
 
 import * as d3 from "d3";
 import { Patient } from "./env_dataset/Patient";
-// import { categorial_keys_list } from "./categorical_keys_list";
-import { numerical_keys_list } from "./env_dataset/numerical_keys_list";
-import { zTestMethodsMapping } from "./env_dataset/zTestMethodsMapping";
+
+import {
+    pca_num_features_list,
+    cat_features_mapping,
+    cat_features_generic,
+    cov_features,
+    cov_features_init,
+    scatterplot_features_init,
+    biplot_features_init,
+} from "./env_dataset/variables_feature_lists";
+
 import { PCA_analysis, PlotPcaBiplot } from "./PCA";
 import {
     handleChatSubmitSuggest,
@@ -109,52 +117,8 @@ function App() {
     // all features should be all the keys from the Patient class
     const allFeatures = Object.keys(new Patient());
 
-    const covFeatures: string[] = [
-        "insnpsi_age",
-        "npsid_ddur_v",
-        "ins_npsi_sex",
-        "npsid_yearsed",
-        "overall_domain_sum",
-        "npsid_rep_moca_c",
-        "npsid_rep_mmse_c",
-        "attent_z_comp",
-        "exec_z_comp",
-        "visuosp_z_comp",
-        "memory_z_comp",
-        "language_z_comp",
-        "st_ter_daed",
-        "st_ter_leed",
-        "updrs_3_on",
-        "rc_score_done",
-        "sdmt_done",
-        "flu_a_done",
-        "phon_flu_done",
-        "pc1",
-        "pc2",
-    ];
-
-    const covFeatures_init: string[] = [
-        "insnpsi_age",
-        "npsid_ddur_v",
-        "npsid_yearsed",
-        "ins_npsi_sex",
-        "overall_domain_sum",
-        "npsid_rep_moca_c",
-        "npsid_rep_mmse_c",
-        "attent_z_comp",
-        "exec_z_comp",
-        "visuosp_z_comp",
-        "memory_z_comp",
-        "language_z_comp",
-        "st_ter_daed",
-        "st_ter_leed",
-        "updrs_3_on",
-        "pc1",
-        "pc2",
-    ];
-
     const [selectedCovFeatures, setSelectedCovFeatures] =
-        useState<string[]>(covFeatures_init);
+        useState<string[]>(cov_features_init);
 
     const handleCheckboxChange = (feature: string) => {
         setSelectedCovFeatures((prevSelected) => {
@@ -170,51 +134,42 @@ function App() {
 
     const [scatterplotFeatures, setScatterplotFeatures] = useState<
         [string, string]
-    >(["insnpsi_age", "visuosp_z_comp"]);
+    >(scatterplot_features_init);
 
-    const [zTestMethods, setZTestMethods] = useState<string[]>(
-        ["None", "k_mean_cluster", "z_diagnosis"].concat(
-            zTestMethodsMapping[scatterplotFeatures[1]]
+    const [catFeatures, setCatFeatures] = useState<string[]>(
+        cat_features_generic.concat(
+            cat_features_mapping[scatterplotFeatures[1]]
         )
     );
 
-    const [zTestMethod, setZTestMethod] = useState<string>(zTestMethods[1]);
+    // ToDO always resets to k_mean_cluster
+    const [catFeature, setCatFeature] = useState<string>(catFeatures[1]);
 
     function heatmapSetsScatterplotFeatures(features: [string, string]) {
         setScatterplotFeatures(features);
 
-        let scatterplotCatFeatures: string[] = [
-            "None",
-            "k_mean_cluster",
-            "z_diagnosis",
-        ];
+        let scatterplotCatFeatures: string[] = cat_features_generic;
+
         // console.log("z Methods", Object.keys(zTestMethodsMapping));
-        if (Object.keys(zTestMethodsMapping).includes(features[1])) {
+        if (Object.keys(cat_features_mapping).includes(features[1])) {
             // scatterplotCatFeatures;
             scatterplotCatFeatures = scatterplotCatFeatures.concat(
-                zTestMethodsMapping[features[1]]
+                cat_features_mapping[features[1]]
             );
 
-            setZTestMethods(scatterplotCatFeatures);
-            setZTestMethod(scatterplotCatFeatures[1]);
+            setCatFeatures(scatterplotCatFeatures);
+            setCatFeature(scatterplotCatFeatures[1]);
         } else {
-            setZTestMethods(["None", "k_mean_cluster", "z_diagnosis"]);
-            setZTestMethod("k_mean_cluster");
+            setCatFeatures(cat_features_generic);
+
+            // TODO always resets to k_mean_cluster
+            setCatFeature("k_mean_cluster");
         }
     }
 
     // features for PCA, biplot axis:
-    const [biplotFeatures, setBiplotFeatures] = useState<string[]>([
-        "npsid_ddur_v",
-        // "insnpsi_age",
-        "overall_domain_sum",
-        // "visuosp_z_comp",
-        // "exec_z_comp",
-        "npsid_rep_mmse_c",
-        "npsid_rep_moca_c",
-        // "language_z_comp",
-        // "attent_z_comp",
-    ]);
+    const [biplotFeatures, setBiplotFeatures] =
+        useState<string[]>(biplot_features_init);
 
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
 
@@ -261,14 +216,14 @@ function App() {
             try {
                 // Step 1: Load Data
                 const patientDataLoaded = (
-                    await d3.csv("dataset/PD_SampleData_Curated.csv")
+                    await d3.csv("database/PD_SampleData_Curated.csv")
                 ).map((r) => Patient.fromJson(r));
                 console.log("Data loaded!", patientDataLoaded);
 
                 // Step 2: Run PCA Analysis
                 const newPcaLoadings = PCA_analysis({
                     patientsData: patientDataLoaded,
-                    numFeatures: numerical_keys_list,
+                    numFeatures: pca_num_features_list,
                 });
 
                 // Run Kmeans
@@ -280,7 +235,7 @@ function App() {
                 setDataLoaded(true); // Set this last to indicate both processes are done
 
                 const correlations = calcCorrelations(
-                    covFeatures_init,
+                    cov_features_init,
                     patientDataLoaded
                 );
                 setPearsonCorr(correlations);
@@ -340,14 +295,6 @@ function App() {
             return;
         } else {
             console.log("Invalid feature suggestion: ", featureList);
-            // setMessageHisto([
-            //     ...messageHisto,
-            //     {
-            //         role: "system",
-            //         content:
-            //             "Invalid features, please try again with valid features",
-            //     },
-            // ]);
         }
 
         return;
@@ -375,7 +322,7 @@ function App() {
                         </h1>
 
                         <div className="panels-container">
-                            {/* Offcanvas start */}
+                            {/* Sidepanel start */}
 
                             <div
                                 className={`sidepanel ${showChat ? "expanded" : "collapsed"}`}
@@ -484,13 +431,10 @@ function App() {
                                 </div>
                             </div>
 
-                            {/* Offcanvas end */}
+                            {/* Sidepanel end */}
                             <div
                                 className={`mainpanel ${showChat ? "sp-expanded" : "sp-collapsed"}`}
                             >
-                                {/* <h1 className="heading">
-                                    Parkinson's disease analysis
-                                </h1> */}
                                 <div className="heatmap-scatterplots-grid">
                                     <div className="flex-container-column ">
                                         <div className="flex-container-row">
@@ -508,7 +452,7 @@ function App() {
                                         </div>
 
                                         <div className="checkbox-container">
-                                            {covFeatures.map((feature) => (
+                                            {cov_features.map((feature) => (
                                                 <div key={feature}>
                                                     <label>
                                                         <input
@@ -571,24 +515,24 @@ function App() {
                                                         </h4>
                                                     )}
                                                     <select
-                                                        name="zTestCatFeature"
+                                                        name="catFeature"
                                                         style={{
                                                             visibility:
-                                                                zTestMethods.length >
+                                                                catFeatures.length >
                                                                 0
                                                                     ? "visible"
                                                                     : "hidden",
                                                         }} // Use style attribute to set visibility
-                                                        id="zTestCatFeature"
+                                                        id="catFeature"
                                                         className="single-select-dropdown"
-                                                        value={zTestMethod}
+                                                        value={catFeature}
                                                         onChange={(e) =>
-                                                            setZTestMethod(
+                                                            setCatFeature(
                                                                 e.target.value
                                                             )
                                                         }
                                                     >
-                                                        {zTestMethods.map(
+                                                        {catFeatures.map(
                                                             (f) => (
                                                                 <option
                                                                     value={f}
@@ -609,7 +553,7 @@ function App() {
                                                             scatterplotFeatures[0]
                                                         }
                                                         k_mean_clusters={k}
-                                                        catFeature={zTestMethod}
+                                                        catFeature={catFeature}
                                                     />
                                                 ) : (
                                                     <PlotScatterplot
@@ -623,7 +567,7 @@ function App() {
                                                             patients_data
                                                         }
                                                         categorical_feature={
-                                                            zTestMethod
+                                                            catFeature
                                                         }
                                                         k_mean_clusters={k}
                                                         showCatLinReg={false}
@@ -646,7 +590,7 @@ function App() {
                                                 <div>
                                                     <MultiSelectDropdown
                                                         options={
-                                                            numerical_keys_list
+                                                            pca_num_features_list
                                                         }
                                                         selectedOptions={
                                                             biplotFeatures
@@ -693,7 +637,7 @@ function App() {
                                             <PlotPcaBiplot
                                                 patientsData={patients_data}
                                                 numFeatures={
-                                                    numerical_keys_list
+                                                    pca_num_features_list
                                                 }
                                                 loadings={pcaLoadings}
                                                 biplotFeatures={biplotFeatures}
