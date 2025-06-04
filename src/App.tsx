@@ -36,7 +36,7 @@ import {
 import dataFieldDescription from "./env_dataset/PD_DataFieldsDescription_plain.txt?raw";
 import ReactMarkdown from "react-markdown";
 import { RunKmeans } from "./Kmean";
-import systemsSpecificifications from "./systems_specification.json";
+import systemsSpecificifications from "./systems_specification_pd.json";
 
 import * as Plot from "@observablehq/plot";
 

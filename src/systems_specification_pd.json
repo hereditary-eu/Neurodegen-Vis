@@ -1,6 +1,6 @@
 {
-    "systemName": "Visual analytics dashboard",
-    "systemDescription": "The Dashboard should highlight correlations and dependencies between features, and cluster similar datapoints. It is built of 3 view, heatmap, scatterplot or histogram, and PCA biplot.",
+    "systemName": "Parkinson's Disease Visual analytics dashboard",
+    "systemDescription": "The Dashboard should highlight correlations and dependencies between features, and cluster similar datapoints (patients). It is built of 3 view, heatmap, scatterplot or histogram, and PCA biplot.",
     "views": [
         {
             "viewName": "Pearson Correlation Heatmap",
@@ -28,7 +28,8 @@
                     "options": [
                         "None",
                         "Cluster (k-means)",
-                        "Other Categorical features if available"
+                        "Categorical features (z-diagnosis)",
+                        "Test method of Y-axis feature (available only for z-scores)"
                     ]
                 }
             },
@@ -42,12 +43,13 @@
             "position on dashboard": "top right",
             "encoding": {
                 "x": "Feature selected from heatmap",
-                "y": "Count of datapoints",
+                "y": "Count of datapoints (patients)",
                 "color": {
                     "options": [
                         "None",
                         "Cluster (k-means)",
-                        "Other Categorical features if available"
+                        "Categorical features (z-diagnosis)",
+                        "Test method of Y-axis feature (available only for z-scores)"
                     ]
                 }
             },
