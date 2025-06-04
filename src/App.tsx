@@ -1,36 +1,31 @@
 import { useEffect, useState, useRef } from "react";
-// import "bootstrap/dist/js/bootstrap.bundle.min.js";
-// import "bootstrap/dist/css/bootstrap.min.css";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from "react-bootstrap/Button";
-// import Offcanvas from "react-bootstrap/Offcanvas";
 
 import "./css/App.css";
 import "./css/dropdown.css";
-import "./css/GPT-sidePanel.css";
+import "./css/Chat-sidePanel.css";
 
 import * as d3 from "d3";
-// import * as Plot from "@observablehq/plot";
-import { Patient } from "./Patient";
+import { Patient } from "./env_dataset/Patient";
 // import { categorial_keys_list } from "./categorical_keys_list";
-import { numerical_keys_list } from "./numerical_keys_list";
-import { zTestMethodsMapping } from "./zTestMethodsMapping";
+import { numerical_keys_list } from "./env_dataset/numerical_keys_list";
+import { zTestMethodsMapping } from "./env_dataset/zTestMethodsMapping";
 import { PCA_analysis, PlotPcaBiplot } from "./PCA";
-// import { handleChatSubmit, handleChatSubmitSuggest } from "./ChatGPT";
 import {
     handleChatSubmitSuggest,
-    clearGPTHistory,
+    clearChatHistory,
     handleChatSubmit,
     MessageHistory,
-} from "./ChatGPT";
+} from "./Chat";
 import {
     PlotHisto,
     PlotCorHeatmap,
     PlotScatterplot,
     pearsonCorrelation,
 } from "./Heatmap_Scatterplots";
-import dataFieldDescription from "./PD_DataFieldsDescription_plain.txt?raw";
+import dataFieldDescription from "./env_dataset/PD_DataFieldsDescription_plain.txt?raw";
 import ReactMarkdown from "react-markdown";
 import { RunKmeans } from "./Kmean";
 import systemsSpecificifications from "./systems_specification.json";
@@ -305,12 +300,11 @@ function App() {
         loadAndProcessData();
     }, []);
 
-    // ------------------------- chatGPT -------------------------
+    // ------------------------- chat -------------------------
     // use ref to avoid re-rendering for the input field for every key stroke
     const promptRef = useRef<HTMLInputElement>(null);
     // const [response, setResponse] = useState<string>("");
-    const [shownMessages, setShownMessages] = useState<MessageHistory[]>([]);
-    const [messageHisto, setMessageHisto] = useState<MessageHistory[]>([
+    const initialPrompt: MessageHistory[] = [
         {
             role: "system",
             content:
@@ -327,19 +321,22 @@ function App() {
             role: "system",
             content: "Description of the features:" + dataFieldDescription,
         },
-    ]);
-    const [gptFeatureSuggestion, setGptFeatureSuggestion] = useState<
+    ];
+    const [shownMessages, setShownMessages] = useState<MessageHistory[]>([]);
+    const [messageHisto, setMessageHisto] =
+        useState<MessageHistory[]>(initialPrompt);
+    const [ChatFeatureSuggestion, setChatFeatureSuggestion] = useState<
         [string, string]
     >(["", ""]);
 
-    function handleGPTFeatureSuggestion(featureList: string[]) {
+    function handleChatFeatureSuggestion(featureList: string[]) {
         // console.log("Features, ", featureList);
 
         // check if the features are valid in in the data
         if (featureList.every((feature) => allFeatures.includes(feature))) {
             console.log("Valid feature suggestion: ", featureList);
             setScatterplotFeatures([featureList[0], featureList[1]]);
-            setGptFeatureSuggestion([featureList[0], featureList[1]]);
+            setChatFeatureSuggestion([featureList[0], featureList[1]]);
             return;
         } else {
             console.log("Invalid feature suggestion: ", featureList);
@@ -363,9 +360,9 @@ function App() {
     }, [shownMessages]);
 
     // handle offcanvas
-    const [showGPT, setShowGPT] = useState(false);
-    const handleClose = () => setShowGPT(false);
-    const handleShow = () => setShowGPT(!showGPT);
+    const [showChat, setShowChat] = useState(false);
+    const handleClose = () => setShowChat(false);
+    const handleShow = () => setShowChat(!showChat);
 
     // ------------------------- JSX -------------------------
     return (
@@ -381,7 +378,7 @@ function App() {
                             {/* Offcanvas start */}
 
                             <div
-                                className={`sidepanel ${showGPT ? "expanded" : "collapsed"}`}
+                                className={`sidepanel ${showChat ? "expanded" : "collapsed"}`}
                             >
                                 <div className="sidepanel-header">
                                     <h5>Chatbot</h5>
@@ -393,21 +390,22 @@ function App() {
                                     ></button>
                                 </div>
                                 <div className="sidepanel-body">
-                                    <div className="gpt-prompt-container">
+                                    <div className="chat-prompt-container">
                                         <div className="container-suggest-clear-button">
                                             <Button
                                                 variant="dark"
                                                 onClick={() =>
-                                                    clearGPTHistory({
+                                                    clearChatHistory({
                                                         setMessageHisto,
                                                         setShownMessages,
+                                                        initialPrompt,
                                                     })
                                                 }
                                             >
                                                 Clear History
                                             </Button>
 
-                                            <div className="chatGPT-suggest-button">
+                                            <div className="chat-suggest-button">
                                                 <Button
                                                     variant="dark"
                                                     onClick={() =>
@@ -422,8 +420,8 @@ function App() {
                                                                 setMessageHisto,
                                                                 shownMessages,
                                                                 setShownMessages,
-                                                                handleGPTFeatureSuggestions:
-                                                                    handleGPTFeatureSuggestion,
+                                                                handleChatFeatureSuggestions:
+                                                                    handleChatFeatureSuggestion,
                                                             }
                                                         )
                                                     }
@@ -434,7 +432,7 @@ function App() {
                                         </div>
 
                                         <p>Or ask your questions.</p>
-                                        <div className="GPT-textInput-container">
+                                        <div className="chat-textInput-container">
                                             <input
                                                 type="text"
                                                 ref={promptRef}
@@ -451,8 +449,8 @@ function App() {
                                                         setMessageHisto,
                                                         shownMessages,
                                                         setShownMessages,
-                                                        handleGPTFeatureSuggestions:
-                                                            handleGPTFeatureSuggestion,
+                                                        handleChatFeatureSuggestions:
+                                                            handleChatFeatureSuggestion,
                                                     })
                                                 }
                                             >
@@ -460,7 +458,7 @@ function App() {
                                             </Button>
                                         </div>
                                     </div>
-                                    <div className="chatgpt-messages">
+                                    <div className="chat-messages">
                                         {shownMessages
                                             .filter(
                                                 (msg) =>
@@ -470,7 +468,7 @@ function App() {
                                             .map((msg, idx) => (
                                                 <div
                                                     key={idx}
-                                                    className={`chatgpt-message ${
+                                                    className={`chat-message ${
                                                         msg.role === "user"
                                                             ? "user-message"
                                                             : "assistant-message"
@@ -488,7 +486,7 @@ function App() {
 
                             {/* Offcanvas end */}
                             <div
-                                className={`mainpanel ${showGPT ? "sp-expanded" : "sp-collapsed"}`}
+                                className={`mainpanel ${showChat ? "sp-expanded" : "sp-collapsed"}`}
                             >
                                 {/* <h1 className="heading">
                                     Parkinson's disease analysis
@@ -499,7 +497,7 @@ function App() {
                                             <Button
                                                 variant="dark"
                                                 onClick={handleShow}
-                                                className="show-chatgpt-button"
+                                                className="show-chat-button"
                                             >
                                                 Show Chat assistant.
                                             </Button>
@@ -538,8 +536,8 @@ function App() {
                                                 selectedFeatures={
                                                     scatterplotFeatures
                                                 }
-                                                gptFeatureSuggestion={
-                                                    gptFeatureSuggestion
+                                                chatFeatureSuggestion={
+                                                    ChatFeatureSuggestion
                                                 }
                                                 setSelectedFeatures={
                                                     heatmapSetsScatterplotFeatures

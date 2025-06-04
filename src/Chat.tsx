@@ -14,13 +14,13 @@ const openai = new OpenAI({
 let MODEL = "gpt-4o-mini";
 // MODEL = "gpt-3.5-turbo";
 
-interface ChatGPTProps {
+interface ChatProps {
     prompt: string;
     messageHisto: MessageHistory[];
     setMessageHisto: (messageHisto: MessageHistory[]) => void;
     shownMessages: MessageHistory[];
     setShownMessages: (shownMessages: MessageHistory[]) => void;
-    handleGPTFeatureSuggestions: (featureList: string[]) => void;
+    handleChatFeatureSuggestions: (featureList: string[]) => void;
 }
 
 const handleChatSubmit = async ({
@@ -29,7 +29,7 @@ const handleChatSubmit = async ({
     setMessageHisto,
     shownMessages,
     setShownMessages,
-}: ChatGPTProps) => {
+}: ChatProps) => {
     if (!prompt) {
         console.log("Prompt is empty");
         return;
@@ -85,8 +85,8 @@ const handleChatSubmitSuggest = async ({
     setMessageHisto,
     shownMessages,
     setShownMessages,
-    handleGPTFeatureSuggestions,
-}: ChatGPTProps) => {
+    handleChatFeatureSuggestions: handleChatFeatureSuggestions,
+}: ChatProps) => {
     // setResponse("Generating suggestions...");
     setShownMessages([
         ...shownMessages,
@@ -160,23 +160,25 @@ const handleChatSubmitSuggest = async ({
         console.error("Error fetching response:", error);
     }
 
-    handleGPTFeatureSuggestions(featureList);
+    handleChatFeatureSuggestions(featureList);
 
     return featureList;
 };
 
-interface clearGPTHistoryProps {
+interface clearChatHistoryProps {
     setMessageHisto: (messageHisto: MessageHistory[]) => void;
     setShownMessages: (shownMessages: MessageHistory[]) => void;
+    initialPrompt: MessageHistory[];
 }
-const clearGPTHistory = ({
+const clearChatHistory = ({
     setMessageHisto,
     setShownMessages,
-}: clearGPTHistoryProps) => {
+    initialPrompt,
+}: clearChatHistoryProps) => {
     // Clear the message history
-    setMessageHisto([]);
+    setMessageHisto(initialPrompt);
     setShownMessages([]);
     console.log("Cleared message history");
 };
 
-export { handleChatSubmit, handleChatSubmitSuggest, clearGPTHistory };
+export { handleChatSubmit, handleChatSubmitSuggest, clearChatHistory };
