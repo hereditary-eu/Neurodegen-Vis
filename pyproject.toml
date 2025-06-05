@@ -1,0 +1,24 @@
+[project]
+name = "neurodegen-vis"
+version = "0.1.0"
+description = ""
+authors = [
+  { name = "Michael Grabner", email = "michael.grabner@student.tugraz.at" },
+  { name = "MrP01", email = "peter@waldert.at" },
+]
+readme = "README.md"
+requires-python = "^3.12, <3.13"
+dependencies = [
+  "invoke (>=2.2.0,<3.0.0)",
+  "smartnoise-synth @ file:///home/peter/Studium/PhD/Team/Michael/neurodegen-vis/smartnoise-sdk/synth",
+]
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^9.3.0"

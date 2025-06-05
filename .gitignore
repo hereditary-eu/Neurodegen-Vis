@@ -27,7 +27,6 @@ dist-ssr
 *dataset*
 *local*
 
-
 # bun
 .DS_Store
 .env
@@ -194,3 +193,7 @@ scripts/env.local
 /src/deps/zstd
 /src/deps/zlib
 /src/deps/zig
+
+stuff/
+smartnoise-sdk/
+.venv
