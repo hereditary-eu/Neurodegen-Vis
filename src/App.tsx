@@ -1,39 +1,42 @@
 import { useEffect, useState, useRef } from "react";
-// import "bootstrap/dist/js/bootstrap.bundle.min.js";
-// import "bootstrap/dist/css/bootstrap.min.css";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from "react-bootstrap/Button";
-// import Offcanvas from "react-bootstrap/Offcanvas";
 
 import "./css/App.css";
 import "./css/dropdown.css";
-import "./css/GPT-sidePanel.css";
+import "./css/Chat-sidePanel.css";
 
 import * as d3 from "d3";
-// import * as Plot from "@observablehq/plot";
-import { Patient } from "./Patient";
-// import { categorial_keys_list } from "./categorical_keys_list";
-import { numerical_keys_list } from "./numerical_keys_list";
-import { zTestMethodsMapping } from "./zTestMethodsMapping";
+import { Patient } from "./env_dataset/Patient";
+
+import {
+    pca_num_features_list,
+    cat_features_mapping,
+    cat_features_generic,
+    cov_features,
+    cov_features_init,
+    scatterplot_features_init,
+    biplot_features_init,
+} from "./env_dataset/variables_feature_lists";
+
 import { PCA_analysis, PlotPcaBiplot } from "./PCA";
-// import { handleChatSubmit, handleChatSubmitSuggest } from "./ChatGPT";
 import {
     handleChatSubmitSuggest,
-    clearGPTHistory,
+    clearChatHistory,
     handleChatSubmit,
     MessageHistory,
-} from "./ChatGPT";
+} from "./Chat";
 import {
     PlotHisto,
     PlotCorHeatmap,
     PlotScatterplot,
     pearsonCorrelation,
 } from "./Heatmap_Scatterplots";
-import dataFieldDescription from "./PD_DataFieldsDescription_plain.txt?raw";
+import dataFieldDescription from "./env_dataset/PD_DataFieldsDescription_plain.txt?raw";
 import ReactMarkdown from "react-markdown";
 import { RunKmeans } from "./Kmean";
-import systemsSpecificifications from "./systems_specification.json";
+import systemsSpecificifications from "./systems_specification_pd.json";
 
 import * as Plot from "@observablehq/plot";
 
@@ -114,52 +117,8 @@ function App() {
     // all features should be all the keys from the Patient class
     const allFeatures = Object.keys(new Patient());
 
-    const covFeatures: string[] = [
-        "insnpsi_age",
-        "npsid_ddur_v",
-        "ins_npsi_sex",
-        "npsid_yearsed",
-        "overall_domain_sum",
-        "npsid_rep_moca_c",
-        "npsid_rep_mmse_c",
-        "attent_z_comp",
-        "exec_z_comp",
-        "visuosp_z_comp",
-        "memory_z_comp",
-        "language_z_comp",
-        "st_ter_daed",
-        "st_ter_leed",
-        "updrs_3_on",
-        "rc_score_done",
-        "sdmt_done",
-        "flu_a_done",
-        "phon_flu_done",
-        "pc1",
-        "pc2",
-    ];
-
-    const covFeatures_init: string[] = [
-        "insnpsi_age",
-        "npsid_ddur_v",
-        "npsid_yearsed",
-        "ins_npsi_sex",
-        "overall_domain_sum",
-        "npsid_rep_moca_c",
-        "npsid_rep_mmse_c",
-        "attent_z_comp",
-        "exec_z_comp",
-        "visuosp_z_comp",
-        "memory_z_comp",
-        "language_z_comp",
-        "st_ter_daed",
-        "st_ter_leed",
-        "updrs_3_on",
-        "pc1",
-        "pc2",
-    ];
-
     const [selectedCovFeatures, setSelectedCovFeatures] =
-        useState<string[]>(covFeatures_init);
+        useState<string[]>(cov_features_init);
 
     const handleCheckboxChange = (feature: string) => {
         setSelectedCovFeatures((prevSelected) => {
@@ -175,51 +134,42 @@ function App() {
 
     const [scatterplotFeatures, setScatterplotFeatures] = useState<
         [string, string]
-    >(["insnpsi_age", "visuosp_z_comp"]);
+    >(scatterplot_features_init);
 
-    const [zTestMethods, setZTestMethods] = useState<string[]>(
-        ["None", "k_mean_cluster", "z_diagnosis"].concat(
-            zTestMethodsMapping[scatterplotFeatures[1]]
+    const [catFeatures, setCatFeatures] = useState<string[]>(
+        cat_features_generic.concat(
+            cat_features_mapping[scatterplotFeatures[1]]
         )
     );
 
-    const [zTestMethod, setZTestMethod] = useState<string>(zTestMethods[1]);
+    // ToDO always resets to k_mean_cluster
+    const [catFeature, setCatFeature] = useState<string>(catFeatures[1]);
 
     function heatmapSetsScatterplotFeatures(features: [string, string]) {
         setScatterplotFeatures(features);
 
-        let scatterplotCatFeatures: string[] = [
-            "None",
-            "k_mean_cluster",
-            "z_diagnosis",
-        ];
+        let scatterplotCatFeatures: string[] = cat_features_generic;
+
         // console.log("z Methods", Object.keys(zTestMethodsMapping));
-        if (Object.keys(zTestMethodsMapping).includes(features[1])) {
+        if (Object.keys(cat_features_mapping).includes(features[1])) {
             // scatterplotCatFeatures;
             scatterplotCatFeatures = scatterplotCatFeatures.concat(
-                zTestMethodsMapping[features[1]]
+                cat_features_mapping[features[1]]
             );
 
-            setZTestMethods(scatterplotCatFeatures);
-            setZTestMethod(scatterplotCatFeatures[1]);
+            setCatFeatures(scatterplotCatFeatures);
+            setCatFeature(scatterplotCatFeatures[1]);
         } else {
-            setZTestMethods(["None", "k_mean_cluster", "z_diagnosis"]);
-            setZTestMethod("k_mean_cluster");
+            setCatFeatures(cat_features_generic);
+
+            // TODO always resets to k_mean_cluster
+            setCatFeature("k_mean_cluster");
         }
     }
 
     // features for PCA, biplot axis:
-    const [biplotFeatures, setBiplotFeatures] = useState<string[]>([
-        "npsid_ddur_v",
-        // "insnpsi_age",
-        "overall_domain_sum",
-        // "visuosp_z_comp",
-        // "exec_z_comp",
-        "npsid_rep_mmse_c",
-        "npsid_rep_moca_c",
-        // "language_z_comp",
-        // "attent_z_comp",
-    ]);
+    const [biplotFeatures, setBiplotFeatures] =
+        useState<string[]>(biplot_features_init);
 
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
 
@@ -266,14 +216,14 @@ function App() {
             try {
                 // Step 1: Load Data
                 const patientDataLoaded = (
-                    await d3.csv("dataset/PD_SampleData_Curated.csv")
+                    await d3.csv("database/PD_SampleData_Curated.csv")
                 ).map((r) => Patient.fromJson(r));
                 console.log("Data loaded!", patientDataLoaded);
 
                 // Step 2: Run PCA Analysis
                 const newPcaLoadings = PCA_analysis({
                     patientsData: patientDataLoaded,
-                    numFeatures: numerical_keys_list,
+                    numFeatures: pca_num_features_list,
                 });
 
                 // Run Kmeans
@@ -285,7 +235,7 @@ function App() {
                 setDataLoaded(true); // Set this last to indicate both processes are done
 
                 const correlations = calcCorrelations(
-                    covFeatures_init,
+                    cov_features_init,
                     patientDataLoaded
                 );
                 setPearsonCorr(correlations);
@@ -305,12 +255,11 @@ function App() {
         loadAndProcessData();
     }, []);
 
-    // ------------------------- chatGPT -------------------------
+    // ------------------------- chat -------------------------
     // use ref to avoid re-rendering for the input field for every key stroke
     const promptRef = useRef<HTMLInputElement>(null);
     // const [response, setResponse] = useState<string>("");
-    const [shownMessages, setShownMessages] = useState<MessageHistory[]>([]);
-    const [messageHisto, setMessageHisto] = useState<MessageHistory[]>([
+    const initialPrompt: MessageHistory[] = [
         {
             role: "system",
             content:
@@ -327,30 +276,25 @@ function App() {
             role: "system",
             content: "Description of the features:" + dataFieldDescription,
         },
-    ]);
-    const [gptFeatureSuggestion, setGptFeatureSuggestion] = useState<
+    ];
+    const [shownMessages, setShownMessages] = useState<MessageHistory[]>([]);
+    const [messageHisto, setMessageHisto] =
+        useState<MessageHistory[]>(initialPrompt);
+    const [ChatFeatureSuggestion, setChatFeatureSuggestion] = useState<
         [string, string]
     >(["", ""]);
 
-    function handleGPTFeatureSuggestion(featureList: string[]) {
+    function handleChatFeatureSuggestion(featureList: string[]) {
         // console.log("Features, ", featureList);
 
         // check if the features are valid in in the data
         if (featureList.every((feature) => allFeatures.includes(feature))) {
             console.log("Valid feature suggestion: ", featureList);
             setScatterplotFeatures([featureList[0], featureList[1]]);
-            setGptFeatureSuggestion([featureList[0], featureList[1]]);
+            setChatFeatureSuggestion([featureList[0], featureList[1]]);
             return;
         } else {
             console.log("Invalid feature suggestion: ", featureList);
-            // setMessageHisto([
-            //     ...messageHisto,
-            //     {
-            //         role: "system",
-            //         content:
-            //             "Invalid features, please try again with valid features",
-            //     },
-            // ]);
         }
 
         return;
@@ -363,9 +307,9 @@ function App() {
     }, [shownMessages]);
 
     // handle offcanvas
-    const [showGPT, setShowGPT] = useState(false);
-    const handleClose = () => setShowGPT(false);
-    const handleShow = () => setShowGPT(!showGPT);
+    const [showChat, setShowChat] = useState(false);
+    const handleClose = () => setShowChat(false);
+    const handleShow = () => setShowChat(!showChat);
 
     // ------------------------- JSX -------------------------
     return (
@@ -378,10 +322,10 @@ function App() {
                         </h1>
 
                         <div className="panels-container">
-                            {/* Offcanvas start */}
+                            {/* Sidepanel start */}
 
                             <div
-                                className={`sidepanel ${showGPT ? "expanded" : "collapsed"}`}
+                                className={`sidepanel ${showChat ? "expanded" : "collapsed"}`}
                             >
                                 <div className="sidepanel-header">
                                     <h5>Chatbot</h5>
@@ -393,21 +337,22 @@ function App() {
                                     ></button>
                                 </div>
                                 <div className="sidepanel-body">
-                                    <div className="gpt-prompt-container">
+                                    <div className="chat-prompt-container">
                                         <div className="container-suggest-clear-button">
                                             <Button
                                                 variant="dark"
                                                 onClick={() =>
-                                                    clearGPTHistory({
+                                                    clearChatHistory({
                                                         setMessageHisto,
                                                         setShownMessages,
+                                                        initialPrompt,
                                                     })
                                                 }
                                             >
                                                 Clear History
                                             </Button>
 
-                                            <div className="chatGPT-suggest-button">
+                                            <div className="chat-suggest-button">
                                                 <Button
                                                     variant="dark"
                                                     onClick={() =>
@@ -422,8 +367,8 @@ function App() {
                                                                 setMessageHisto,
                                                                 shownMessages,
                                                                 setShownMessages,
-                                                                handleGPTFeatureSuggestions:
-                                                                    handleGPTFeatureSuggestion,
+                                                                handleChatFeatureSuggestions:
+                                                                    handleChatFeatureSuggestion,
                                                             }
                                                         )
                                                     }
@@ -434,7 +379,7 @@ function App() {
                                         </div>
 
                                         <p>Or ask your questions.</p>
-                                        <div className="GPT-textInput-container">
+                                        <div className="chat-textInput-container">
                                             <input
                                                 type="text"
                                                 ref={promptRef}
@@ -451,8 +396,8 @@ function App() {
                                                         setMessageHisto,
                                                         shownMessages,
                                                         setShownMessages,
-                                                        handleGPTFeatureSuggestions:
-                                                            handleGPTFeatureSuggestion,
+                                                        handleChatFeatureSuggestions:
+                                                            handleChatFeatureSuggestion,
                                                     })
                                                 }
                                             >
@@ -460,7 +405,7 @@ function App() {
                                             </Button>
                                         </div>
                                     </div>
-                                    <div className="chatgpt-messages">
+                                    <div className="chat-messages">
                                         {shownMessages
                                             .filter(
                                                 (msg) =>
@@ -470,7 +415,7 @@ function App() {
                                             .map((msg, idx) => (
                                                 <div
                                                     key={idx}
-                                                    className={`chatgpt-message ${
+                                                    className={`chat-message ${
                                                         msg.role === "user"
                                                             ? "user-message"
                                                             : "assistant-message"
@@ -486,20 +431,17 @@ function App() {
                                 </div>
                             </div>
 
-                            {/* Offcanvas end */}
+                            {/* Sidepanel end */}
                             <div
-                                className={`mainpanel ${showGPT ? "sp-expanded" : "sp-collapsed"}`}
+                                className={`mainpanel ${showChat ? "sp-expanded" : "sp-collapsed"}`}
                             >
-                                {/* <h1 className="heading">
-                                    Parkinson's disease analysis
-                                </h1> */}
                                 <div className="heatmap-scatterplots-grid">
                                     <div className="flex-container-column ">
                                         <div className="flex-container-row">
                                             <Button
                                                 variant="dark"
                                                 onClick={handleShow}
-                                                className="show-chatgpt-button"
+                                                className="show-chat-button"
                                             >
                                                 Show Chat assistant.
                                             </Button>
@@ -510,7 +452,7 @@ function App() {
                                         </div>
 
                                         <div className="checkbox-container">
-                                            {covFeatures.map((feature) => (
+                                            {cov_features.map((feature) => (
                                                 <div key={feature}>
                                                     <label>
                                                         <input
@@ -538,8 +480,8 @@ function App() {
                                                 selectedFeatures={
                                                     scatterplotFeatures
                                                 }
-                                                gptFeatureSuggestion={
-                                                    gptFeatureSuggestion
+                                                chatFeatureSuggestion={
+                                                    ChatFeatureSuggestion
                                                 }
                                                 setSelectedFeatures={
                                                     heatmapSetsScatterplotFeatures
@@ -573,24 +515,24 @@ function App() {
                                                         </h4>
                                                     )}
                                                     <select
-                                                        name="zTestCatFeature"
+                                                        name="catFeature"
                                                         style={{
                                                             visibility:
-                                                                zTestMethods.length >
+                                                                catFeatures.length >
                                                                 0
                                                                     ? "visible"
                                                                     : "hidden",
                                                         }} // Use style attribute to set visibility
-                                                        id="zTestCatFeature"
+                                                        id="catFeature"
                                                         className="single-select-dropdown"
-                                                        value={zTestMethod}
+                                                        value={catFeature}
                                                         onChange={(e) =>
-                                                            setZTestMethod(
+                                                            setCatFeature(
                                                                 e.target.value
                                                             )
                                                         }
                                                     >
-                                                        {zTestMethods.map(
+                                                        {catFeatures.map(
                                                             (f) => (
                                                                 <option
                                                                     value={f}
@@ -611,7 +553,7 @@ function App() {
                                                             scatterplotFeatures[0]
                                                         }
                                                         k_mean_clusters={k}
-                                                        catFeature={zTestMethod}
+                                                        catFeature={catFeature}
                                                     />
                                                 ) : (
                                                     <PlotScatterplot
@@ -625,7 +567,7 @@ function App() {
                                                             patients_data
                                                         }
                                                         categorical_feature={
-                                                            zTestMethod
+                                                            catFeature
                                                         }
                                                         k_mean_clusters={k}
                                                         showCatLinReg={false}
@@ -648,7 +590,7 @@ function App() {
                                                 <div>
                                                     <MultiSelectDropdown
                                                         options={
-                                                            numerical_keys_list
+                                                            pca_num_features_list
                                                         }
                                                         selectedOptions={
                                                             biplotFeatures
@@ -695,7 +637,7 @@ function App() {
                                             <PlotPcaBiplot
                                                 patientsData={patients_data}
                                                 numFeatures={
-                                                    numerical_keys_list
+                                                    pca_num_features_list
                                                 }
                                                 loadings={pcaLoadings}
                                                 biplotFeatures={biplotFeatures}

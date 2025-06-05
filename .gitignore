@@ -1,3 +1,8 @@
+
+# for now
+*database*
+*local*
+
 # Logs
 logs
 *.log
@@ -23,9 +28,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# for now
-*dataset*
-*local*
+
 
 # bun
 .DS_Store

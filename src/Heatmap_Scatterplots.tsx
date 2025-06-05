@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import "./css/App.css";
 import * as d3 from "d3";
 import * as Plot from "@observablehq/plot";
-import { Patient } from "./Patient";
+import { Patient } from "./env_dataset/Patient";
 import { CalcMinMaxPatientsData } from "./HelperFunctions";
 
 const FONTSIZE = "14px";
@@ -47,7 +47,7 @@ interface CorHeatmapProps {
     patients_data: Patient[];
     cov_features: string[];
     selectedFeatures: [string, string];
-    gptFeatureSuggestion: [string, string];
+    chatFeatureSuggestion: [string, string];
     setSelectedFeatures: (selectedFeatures: [string, string]) => void;
     setCorrelations: (
         correlations: { a: string; b: string; correlation: number }[]
@@ -57,7 +57,7 @@ function PlotCorHeatmap({
     patients_data,
     cov_features,
     selectedFeatures,
-    gptFeatureSuggestion,
+    chatFeatureSuggestion: chatFeatureSuggestion,
     setSelectedFeatures,
     setCorrelations,
 }: CorHeatmapProps) {
@@ -242,7 +242,7 @@ function PlotCorHeatmap({
                 HighlightCell(idx1d);
             }
         }
-    }, [gptFeatureSuggestion]);
+    }, [chatFeatureSuggestion]);
 
     return <div ref={corr_heatmap_ref}></div>;
 }

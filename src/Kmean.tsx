@@ -1,4 +1,4 @@
-import { Patient } from "./Patient";
+import { Patient } from "./env_dataset/Patient";
 type Point = number[];
 
 type ClusterResult = {
