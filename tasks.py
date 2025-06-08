@@ -24,6 +24,8 @@ def generate(ctx: invoke.context.Context):
     print(f"{continuous_columns=}")
     print(f"{categorical_columns=}")
 
+    corr = df[continuous_columns].corr()
+
     for col in categorical_columns:
         print(col, df[col].unique())
 
@@ -41,25 +43,29 @@ def generate(ctx: invoke.context.Context):
     )
     cat_sample: pd.DataFrame = synth.sample(100)  # type: ignore return type
 
-    def sample_continuous(col: str):
+    def sample_continuous(col: str, previous_cols: dict[str, int | float]) -> int | float:
         value = random.normalvariate(*continuous_mean_std[col])
-        return value if df[col].dtype == float else int(value)
+        for pcol, pval in previous_cols.items():
+            if not pd.isna(corr[col][pcol]):
+                pmean, pstd = continuous_mean_std[pcol]
+                value += random.random() * corr[col][pcol] * (pval - pmean) / pstd
+        return float(value) if df[col].dtype == float else int(value)
 
     generated_rows = []
     ord_counter = 0
     ord_std = df["record_id"].std()
     for i, cat_row in cat_sample.iterrows():
         ord_counter += max(1, int(random.normalvariate(mu=0, sigma=ord_std / len(df))))
-        generated_rows.append(
-            [
+        row = []
+        for i, col in enumerate(columns):
+            row.append(
                 ord_counter
                 if col in ordinal_columns
                 else cat_row[col]
                 if col in categorical_columns
-                else sample_continuous(col)
-                for col in columns
-            ]
-        )
+                else sample_continuous(col, {c: row[j] for j, c in enumerate(columns[:i]) if c in continuous_columns})
+            )
+        generated_rows.append(row)
 
     sample = pd.DataFrame(generated_rows, columns=columns)
     for col, bounds in continuous_bounds.items():
