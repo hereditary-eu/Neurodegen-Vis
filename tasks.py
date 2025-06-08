@@ -44,27 +44,32 @@ def generate(ctx: invoke.context.Context):
     cat_sample: pd.DataFrame = synth.sample(100)  # type: ignore return type
 
     def sample_continuous(col: str, previous_cols: dict[str, int | float]) -> int | float:
-        value = random.normalvariate(*continuous_mean_std[col])
+        mean, std = continuous_mean_std[col]
+        value = random.normalvariate(mean, std)
         for pcol, pval in previous_cols.items():
             if not pd.isna(corr[col][pcol]):
                 pmean, pstd = continuous_mean_std[pcol]
-                value += random.random() * corr[col][pcol] * (pval - pmean) / pstd
+                value += random.random() * corr[col][pcol] * (pval - pmean) / pstd * std
         return float(value) if df[col].dtype == float else int(value)
 
     generated_rows = []
     ord_counter = 0
     ord_std = df["record_id"].std()
+    shuffled_cols = columns.copy()
     for i, cat_row in cat_sample.iterrows():
+        row = {}
+        random.shuffle(shuffled_cols)
         ord_counter += max(1, int(random.normalvariate(mu=0, sigma=ord_std / len(df))))
-        row = []
-        for i, col in enumerate(columns):
-            row.append(
-                ord_counter
-                if col in ordinal_columns
-                else cat_row[col]
-                if col in categorical_columns
-                else sample_continuous(col, {c: row[j] for j, c in enumerate(columns[:i]) if c in continuous_columns})
-            )
+        for i, col in enumerate(shuffled_cols):
+            if col in ordinal_columns:
+                row[col] = ord_counter
+            elif col in categorical_columns:
+                row[col] = cat_row[col]
+            elif col in continuous_columns:
+                pcols = {c: row[c] for c in shuffled_cols[:i] if c in continuous_columns}
+                row[col] = sample_continuous(col, pcols)
+            else:
+                raise NameError()
         generated_rows.append(row)
 
     sample = pd.DataFrame(generated_rows, columns=columns)
