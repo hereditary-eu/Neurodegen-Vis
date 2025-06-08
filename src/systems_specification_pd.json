@@ -1,85 +1,85 @@
 {
-    "systemName": "Parkinson's Disease Visual analytics dashboard",
-    "systemDescription": "The Dashboard should highlight correlations and dependencies between features, and cluster similar datapoints (patients). It is built of 3 view, heatmap, scatterplot or histogram, and PCA biplot.",
-    "views": [
-        {
-            "viewName": "Pearson Correlation Heatmap",
-            "visualizationType": "Heatmap",
-            "position on dashboard": "left",
-            "encoding": {
-                "x": "Feature X",
-                "y": "Feature Y",
-                "color": "Pearson Correlation Coefficient"
-            },
-            "interactions": {
-                "checkbox": "Select Features to display in heatmap",
-                "click non-diagonal cell": "shows and updates scatterplot with selected feature pair",
-                "click diagonal cell": "shows and updates histogram with selected feature"
-            }
-        },
-        {
-            "viewName": "Feature Scatterplot",
-            "visualizationType": "Scatterplot",
-            "position on dashboard": "top right",
-            "encoding": {
-                "x": "Feature selected from heatmap",
-                "y": "Feature selected from heatmap",
-                "color": {
-                    "options": [
-                        "None",
-                        "Cluster (k-means)",
-                        "Categorical features (z-diagnosis)",
-                        "Test method of Y-axis feature (available only for z-scores)"
-                    ]
-                }
-            },
-            "interactions": {
-                "dropdown": "Change color encoding"
-            }
-        },
-        {
-            "viewName": "Feature Histogram",
-            "visualizationType": "Histogram",
-            "position on dashboard": "top right",
-            "encoding": {
-                "x": "Feature selected from heatmap",
-                "y": "Count of datapoints (patients)",
-                "color": {
-                    "options": [
-                        "None",
-                        "Cluster (k-means)",
-                        "Categorical features (z-diagnosis)",
-                        "Test method of Y-axis feature (available only for z-scores)"
-                    ]
-                }
-            },
-            "interactions": {
-                "dropdown": "Change color encoding"
-            }
-        },
-        {
-            "viewName": "PCA Biplot",
-            "visualizationType": "Biplot (Scatterplot + Loadings)",
-            "position on dashboard": "bottom right",
-            "encoding": {
-                "x": "Principal Component 1",
-                "y": "Principal Component 2",
-                "color": "Cluster assignment (k-means)",
-                "arrow": "Feature loadings (optional)"
-            },
-            "interactions": {
-                "dropdown": "Toggle loading vectors (on/off)",
-                "numeric_input": "Set number of clusters (k)",
-                "button": "Run PCA and apply k-means clustering"
-            }
+  "systemName": "Parkinson's Disease Visual analytics dashboard",
+  "systemDescription": "The Dashboard should highlight correlations and dependencies between features, and cluster similar datapoints (patients). It is built of 3 view, heatmap, scatterplot or histogram, and PCA biplot.",
+  "views": [
+    {
+      "viewName": "Pearson Correlation Heatmap",
+      "visualizationType": "Heatmap",
+      "position on dashboard": "left",
+      "encoding": {
+        "x": "Feature X",
+        "y": "Feature Y",
+        "color": "Pearson Correlation Coefficient"
+      },
+      "interactions": {
+        "checkbox": "Select Features to display in heatmap",
+        "click non-diagonal cell": "shows and updates scatterplot with selected feature pair",
+        "click diagonal cell": "shows and updates histogram with selected feature"
+      }
+    },
+    {
+      "viewName": "Feature Scatterplot",
+      "visualizationType": "Scatterplot",
+      "position on dashboard": "top right",
+      "encoding": {
+        "x": "Feature selected from heatmap",
+        "y": "Feature selected from heatmap",
+        "color": {
+          "options": [
+            "None",
+            "Cluster (k-means)",
+            "Categorical features (z-diagnosis)",
+            "Test method of Y-axis feature (available only for z-scores)"
+          ]
         }
-    ],
-    "viewRelationships": [
-        {
-            "sourceView": "Pearson Correlation Heatmap",
-            "targetView": "Feature Scatterplot and Feature Histogram",
-            "interactionType": "Filter",
-            "description": "Selecting a heatmap cell sets the X and Y features for the scatterplot. If the cell is a diagonal cell, the feature will be shown as histogram instead of scatterplot."
+      },
+      "interactions": {
+        "dropdown": "Change color encoding"
+      }
+    },
+    {
+      "viewName": "Feature Histogram",
+      "visualizationType": "Histogram",
+      "position on dashboard": "top right",
+      "encoding": {
+        "x": "Feature selected from heatmap",
+        "y": "Count of datapoints (patients)",
+        "color": {
+          "options": [
+            "None",
+            "Cluster (k-means)",
+            "Categorical features (z-diagnosis)",
+            "Test method of Y-axis feature (available only for z-scores)"
+          ]
         }
-    ]
+      },
+      "interactions": {
+        "dropdown": "Change color encoding"
+      }
+    },
+    {
+      "viewName": "PCA Biplot",
+      "visualizationType": "Biplot (Scatterplot + Loadings)",
+      "position on dashboard": "bottom right",
+      "encoding": {
+        "x": "Principal Component 1",
+        "y": "Principal Component 2",
+        "color": "Cluster assignment (k-means)",
+        "arrow": "Feature loadings (optional)"
+      },
+      "interactions": {
+        "dropdown": "Toggle loading vectors (on/off)",
+        "numeric_input": "Set number of clusters (k)",
+        "button": "Run PCA and apply k-means clustering"
+      }
+    }
+  ],
+  "viewRelationships": [
+    {
+      "sourceView": "Pearson Correlation Heatmap",
+      "targetView": "Feature Scatterplot and Feature Histogram",
+      "interactionType": "Filter",
+      "description": "Selecting a heatmap cell sets the X and Y features for the scatterplot. If the cell is a diagonal cell, the feature will be shown as histogram instead of scatterplot."
+    }
+  ]
 }

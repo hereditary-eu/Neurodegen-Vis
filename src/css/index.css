@@ -2,118 +2,118 @@
    Root Variables and Global Styles
 =================================== */
 :root {
-    /* Font settings */
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-    font-weight: 400;
-    line-height: 1.5;
+  /* Font settings */
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  line-height: 1.5;
 
-    /* Color scheme and theme colors */
-    color-scheme: light dark;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
+  /* Color scheme and theme colors */
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
 
-    /* Font rendering optimizations */
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  /* Font rendering optimizations */
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ======================
    Typography & Structure
 ========================= */
 body {
-    margin: 0;
-    display: flex;
-    place-items: center;
-    min-width: 320px;
-    min-height: 100vh;
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
 }
 
 h1 {
-    font-size: 2.8em !important;
-    line-height: 1.1;
-    margin: 0 0 1rem 0;
-    padding: 0;
+  font-size: 2.8em !important;
+  line-height: 1.1;
+  margin: 0 0 1rem 0;
+  padding: 0;
 }
 
 /* ===============
    Link Styling
 ================= */
 a {
-    font-weight: 500;
-    color: #646cff;
-    text-decoration: inherit;
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
 }
 
 a:hover {
-    color: #535bf2;
+  color: #535bf2;
 }
 
 /* ===============
    Button Styling
 ================= */
 button {
-    font-family: inherit;
-    font-size: 1em;
-    font-weight: 500;
-    padding: 0.4em 0.5em;
-    border-radius: 8px;
-    border: 1px solid transparent;
-    background-color: #1a1a1a;
-    cursor: pointer;
-    transition: border-color 0.25s;
-    /* margin-top: 5px; */
-    /* margin-bottom: 1px; */
+  font-family: inherit;
+  font-size: 1em;
+  font-weight: 500;
+  padding: 0.4em 0.5em;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  /* margin-top: 5px; */
+  /* margin-bottom: 1px; */
 }
 
 button:hover {
-    border-color: #646cff;
+  border-color: #646cff;
 }
 
 button:focus,
 button:focus-visible {
-    outline: 4px auto -webkit-focus-ring-color;
+  outline: 4px auto -webkit-focus-ring-color;
 }
 
 /* ====================
    Custom Button Classes
 ======================= */
 .btn-dark {
-    background-color: #1a1a1a;
-    border-color: #1a1a1a;
+  background-color: #1a1a1a;
+  border-color: #1a1a1a;
 }
 
 .btn-dark:hover {
-    background-color: #1a1a1a !important;
-    border-color: #646cff !important;
+  background-color: #1a1a1a !important;
+  border-color: #646cff !important;
 }
 
 /* ======================
    Offcanvas Dark Mode
 ========================= */
 .dark-offcanvas {
-    background-color: #1e1e1e !important;
-    color: white; /* Improves readability */
+  background-color: #1e1e1e !important;
+  color: white; /* Improves readability */
 }
 
 .dark-offcanvas .btn-close {
-    filter: invert(1); /* Makes the "x" white */
-    opacity: 0.8;
+  filter: invert(1); /* Makes the "x" white */
+  opacity: 0.8;
 }
 
 .dark-offcanvas .btn-close:hover {
-    filter: invert(1);
-    opacity: 1;
+  filter: invert(1);
+  opacity: 1;
 }
 
 input {
-    color: white;
-    /* background-color: #2b2a33; */
-    background-color: #2f2f2f;
+  color: white;
+  /* background-color: #2b2a33; */
+  background-color: #2f2f2f;
 
-    border-radius: 2px;
-    border-color: #777;
-    border-width: 2px;
-    border-style: solid;
+  border-radius: 2px;
+  border-color: #777;
+  border-width: 2px;
+  border-style: solid;
 }

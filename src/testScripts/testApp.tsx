@@ -7,31 +7,31 @@ import "./testApp.css";
 import React, { useState } from "react";
 
 const Sidebar: React.FC = () => {
-    const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
-    return (
-        <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
-            <button onClick={() => setCollapsed(!collapsed)}>
-                {collapsed ? ">>" : "<<"}
-            </button>
-            {!collapsed && (
-                <ul>
-                    <li>Home</li>
-                    <li>Profile</li>
-                    <li>Settings</li>
-                </ul>
-            )}
-        </div>
-    );
+  return (
+    <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
+      <button onClick={() => setCollapsed(!collapsed)}>
+        {collapsed ? ">>" : "<<"}
+      </button>
+      {!collapsed && (
+        <ul>
+          <li>Home</li>
+          <li>Profile</li>
+          <li>Settings</li>
+        </ul>
+      )}
+    </div>
+  );
 };
 
 function TestApp() {
-    return (
-        <>
-            Hello world
-            <Sidebar />
-        </>
-    );
+  return (
+    <>
+      Hello world
+      <Sidebar />
+    </>
+  );
 }
 
 export default TestApp;
