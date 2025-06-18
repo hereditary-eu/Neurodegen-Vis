@@ -26,6 +26,7 @@ import {
     clearChatHistory,
     handleChatSubmit,
     MessageHistory,
+    initialPrompt,
 } from "./Chat";
 import {
     PlotHisto,
@@ -33,10 +34,8 @@ import {
     PlotScatterplot,
     pearsonCorrelation,
 } from "./Heatmap_Scatterplots";
-import dataFieldDescription from "./env_dataset/PD_DataFieldsDescription_plain.txt?raw";
 import ReactMarkdown from "react-markdown";
 import { RunKmeans } from "./Kmean";
-import systemsSpecificifications from "./systems_specification_pd.json";
 
 import * as Plot from "@observablehq/plot";
 
@@ -239,8 +238,9 @@ function App() {
                     patientDataLoaded
                 );
                 setPearsonCorr(correlations);
-                setMessageHisto([
-                    ...messageHisto,
+
+                setMessageHistoFun([
+                    ...initialPrompt,
                     {
                         role: "system",
                         content:
@@ -259,30 +259,17 @@ function App() {
     // use ref to avoid re-rendering for the input field for every key stroke
     const promptRef = useRef<HTMLInputElement>(null);
     // const [response, setResponse] = useState<string>("");
-    const initialPrompt: MessageHistory[] = [
-        {
-            role: "system",
-            content:
-                "You are a helpful AI assistant, which helps user to understand a visual analytics dashboard." +
-                "This are the specifications of the Dashboard: " +
-                JSON.stringify(systemsSpecificifications),
-        },
-        {
-            role: "system",
-            content:
-                " Please answer all questions in a short and concise manner.",
-        },
-        {
-            role: "system",
-            content: "Description of the features:" + dataFieldDescription,
-        },
-    ];
+
     const [shownMessages, setShownMessages] = useState<MessageHistory[]>([]);
     const [messageHisto, setMessageHisto] =
         useState<MessageHistory[]>(initialPrompt);
     const [ChatFeatureSuggestion, setChatFeatureSuggestion] = useState<
         [string, string]
     >(["", ""]);
+    function setMessageHistoFun(messages: MessageHistory[]) {
+        setMessageHisto(messages);
+        console.log("Message history updated:", messages);
+    }
 
     function handleChatFeatureSuggestion(featureList: string[]) {
         // console.log("Features, ", featureList);
@@ -343,7 +330,7 @@ function App() {
                                                 variant="dark"
                                                 onClick={() =>
                                                     clearChatHistory({
-                                                        setMessageHisto,
+                                                        setMessageHistoFun,
                                                         setShownMessages,
                                                         initialPrompt,
                                                     })
@@ -364,7 +351,7 @@ function App() {
                                                                         ?.value ||
                                                                     "",
                                                                 messageHisto,
-                                                                setMessageHisto,
+                                                                setMessageHistoFun,
                                                                 shownMessages,
                                                                 setShownMessages,
                                                                 handleChatFeatureSuggestions:
@@ -393,7 +380,7 @@ function App() {
                                                             promptRef.current
                                                                 ?.value || "",
                                                         messageHisto,
-                                                        setMessageHisto,
+                                                        setMessageHistoFun,
                                                         shownMessages,
                                                         setShownMessages,
                                                         handleChatFeatureSuggestions:
@@ -535,6 +522,7 @@ function App() {
                                                         {catFeatures.map(
                                                             (f) => (
                                                                 <option
+                                                                    key={f}
                                                                     value={f}
                                                                 >
                                                                     {f}
