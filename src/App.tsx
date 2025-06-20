@@ -27,6 +27,7 @@ import {
     handleChatSubmit,
     MessageHistory,
     initialPrompt,
+    ChatCodeRes,
 } from "./Chat";
 import {
     PlotHisto,
@@ -285,6 +286,46 @@ function App() {
         }
 
         return;
+    }
+
+    function handleChatCodeResponse(codeResponse: ChatCodeRes) {
+        // Handle the code response from the chat
+        console.log("Chat code response received:", codeResponse);
+        switch (codeResponse.functionName) {
+            case "highlightFeature":
+            case "highlightFeatures":
+                // highlight feature(s) in the heatmap
+                console.log("HighlightFeature(S) case triggered");
+                const featureList: string[] = codeResponse.code;
+                if (
+                    featureList.length === 2 &&
+                    featureList.every((feature) =>
+                        cov_features.includes(feature)
+                    )
+                ) {
+                    console.log("Valid feature highlighted: ", featureList);
+                    // setScatterplotFeatures([featureList[0], featureList[1]]);
+                    setChatFeatureSuggestion([featureList[0], featureList[1]]);
+                    return;
+                } else {
+                    console.log("Invalid feature highlighted: ", featureList);
+                }
+                break;
+
+            // case "highlightFeatures":
+            //     // highlight features in the heatmap
+            //     console.log("HighlightFeatures case triggered");
+            //     break;
+            case "none":
+                // No specific action needed
+                console.log("None case triggered");
+                break;
+            default:
+                console.log(
+                    "Invalid function name:",
+                    codeResponse.functionName
+                );
+        }
     }
 
     const messagesEndRef = useRef<HTMLDivElement | null>(null);

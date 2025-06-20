@@ -2,9 +2,25 @@ import OpenAI from "openai";
 import dataFieldDescription from "./env_dataset/PD_DataFieldsDescription_plain.txt?raw";
 import systemsSpecificifications from "./systems_specification_pd.json";
 
-export class MessageHistory {
-    role: "system" | "user" | "assistant" = "system";
-    content: string = "";
+export interface MessageHistory {
+    role: "system" | "user" | "assistant";
+    content: string;
+}
+
+export class ChatCodeRes {
+    functionName: string = "";
+    code: string[] = ["", ""];
+    // code: [string, string] = ["", ""];
+    // code: string = "";
+
+    static fromJSON(json: string): ChatCodeRes {
+        // const jsonStr = JSON.stringify(json);
+        const obj = JSON.parse(json);
+        const instance = new ChatCodeRes();
+        instance.functionName = obj.function;
+        instance.code = obj.code;
+        return instance;
+    }
 }
 
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
@@ -51,18 +67,19 @@ interface ChatProps {
 }
 
 const codePrompt =
-    "There a different types of dashboard interaction, please provide the code in the described format (no additional text!)" +
-    "json format with the following two key value pairs: " +
-    "function: <valid_function>, code: <valid_code>" +
-    "e.g. {function: highlightFeature, code: [<feature_name>, <feature_name>]}" +
-    "The following valid functions are available: " +
-    "1. 'highlightFeature': highlights the diagonal cell of a feature in the heatmap, needed input is a valid feature name twice in a list format, e.g. {code: [<feature_name>, <feature_name>]} " +
-    "2. 'highlightFeatures': highlights the non-diagonal cell of the feature pair in the heatmap, needed input are two valid features in a list format e.g. {code: [<feature_name_1>, <feature_name_2>]} " +
-    "Only return one single function if it is relevant to the users last question," +
-    "<highlightFeature> for: explain this / what is this feature, or <highlightFeatures> for: what is the correlation between the features.." +
-    "otherwise return an empty object {}";
+    "There are different types of dashboard interactions. Please provide the code in the following format (no additional text!): " +
+    "a JSON object with two key-value pairs: " +
+    '{"function": "valid_function", "code": "valid_code"} ' +
+    'For example: {"function": "highlightFeature", "code": ["<feature_name>", "<feature_name>"]} ' +
+    "Valid function options: " +
+    '1. "highlightFeature": highlights the diagonal cell of a feature in the correlation heatmap. Input: a list with the same feature name twice, e.g. {"code": ["featureX", "featureX"]} ' +
+    '2. "highlightFeatures": highlights a non-diagonal cell representing a feature pair in the heatmap. Input: two distinct feature names, e.g. {"code": ["featureA", "featureB"]} ' +
+    "Only return one single function, based on the user's last question. " +
+    'Use "highlightFeature" for questions like: "what is this feature", "explain this feature", etc. ' +
+    'Use "highlightFeatures" for questions like: "correlation", "dependency", "relationship between features", etc. ' +
+    'If none apply, return {"function": "none", "code": "none"}';
 
-const codePrompt2 = "Answer with yes";
+// const codePrompt2 = "Answer with yes";
 
 const chatSubmitCodeResp = async (messageHisto: MessageHistory[]) => {
     // Append the new user message to the message history
@@ -70,8 +87,8 @@ const chatSubmitCodeResp = async (messageHisto: MessageHistory[]) => {
         ...messageHisto,
         {
             role: "system",
-            // content: codePrompt,
-            content: codePrompt2,
+            content: codePrompt,
+            // content: codePrompt2,
         },
     ];
 
@@ -172,10 +189,10 @@ const handleChatSubmit = async ({
             messages: updatedMessagesCode, // Send the entire conversation history
         });
 
-        console.log(
-            "Completion response for code generation:",
-            completion_code
-        );
+        // console.log(
+        //     "Completion response for code generation:",
+        //     completion_code
+        // );
 
         const assistantResponse_code =
             completion_code.choices[0].message.content || "nothing?";
@@ -183,6 +200,17 @@ const handleChatSubmit = async ({
             "Assistant response for code generation:",
             assistantResponse_code
         );
+
+        try {
+            const codeResponse = ChatCodeRes.fromJSON(assistantResponse_code);
+            console.log("Parsed code response:", codeResponse);
+        } catch (error) {
+            console.error(
+                "Error parsing following code response:",
+                assistantResponse_code
+            );
+            console.error("Error:", error);
+        }
 
         setMessageHisto(updatedMessagesWithResponse);
         console.log("message history", updatedMessagesWithResponse);
@@ -195,36 +223,6 @@ const handleChatSubmit = async ({
         ]);
     } catch (error) {
         console.error("Error fetching response:", error);
-    }
-
-    // ---------------------------- Generate code response ----------------------------
-    try {
-        // console.log("Start code generation");
-        // // const codeResponse = chatSubmitCodeResp(updatedMessagesWithResponse);
-        // const updatedMessagesCode: MessageHistory[] = [
-        //     ...messageHisto,
-        //     {
-        //         role: "system",
-        //         content: codePrompt,
-        //     },
-        // ];
-        // console.log("Messages for code generation:", updatedMessagesCode);
-        // const completion_code = await openai.chat.completions.create({
-        //     model: MODEL,
-        //     messages: updatedMessagesCode, // Send the entire conversation history
-        // });
-        // console.log(
-        //     "Completion response for code generation:",
-        //     completion_code
-        // );
-        // const assistantResponse_code =
-        //     completion_code.choices[0].message.content || "nothing?";
-        // console.log(
-        //     "Assistant response for code generation:",
-        //     assistantResponse_code
-        // );
-    } catch (error) {
-        console.error("Error fetching response for code generation:", error);
     }
 };
 
