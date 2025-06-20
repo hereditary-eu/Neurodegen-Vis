@@ -312,10 +312,6 @@ function App() {
                 }
                 break;
 
-            // case "highlightFeatures":
-            //     // highlight features in the heatmap
-            //     console.log("HighlightFeatures case triggered");
-            //     break;
             case "none":
                 // No specific action needed
                 console.log("None case triggered");
@@ -397,6 +393,7 @@ function App() {
                                                                 setShownMessages,
                                                                 handleChatFeatureSuggestions:
                                                                     handleChatFeatureSuggestion,
+                                                                handleChatCodeResponse,
                                                             }
                                                         )
                                                     }
@@ -426,6 +423,7 @@ function App() {
                                                         setShownMessages,
                                                         handleChatFeatureSuggestions:
                                                             handleChatFeatureSuggestion,
+                                                        handleChatCodeResponse,
                                                     })
                                                 }
                                             >

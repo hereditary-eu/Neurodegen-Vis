@@ -9,7 +9,7 @@ export interface MessageHistory {
 
 export class ChatCodeRes {
     functionName: string = "";
-    code: string[] = ["", ""];
+    code: string[] = ["", ""]; // todo, make different types of code possible!
     // code: [string, string] = ["", ""];
     // code: string = "";
 
@@ -18,7 +18,7 @@ export class ChatCodeRes {
         const obj = JSON.parse(json);
         const instance = new ChatCodeRes();
         instance.functionName = obj.function;
-        instance.code = obj.code;
+        instance.code = obj.code; //
         return instance;
     }
 }
@@ -64,6 +64,7 @@ interface ChatProps {
     shownMessages: MessageHistory[];
     setShownMessages: (shownMessages: MessageHistory[]) => void;
     handleChatFeatureSuggestions: (featureList: string[]) => void;
+    handleChatCodeResponse: (codeResponse: ChatCodeRes) => void;
 }
 
 const codePrompt =
@@ -77,7 +78,7 @@ const codePrompt =
     "Only return one single function, based on the user's last question. " +
     'Use "highlightFeature" for questions like: "what is this feature", "explain this feature", etc. ' +
     'Use "highlightFeatures" for questions like: "correlation", "dependency", "relationship between features", etc. ' +
-    'If none apply, return {"function": "none", "code": "none"}';
+    'If none apply, return {"function": "none", "code": ["none"]}';
 
 // const codePrompt2 = "Answer with yes";
 
@@ -128,6 +129,7 @@ const handleChatSubmit = async ({
     setMessageHistoFun: setMessageHisto,
     shownMessages,
     setShownMessages,
+    handleChatCodeResponse,
 }: ChatProps) => {
     if (!prompt) {
         console.log("Prompt is empty");
@@ -155,6 +157,8 @@ const handleChatSubmit = async ({
         { role: "user", content: prompt },
         { role: "assistant", content: "Generating response..." },
     ]);
+
+    let codeResponse: ChatCodeRes = new ChatCodeRes();
 
     try {
         // ----------------- Generate Chat Submit
@@ -202,8 +206,11 @@ const handleChatSubmit = async ({
         );
 
         try {
-            const codeResponse = ChatCodeRes.fromJSON(assistantResponse_code);
+            codeResponse = ChatCodeRes.fromJSON(assistantResponse_code);
             console.log("Parsed code response:", codeResponse);
+
+            handleChatCodeResponse(codeResponse);
+            // codeResponse = codeResponse_;
         } catch (error) {
             console.error(
                 "Error parsing following code response:",
@@ -224,6 +231,9 @@ const handleChatSubmit = async ({
     } catch (error) {
         console.error("Error fetching response:", error);
     }
+
+    console.log("Code response:", codeResponse);
+    return;
 };
 
 const handleChatSubmitSuggest = async ({
