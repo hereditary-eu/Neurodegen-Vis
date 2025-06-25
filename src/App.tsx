@@ -277,8 +277,6 @@ function App() {
     }
 
     function handleChatFeatureSuggestion(featureList: string[]) {
-        // console.log("Features, ", featureList);
-
         // check if the features are valid in in the data
         if (featureList.every((feature) => allFeatures.includes(feature))) {
             console.log("Valid feature suggestion: ", featureList);
@@ -299,7 +297,9 @@ function App() {
             case "highlightFeature":
             case "highlightFeatures":
                 // highlight feature(s) in the heatmap
-                console.log("HighlightFeature(S) case triggered");
+                console.log(
+                    "Chat code response: HighlightFeature(S) case triggered"
+                );
                 const featureList: string[] = codeResponse.code;
                 if (
                     featureList.length === 2 &&
@@ -318,11 +318,11 @@ function App() {
 
             case "none":
                 // No specific action needed
-                console.log("None case triggered");
+                console.log("Chat code response: None case triggered");
                 break;
             default:
                 console.log(
-                    "Invalid function name:",
+                    "Chat code response: Invalid function name:",
                     codeResponse.functionName
                 );
         }
