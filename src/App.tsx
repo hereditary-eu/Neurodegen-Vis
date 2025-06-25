@@ -267,6 +267,10 @@ function App() {
     const [ChatFeatureSuggestion, setChatFeatureSuggestion] = useState<
         [string, string]
     >(["", ""]);
+    const [ChatFeatureHighlight, setChatFeatureHighlight] = useState<
+        [string, string]
+    >(["", ""]);
+
     function setMessageHistoFun(messages: MessageHistory[]) {
         setMessageHisto(messages);
         console.log("Message history updated:", messages);
@@ -305,7 +309,7 @@ function App() {
                 ) {
                     console.log("Valid feature highlighted: ", featureList);
                     // setScatterplotFeatures([featureList[0], featureList[1]]);
-                    setChatFeatureSuggestion([featureList[0], featureList[1]]);
+                    setChatFeatureHighlight([featureList[0], featureList[1]]);
                     return;
                 } else {
                     console.log("Invalid feature highlighted: ", featureList);
@@ -508,6 +512,9 @@ function App() {
                                                 }
                                                 chatFeatureSuggestion={
                                                     ChatFeatureSuggestion
+                                                }
+                                                chatFeatureHighlight={
+                                                    ChatFeatureHighlight
                                                 }
                                                 setSelectedFeatures={
                                                     heatmapSetsScatterplotFeatures

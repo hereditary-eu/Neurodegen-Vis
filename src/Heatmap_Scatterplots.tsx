@@ -48,6 +48,7 @@ interface CorHeatmapProps {
     cov_features: string[];
     selectedFeatures: [string, string];
     chatFeatureSuggestion: [string, string];
+    chatFeatureHighlight: [string, string];
     setSelectedFeatures: (selectedFeatures: [string, string]) => void;
     setCorrelations: (
         correlations: { a: string; b: string; correlation: number }[]
@@ -58,6 +59,7 @@ function PlotCorHeatmap({
     cov_features,
     selectedFeatures,
     chatFeatureSuggestion,
+    chatFeatureHighlight,
     setSelectedFeatures,
     setCorrelations,
 }: CorHeatmapProps) {
@@ -207,6 +209,37 @@ function PlotCorHeatmap({
             corr_heatmap_ref.current.appendChild(corr_heatmap);
         }
     }, [patients_data, cov_features]); //called every time an input changes
+
+    // New effect for updating the cell highlight when selectedFeatures or GPT suggestions change
+    // TODO, should not "unhighlight" the scatterplot selected cell, just border highlight the new one
+    useEffect(() => {
+        console.log("Update cell highlight for ChatGPT suggestion");
+        if (corr_heatmap_ref.current) {
+            const rects = d3.select(corr_heatmap_ref.current).selectAll("rect");
+
+            function HighlightCell(idx1d: number) {
+                // Highlight cell with purple border
+                d3.select(rects.nodes()[idx1d])
+                    .style("stroke", "purple")
+                    .style("stroke-width", 4);
+
+                // Keep the border for 10 seconds
+                setTimeout(() => {
+                    d3.select(rects.nodes()[idx1d]).style("stroke", "none");
+                }, 10000);
+            }
+
+            // Calculate the index based on the new selected features (or GPT suggestion)
+            const idx_x = cov_features.indexOf(chatFeatureHighlight[0]);
+            const idx_y = cov_features.indexOf(chatFeatureHighlight[1]);
+            if (idx_x !== -1 && idx_y !== -1) {
+                const idx1d = idx_x * cov_features.length + idx_y;
+
+                // Update the highlighting without re-rendering the whole plot
+                HighlightCell(idx1d);
+            }
+        }
+    }, [chatFeatureHighlight]);
 
     // New effect for updating the cell highlight when selectedFeatures or GPT suggestions change
     // TODO, should not "unhighlight" the scatterplot selected cell, just border highlight the new one
@@ -562,7 +595,7 @@ function PlotHisto({
                                       ...(z_diagnosis_sel
                                           ? { fill: catFeature }
                                           : {
-                                                fill: (d) =>
+                                                fill: (d: Patient) =>
                                                     colors[d[catFeature]],
                                             }),
                                   }
