@@ -11,9 +11,7 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
-      <button onClick={() => setCollapsed(!collapsed)}>
-        {collapsed ? ">>" : "<<"}
-      </button>
+      <button onClick={() => setCollapsed(!collapsed)}>{collapsed ? ">>" : "<<"}</button>
       {!collapsed && (
         <ul>
           <li>Home</li>

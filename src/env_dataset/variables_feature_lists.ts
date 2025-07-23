@@ -17,13 +17,7 @@ export const cat_features_mapping: { [key: string]: string[] } = {
     "cat_flu_done",
     "fab_done",
   ],
-  visuosp_z_comp: [
-    "cdt_done",
-    "benton_done",
-    "vosp_done",
-    "rocf_c_done",
-    "rocf_d_done",
-  ],
+  visuosp_z_comp: ["cdt_done", "benton_done", "vosp_done", "rocf_c_done", "rocf_d_done"],
   memory_z_comp: ["rc_score_done", "ravlt_t_done", "wpat_done"],
   language_z_comp: [
     "naming_done",
@@ -36,11 +30,7 @@ export const cat_features_mapping: { [key: string]: string[] } = {
   ],
 };
 
-export const cat_features_generic: string[] = [
-  "None",
-  "k_mean_cluster",
-  "z_diagnosis",
-];
+export const cat_features_generic: string[] = ["None", "k_mean_cluster", "z_diagnosis"];
 
 export const cov_features: string[] = [
   "insnpsi_age",
@@ -86,10 +76,7 @@ export const cov_features_init: string[] = [
   "pc2",
 ];
 
-export const scatterplot_features_init: [string, string] = [
-  "insnpsi_age",
-  "visuosp_z_comp",
-];
+export const scatterplot_features_init: [string, string] = ["insnpsi_age", "visuosp_z_comp"];
 
 export const pca_num_features_list: string[] = [
   "insnpsi_age",

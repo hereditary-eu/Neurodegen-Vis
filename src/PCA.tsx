@@ -32,7 +32,7 @@ function getLoadingsForPlot(
   feature_num: number,
   loadings: number[][],
   loadingScaleFactor: number,
-  features: string[],
+  features: string[]
 ) {
   const loadingsForPlot = [
     { x: 0, y: 0 },
@@ -135,9 +135,7 @@ function PlotPcaBiplot({
   function createPlot() {
     console.log("PCA Plot started");
 
-    const patientsDataValid = patientsData.filter(
-      (patient) => patient.valid_pc,
-    );
+    const patientsDataValid = patientsData.filter((patient) => patient.valid_pc);
 
     const pcaProjections: number[][] = patientsDataValid.map((patient) => [
       patient.pc1,
@@ -145,7 +143,7 @@ function PlotPcaBiplot({
     ]);
 
     const validClusters: number[] = patientsDataValid.map(
-      (patient) => patient.k_mean_cluster,
+      (patient) => patient.k_mean_cluster
     );
 
     const [min_x, , min_y] = CalcMinMaxMatrix({
@@ -169,7 +167,7 @@ function PlotPcaBiplot({
         j,
         loadings,
         loadingScaleFactor,
-        numFeatures,
+        numFeatures
       );
       loadingLines.push(loadingMark.line);
       loadingTexts.push(loadingMark.text);
@@ -205,13 +203,12 @@ function PlotPcaBiplot({
                   ": " +
                   (typeof patientsDataValid[i][feature] === "number"
                     ? patientsDataValid[i][feature].toFixed(2)
-                    : patientsDataValid[i][feature]),
+                    : patientsDataValid[i][feature])
               )
               .join("\n"), // Show all biplot feature values
           ...(showKmeans
             ? {
-                stroke: (_, i) =>
-                  CLUSTERCOLORS[validClusters[i] % CLUSTERCOLORS.length], // Cluster colors
+                stroke: (_, i) => CLUSTERCOLORS[validClusters[i] % CLUSTERCOLORS.length], // Cluster colors
               }
             : {}),
         }),

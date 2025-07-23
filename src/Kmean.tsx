@@ -11,10 +11,7 @@ type ClusterResult = {
  */
 function euclideanDistance(point1: Point, point2: Point): number {
   return Math.sqrt(
-    point1.reduce(
-      (sum, val, index) => sum + Math.pow(val - point2[index], 2),
-      0,
-    ),
+    point1.reduce((sum, val, index) => sum + Math.pow(val - point2[index], 2), 0)
   );
 }
 
@@ -30,7 +27,7 @@ function initializeCentroids(data: Point[], k: number): Point[] {
 
   // Handle the case where all points are identical
   const allPointsIdentical = data.every((point) =>
-    point.every((value, index) => value === data[0][index]),
+    point.every((value, index) => value === data[0][index])
   );
 
   if (allPointsIdentical) {
@@ -45,9 +42,7 @@ function initializeCentroids(data: Point[], k: number): Point[] {
   while (centroids.length < k) {
     const distances = data.map((point) => {
       // Compute the minimum distance from the point to any existing centroid
-      return Math.min(
-        ...centroids.map((centroid) => euclideanDistance(point, centroid)),
-      );
+      return Math.min(...centroids.map((centroid) => euclideanDistance(point, centroid)));
     });
 
     // Compute the probability distribution based on squared distances
@@ -101,11 +96,7 @@ function assignClusters(data: Point[], centroids: Point[]): number[] {
 /**
  * Updates centroids based on the mean of points assigned to each cluster.
  */
-function updateCentroids(
-  data: Point[],
-  assignments: number[],
-  k: number,
-): Point[] {
+function updateCentroids(data: Point[], assignments: number[], k: number): Point[] {
   const newCentroids = Array(k)
     .fill(null)
     .map(() => Array(data[0].length).fill(0));
@@ -131,7 +122,7 @@ function updateCentroids(
 function centroidsConverged(
   oldCentroids: Point[],
   newCentroids: Point[],
-  tolerance = 1e-6,
+  tolerance = 1e-6
 ): boolean {
   return oldCentroids.every((oldCentroid, i) => {
     const distance = euclideanDistance(oldCentroid, newCentroids[i]);
@@ -172,11 +163,7 @@ function kMeans(data: number[][], k: number, maxIterations = 50): number[] {
   return assignments;
 }
 
-function RunKmeans(
-  patientData: Patient[],
-  setPatientDataFunc: Function,
-  k: number,
-) {
+function RunKmeans(patientData: Patient[], setPatientDataFunc: Function, k: number) {
   const clusteringData: number[][] = patientData
     .filter((patient) => patient.valid_pc)
     .map((patient) => [patient.pc1, patient.pc2]);
