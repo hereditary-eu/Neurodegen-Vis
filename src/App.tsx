@@ -600,7 +600,7 @@ function App() {
                                                         patients_data={
                                                             patients_data
                                                         }
-                                                        categorical_feature={
+                                                        categoricalFeature={
                                                             catFeature
                                                         }
                                                         k_mean_clusters={k}

@@ -6,13 +6,13 @@ import { Patient } from "./env_dataset/Patient";
 import { CalcMinMaxPatientsData } from "./HelperFunctions";
 
 const FONTSIZE = "14px";
-const COLORS: { [key: number]: string } = {
-    0: "orange",
+const COLORS_BIN: { [key: number]: string } = {
     1: "green",
+    0: "orange",
 };
-const COLORS_HISTO: { [key: string]: string } = {
-    Done: "orange",
-    "Not Done": "green",
+const COLORS_BIN_STR: { [key: string]: string } = {
+    "Done": "green",
+    "Not Done": "orange",
 };
 
 // // todo, set cluster to color, not just with order
@@ -285,7 +285,7 @@ interface ScatterplotProps {
     y_feature: string;
     x_feature: string;
     patients_data: Patient[];
-    categorical_feature: string;
+    categoricalFeature: string;
     k_mean_clusters: number;
     show_dash?: boolean;
     showCatLinReg?: boolean;
@@ -296,7 +296,7 @@ function PlotScatterplot({
     y_feature,
     x_feature,
     patients_data,
-    categorical_feature,
+    categoricalFeature: categoricalFeature,
     k_mean_clusters,
     show_dash = false,
     showCatAvg = false,
@@ -310,18 +310,12 @@ function PlotScatterplot({
         );
 
         let catFeatureSelected: boolean =
-            categorical_feature !== "" && categorical_feature !== "None";
-        console.log(
-            "catFeatureSelected: ",
-            catFeatureSelected,
-            "categorical_feature: ",
-            categorical_feature
-        );
+            categoricalFeature !== "" && categoricalFeature !== "None";
 
-        let colors = COLORS;
+        let colors = COLORS_BIN;
         let k_mean_cluster_sel = false;
         let z_diagnosis_sel = false; // for z_diagnosis, we need to set the color to 0 and 1
-        if (categorical_feature === "k_mean_cluster") {
+        if (categoricalFeature === "k_mean_cluster") {
             if (k_mean_clusters === 1) {
                 catFeatureSelected = false;
             } else {
@@ -331,12 +325,24 @@ function PlotScatterplot({
                 showCatLinReg = false;
             }
         }
-        if (categorical_feature === "z_diagnosis") {
+
+        if (categoricalFeature === "z_diagnosis") {
             showCatAvg = false;
             showCatLinReg = false;
             z_diagnosis_sel = true; // for z_diagnosis, we need to set the color to 0 and 1
             // colors = CLUSTERCOLORS;
         }
+
+        console.log(
+            "catFeature: ",
+            categoricalFeature,
+            "; catFeatureSelected: ",
+            catFeatureSelected,
+            ", k_mean_cluster_sel: ",
+            k_mean_cluster_sel,
+            ", z_diagnosis_sel: ",
+            z_diagnosis_sel
+        );
 
         if (!catFeatureSelected) {
             showCatAvg = false;
@@ -372,10 +378,10 @@ function PlotScatterplot({
         let slope: number = 0;
         [slope, intercept] = CalcAverage(
             patients_data
-                .filter((d) => d[categorical_feature] === 0) // also filters out NaN
+                .filter((d) => d[categoricalFeature] === 0) // also filters out NaN
                 .map((p) => p[x_feature]),
             patients_data
-                .filter((d) => d[categorical_feature] === 0)
+                .filter((d) => d[categoricalFeature] === 0)
                 .map((p) => p[y_feature])
         );
         linReg_y = linReg_x.map((x) => slope * x + intercept);
@@ -388,25 +394,61 @@ function PlotScatterplot({
         if (showCatLinReg) {
             [slope, intercept] = LinReg(
                 patients_data
-                    .filter((d) => d[categorical_feature] === 1) // also filters out NaN
+                    .filter((d) => d[categoricalFeature] === 1) // also filters out NaN
                     .map((p) => p[x_feature]),
                 patients_data
-                    .filter((d) => d[categorical_feature] === 1)
+                    .filter((d) => d[categoricalFeature] === 1)
                     .map((p) => p[y_feature])
             );
         } else {
             [slope, intercept] = CalcAverage(
                 patients_data
-                    .filter((d) => d[categorical_feature] === 1) // also filters out NaN
+                    .filter((d) => d[categoricalFeature] === 1) // also filters out NaN
                     .map((p) => p[x_feature]),
                 patients_data
-                    .filter((d) => d[categorical_feature] === 1)
+                    .filter((d) => d[categoricalFeature] === 1)
                     .map((p) => p[y_feature])
             );
         }
 
         linReg_y = linReg_x.map((x) => slope * x + intercept);
         const linRegData1 = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
+
+        function getTitle(d: Patient): string {
+            let titleCatFeature: string = "";
+            if (catFeatureSelected) {
+                if (k_mean_cluster_sel) {
+                    titleCatFeature = "Cluster: " + d[categoricalFeature];
+                } else if (z_diagnosis_sel) {
+                    titleCatFeature =
+                        categoricalFeature + ": " + d[categoricalFeature];
+                } else {
+                    titleCatFeature =
+                        categoricalFeature +
+                        ": " +
+                        (d[categoricalFeature] === 0 ? "NOT Done" : "Done");
+                }
+                titleCatFeature += "\n";
+            }
+
+            return (
+                "Patient ID: " +
+                d["record_id"] +
+                "\n" +
+                titleCatFeature +
+                x_feature +
+                ": " +
+                (typeof d[x_feature] === "number"
+                    ? d[x_feature].toFixed(2)
+                    : d[x_feature]) +
+                "\n" +
+                y_feature +
+                ": " +
+                (typeof d[y_feature] === "number"
+                    ? d[y_feature].toFixed(2)
+                    : d[y_feature])
+            );
+        }
 
         const pd_scatterplot = Plot.plot({
             marginBottom: 35,
@@ -416,42 +458,19 @@ function PlotScatterplot({
                     y: y_feature,
                     ...(catFeatureSelected
                         ? {
-                              // if z_ziagnosis_sel
+                              // z_diagnosis is a string, need different syntax as the integer categorical_feature
                               ...(z_diagnosis_sel
                                   ? {
-                                        stroke: categorical_feature,
-                                        // fill: categorical_feature,
+                                        stroke: categoricalFeature,
                                     }
                                   : {
                                         stroke: (d) =>
-                                            colors[d[categorical_feature]],
+                                            colors[d[categoricalFeature]],
                                     }),
                           }
                         : {}),
                     tip: true,
-                    title: (d) =>
-                        "Patient ID: " +
-                        d["record_id"] +
-                        "\n" +
-                        (catFeatureSelected
-                            ? k_mean_cluster_sel
-                                ? "Cluster: " + d[categorical_feature] + "\n"
-                                : categorical_feature +
-                                  ": " +
-                                  d[categorical_feature] +
-                                  "\n"
-                            : "") +
-                        x_feature +
-                        ": " +
-                        (typeof d[x_feature] === "number"
-                            ? d[x_feature].toFixed(2)
-                            : d[x_feature]) +
-                        "\n" +
-                        y_feature +
-                        ": " +
-                        (typeof d[y_feature] === "number"
-                            ? d[y_feature].toFixed(2)
-                            : d[y_feature]),
+                    title: getTitle,
                 }),
                 Plot.line(linRegDataAll, {
                     x: "x",
@@ -497,13 +516,25 @@ function PlotScatterplot({
                 domain: [min_y, max_y],
             },
             color: {
-                // set domian to [0, 1] if not k_mean_cluster
-                // domain: catFeatureSelected ? [0, 1] : [],
-                // domain: [0, 1],
-                // ...(!k_mean_cluster_sel ? { domain: [0, 1] } : {}),
-                // range: colors,
-                // ...(catFeatureSelected ? { legend: true } : {}),
-                // legend: true,
+                ...(catFeatureSelected &&
+                !z_diagnosis_sel &&
+                !k_mean_cluster_sel
+                    ? {
+                          legend: true,
+                          domain: Object.keys(COLORS_BIN_STR),
+                          range: Object.values(COLORS_BIN_STR),
+                      }
+                    : {}),
+                ...(z_diagnosis_sel
+                    ? {
+                          legend: true,
+                      }
+                    : {}),
+                ...(k_mean_cluster_sel
+                    ? {
+                          //   legend: true,
+                      }
+                    : {}),
             },
             style: "--plot-background: black; font-size: " + FONTSIZE, //13px",
         });
@@ -521,14 +552,10 @@ function PlotScatterplot({
             scatterplot_ref.current.innerHTML = ""; // Clear the div
             scatterplot_ref.current.appendChild(createPlot());
         }
-    }, [y_feature, x_feature, patients_data, categorical_feature]); //called every time an input changes
+    }, [y_feature, x_feature, patients_data, categoricalFeature]); //called every time an input changes
 
     return (
         <>
-            {/* <h3 className="plot-headings">
-                {y_feature} vs {x_feature}, slope=
-                {Math.round(slope_all * 1000) / 1000}
-            </h3> */}
             <div ref={scatterplot_ref}></div>
         </>
     );
@@ -553,14 +580,13 @@ function PlotHisto({
 
         let catFeatureSelected: boolean =
             catFeature !== "" && catFeature !== "None";
-        console.log("catFeatureSelected", catFeatureSelected);
 
-        let colors = COLORS_HISTO;
+        let colors = COLORS_BIN_STR;
         let k_mean_cluster_sel = false;
         let z_diagnosis_sel = false; // for z_diagnosis, we need to set the color to 0 and 1
         if (catFeature === "k_mean_cluster") {
             if (k_mean_clusters === 1) {
-                catFeatureSelected = false;
+                catFeatureSelected = false; // TODO
             } else {
                 k_mean_cluster_sel = true;
                 colors = CLUSTERCOLORS;
@@ -571,8 +597,20 @@ function PlotHisto({
             // colors = CLUSTERCOLORS;
         }
 
+        console.log(
+            "catFeature: ",
+            catFeature,
+            "; catFeatureSelected: ",
+            catFeatureSelected,
+            ", k_mean_cluster_sel: ",
+            k_mean_cluster_sel,
+            ", z_diagnosis_sel: ",
+            z_diagnosis_sel
+        );
+
         // dont define as Patient[], because than the map function does not work
         let patients_data_map: { [key: string]: any }[] = patients_data;
+
         if (catFeatureSelected && !k_mean_cluster_sel && !z_diagnosis_sel) {
             patients_data_map = patients_data.map((p) => ({
                 ...p,
@@ -625,13 +663,22 @@ function PlotHisto({
                 grid: true,
             },
             color: {
-                ...(catFeatureSelected ? { legend: true } : {}),
-                // domain: ["Not Done", "Done"],
-                legend: true,
-                ...(!k_mean_cluster_sel && !z_diagnosis_sel
-                    ? { domain: ["Not Done", "Done"] }
+                ...(catFeatureSelected &&
+                !k_mean_cluster_sel &&
+                !z_diagnosis_sel
+                    ? {
+                          legend: true,
+                          domain: Object.keys(colors),
+                          range: Object.values(colors),
+                      }
                     : {}),
-                ...(z_diagnosis_sel ? {} : { range: Object.values(colors) }),
+                ...(z_diagnosis_sel
+                    ? {
+                          legend: true,
+                          //   domain: Object.keys(colors),
+                          //   range: Object.values(colors),
+                      }
+                    : {}),
             },
             style: "--plot-background: black; font-size: " + FONTSIZE,
         });
