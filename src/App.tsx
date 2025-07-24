@@ -6,6 +6,7 @@ import Button from "react-bootstrap/Button";
 import "./css/App.css";
 import "./css/dropdown.css";
 import "./css/Chat-sidePanel.css";
+import "./css/FollowUpBubble.css";
 
 import * as d3 from "d3";
 import { Patient } from "./env_dataset/Patient";
@@ -26,7 +27,7 @@ import {
   clearChatHistory,
   handleChatSubmit,
   MessageHistory,
-  initialPrompt,
+  initialSystemPrompts as initialSystemPrompts,
   ChatCodeRes,
 } from "./Chat";
 import {
@@ -39,6 +40,8 @@ import ReactMarkdown from "react-markdown";
 import { RunKmeans } from "./Kmean";
 
 import * as Plot from "@observablehq/plot";
+
+const DEBUG: boolean = true;
 
 interface logPSXProps {
   message: string;
@@ -98,6 +101,33 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           ))}
         </div>
       )}
+    </div>
+  );
+};
+
+interface FollowUpBubblesProps {
+  sugFollowUpQuestions: string[];
+  handleChatSubmit: (prompt: string) => void;
+}
+
+const FollowUpBubbles: React.FC<FollowUpBubblesProps> = ({
+  sugFollowUpQuestions,
+  handleChatSubmit,
+}) => {
+  return (
+    <div className="mt-4">
+      <h5 className="text-lg font-semibold mb-2">Suggested Follow-up Questions</h5>
+      <div className="flex flex-wrap gap-2">
+        {sugFollowUpQuestions.map((question, idx) => (
+          <button
+            key={idx}
+            onClick={() => handleChatSubmit(question)}
+            className="bg-blue-100 hover:bg-blue-200 text-blue-800 text-sm font-medium px-4 py-2 rounded-full shadow-sm transition"
+          >
+            {question}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
@@ -200,6 +230,7 @@ function App() {
     return correlations;
   }
 
+  // Initializing website, loading data, running PCA and Kmeans, and other things for the first time
   useEffect(() => {
     console.log("Loading data...");
     async function loadAndProcessData() {
@@ -227,15 +258,30 @@ function App() {
         const correlations = calcCorrelations(cov_features_init, patientDataLoaded);
         setPearsonCorr(correlations);
 
-        setMessageHistoFun([
-          ...initialPrompt,
+        const messageHistoInit: MessageHistory[] = [
+          ...initialSystemPrompts,
           {
             role: "system",
             content:
               "Pearson correlations from some features in format {a: 'feature1', b: 'feature2', correlation: 'number'}" +
               JSON.stringify(correlations),
           },
-        ]);
+        ];
+
+        setMessageHistoFun(messageHistoInit);
+
+        if (!DEBUG) {
+          handleChatSubmit({
+            prompt: "Can you give a very short overview of the data and the dashboard?",
+            messageHisto: messageHistoInit,
+            setMessageHistoFun,
+            shownMessages: [],
+            setShownMessages: setShownMessages,
+            handleChatFeatureSuggestions: handleChatFeatureSuggestion,
+            handleChatCodeResponse: handleChatCodeResponse,
+            setFollowUpQuestions: setFollowUpQuestionFun,
+          });
+        }
       } catch (error) {
         console.error("Error loading data or running PCA:", error);
       }
@@ -249,7 +295,8 @@ function App() {
   // const [response, setResponse] = useState<string>("");
 
   const [shownMessages, setShownMessages] = useState<MessageHistory[]>([]);
-  const [messageHisto, setMessageHisto] = useState<MessageHistory[]>(initialPrompt);
+  const [messageHisto, setMessageHisto] =
+    useState<MessageHistory[]>(initialSystemPrompts);
   const [ChatFeatureSuggestion, setChatFeatureSuggestion] = useState<[string, string]>([
     "",
     "",
@@ -258,6 +305,13 @@ function App() {
     "",
     "",
   ]);
+
+  const [sugFollowUpQuestions, setSugFollowUpQuestions] = useState<string[]>([]);
+
+  function setFollowUpQuestionFun(questions: string[]) {
+    console.log("Follow-up questions updated:", questions);
+    setSugFollowUpQuestions(questions);
+  }
 
   function setMessageHistoFun(messages: MessageHistory[]) {
     setMessageHisto(messages);
@@ -353,7 +407,7 @@ function App() {
                           clearChatHistory({
                             setMessageHistoFun,
                             setShownMessages,
-                            initialPrompt,
+                            initialPrompt: initialSystemPrompts,
                           })
                         }
                       >
@@ -372,6 +426,7 @@ function App() {
                               setShownMessages,
                               handleChatFeatureSuggestions: handleChatFeatureSuggestion,
                               handleChatCodeResponse,
+                              setFollowUpQuestions: setFollowUpQuestionFun,
                             })
                           }
                         >
@@ -398,11 +453,20 @@ function App() {
                             setShownMessages,
                             handleChatFeatureSuggestions: handleChatFeatureSuggestion,
                             handleChatCodeResponse,
+                            setFollowUpQuestions: setFollowUpQuestionFun,
                           })
                         }
                       >
                         Submit
                       </Button>
+                    </div>
+                    <div>
+                      <h5>Suggested Follow-up Questions</h5>
+                      <ul>
+                        {sugFollowUpQuestions.map((question, idx) => (
+                          <li key={idx}>{question}</li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
                   <div className="chat-messages">

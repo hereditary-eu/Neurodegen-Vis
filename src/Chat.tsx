@@ -72,12 +72,13 @@ const openai = new OpenAI({
 const MODEL = "gpt-4o-mini";
 // MODEL = "gpt-3.5-turbo";
 
-export const initialPrompt: MessageHistory[] = [
+export const initialSystemPrompts: MessageHistory[] = [
   {
     role: "system",
     content:
       "You are a helpful AI assistant, which helps user to understand a visual analytics dashboard." +
-      "You should answer the users questions. Sometimes you should also provide typescript code for dashboard interaction" +
+      // "You should answer the users questions." +
+      // "Sometimes you should also provide typescript code for dashboard interaction" +
       "",
   },
   {
@@ -105,6 +106,7 @@ interface ChatProps {
   setShownMessages: (shownMessages: MessageHistory[]) => void;
   handleChatFeatureSuggestions: (featureList: string[]) => void;
   handleChatCodeResponse: (codeResponse: ChatCodeRes) => void;
+  setFollowUpQuestions: (questions: string[]) => void;
 }
 
 const codePrompt =
@@ -167,6 +169,7 @@ const handleChatSubmit = async ({
   shownMessages,
   setShownMessages,
   handleChatCodeResponse,
+  setFollowUpQuestions,
 }: ChatProps) => {
   if (!prompt) {
     console.log("Prompt is empty");
@@ -207,6 +210,21 @@ const handleChatSubmit = async ({
     const updatedMessagesWithResponse: MessageHistory[] = [
       ...updatedMessages,
       { role: "assistant", content: assistantResponse },
+    ];
+
+    console.log("Start Suggested follow-up questions:");
+    const completetion = await openai.chat.completions.create({
+      model: MODEL,
+      messages: [
+        ...updatedMessagesWithResponse,
+        {
+          role: "system",
+          content: "Suggest one short and useful follow-question the user could ask!",
+        },
+      ], // Send the entire conversation history
+    });
+    const assistantResponseFollowUp: string[] = [
+      completetion.choices[0].message.content || "",
     ];
 
     // code response
@@ -256,6 +274,8 @@ const handleChatSubmit = async ({
       { role: "user", content: prompt },
       { role: "assistant", content: assistantResponse },
     ]);
+
+    setFollowUpQuestions(assistantResponseFollowUp);
   } catch (error) {
     console.error("Error fetching response:", error);
   }
@@ -366,3 +386,11 @@ const clearChatHistory = ({
 };
 
 export { handleChatSubmit, handleChatSubmitSuggest, clearChatHistory };
+
+// function createChatResponse(messages: MessageHistory[]) {
+//   const completion = await openai.chat.completions.create({
+//     model: MODEL,
+//     messages: messages, // Send the entire conversation history
+//   });
+//   return completion.choices[0].message.content || "";
+// }
