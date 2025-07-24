@@ -210,7 +210,7 @@ function PlotCorHeatmap({
         // Keep the border for 10 seconds
         setTimeout(() => {
           d3.select(rects.nodes()[idx1d]).style("stroke", "none");
-        }, 10000);
+        }, 50000);
       }
 
       // Calculate the index based on the new selected features (or GPT suggestion)

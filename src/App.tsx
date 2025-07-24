@@ -41,7 +41,7 @@ import { RunKmeans } from "./Kmean";
 
 import * as Plot from "@observablehq/plot";
 
-const DEBUG: boolean = true;
+const DEBUG: boolean = false;
 
 interface logPSXProps {
   message: string;
@@ -107,22 +107,46 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
 
 interface FollowUpBubblesProps {
   sugFollowUpQuestions: string[];
-  handleChatSubmit: (prompt: string) => void;
+  messageHisto: MessageHistory[];
+  setMessageHistoFun: (messages: MessageHistory[]) => void;
+  shownMessages: MessageHistory[];
+  setShownMessages: (messages: MessageHistory[]) => void;
+  handleChatFeatureSuggestions: (featureList: string[]) => void;
+  handleChatCodeResponse: (codeResponse: ChatCodeRes) => void;
+  setFollowUpQuestions: (questions: string[]) => void;
+  // handleChatSubmit: (prompt: string) => void;
 }
 
 const FollowUpBubbles: React.FC<FollowUpBubblesProps> = ({
   sugFollowUpQuestions,
-  handleChatSubmit,
+  messageHisto,
+  setMessageHistoFun,
+  shownMessages,
+  setShownMessages,
+  handleChatFeatureSuggestions,
+  handleChatCodeResponse,
+  setFollowUpQuestions,
 }) => {
   return (
-    <div className="mt-4">
-      <h5 className="text-lg font-semibold mb-2">Suggested Follow-up Questions</h5>
-      <div className="flex flex-wrap gap-2">
+    <div className="follow-up-container">
+      {/* <h5 className="follow-up-heading">Suggested Follow-up Questions</h5> */}
+      <div className="bubble-wrapper">
         {sugFollowUpQuestions.map((question, idx) => (
           <button
             key={idx}
-            onClick={() => handleChatSubmit(question)}
-            className="bg-blue-100 hover:bg-blue-200 text-blue-800 text-sm font-medium px-4 py-2 rounded-full shadow-sm transition"
+            onClick={() =>
+              handleChatSubmit({
+                prompt: question,
+                messageHisto,
+                setMessageHistoFun,
+                shownMessages,
+                setShownMessages,
+                handleChatFeatureSuggestions,
+                handleChatCodeResponse,
+                setFollowUpQuestions,
+              })
+            }
+            className="bubble-button"
           >
             {question}
           </button>
@@ -281,6 +305,8 @@ function App() {
             handleChatCodeResponse: handleChatCodeResponse,
             setFollowUpQuestions: setFollowUpQuestionFun,
           });
+
+          setShowChat(true); // Automatically show chat on load
         }
       } catch (error) {
         console.error("Error loading data or running PCA:", error);
@@ -460,14 +486,16 @@ function App() {
                         Submit
                       </Button>
                     </div>
-                    <div>
-                      <h5>Suggested Follow-up Questions</h5>
-                      <ul>
-                        {sugFollowUpQuestions.map((question, idx) => (
-                          <li key={idx}>{question}</li>
-                        ))}
-                      </ul>
-                    </div>
+                    <FollowUpBubbles
+                      sugFollowUpQuestions={sugFollowUpQuestions}
+                      messageHisto={messageHisto}
+                      setMessageHistoFun={setMessageHistoFun}
+                      shownMessages={shownMessages}
+                      setShownMessages={setShownMessages}
+                      handleChatFeatureSuggestions={handleChatFeatureSuggestion}
+                      handleChatCodeResponse={handleChatCodeResponse}
+                      setFollowUpQuestions={setFollowUpQuestionFun}
+                    />
                   </div>
                   <div className="chat-messages">
                     {shownMessages

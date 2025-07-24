@@ -5,8 +5,8 @@ import "./css/index.css";
 // import Test from "./testScripts/testApp.tsx";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App />
-    {/* <Test /> */}
-  </StrictMode>
+  // <StrictMode>
+  <App />
+  // {/* <Test /> */}
+  // </StrictMode>
 );

@@ -1,0 +1,46 @@
+/* Container spacing */
+.follow-up-container {
+  margin-top: 1rem;
+  padding-right: 10px;
+}
+
+/* Heading */
+.follow-up-heading {
+  color: #f1f1f1;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Bubbles wrapper */
+.bubble-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Individual bubble button */
+.bubble-button {
+  background-color: #1f4e70b5;
+  color: #e0e0e0;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+  line-height: 1.1;
+}
+
+.bubble-button:hover {
+  background-color: #1f4e70;
+  transform: scale(1.03);
+}
+
+.bubble-button:active {
+  background-color: #1f4e70;
+  transform: scale(0.98);
+}
