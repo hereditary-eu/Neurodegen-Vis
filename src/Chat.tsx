@@ -69,7 +69,7 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true, // TODO, Allow the API to be used in the browser, not recommended for production
 });
 
-let MODEL = "gpt-4o-mini";
+const MODEL = "gpt-4o-mini";
 // MODEL = "gpt-3.5-turbo";
 
 export const initialPrompt: MessageHistory[] = [
@@ -232,7 +232,8 @@ const handleChatSubmit = async ({
     //     completion_code
     // );
 
-    const assistantResponse_code = completion_code.choices[0].message.content || "nothing?";
+    const assistantResponse_code =
+      completion_code.choices[0].message.content || "nothing?";
     console.log("Assistant response for code generation:", assistantResponse_code);
 
     try {
