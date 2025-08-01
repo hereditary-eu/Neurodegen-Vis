@@ -11,7 +11,7 @@ const COLORS_BIN: { [key: number]: string } = {
   0: "orange",
 };
 const COLORS_BIN_STR: { [key: string]: string } = {
-  "Done": "green",
+  Done: "green",
   "Not Done": "orange",
 };
 
@@ -50,9 +50,7 @@ interface CorHeatmapProps {
   chatFeatureSuggestion: [string, string];
   chatFeatureHighlight: [string, string];
   setSelectedFeatures: (selectedFeatures: [string, string]) => void;
-  setCorrelations: (
-    correlations: { a: string; b: string; correlation: number }[]
-  ) => void;
+  setCorrelations: (correlations: { a: string; b: string; correlation: number }[]) => void;
 } // Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
 function PlotCorHeatmap({
   patients_data,
@@ -73,10 +71,7 @@ function PlotCorHeatmap({
     let correlations = d3.cross(cov_features, cov_features).map(([a, b]) => ({
       a,
       b,
-      correlation: pearsonCorrelation(
-        Plot.valueof(patients_data, a) ?? [],
-        Plot.valueof(patients_data, b) ?? []
-      ),
+      correlation: pearsonCorrelation(Plot.valueof(patients_data, a) ?? [], Plot.valueof(patients_data, b) ?? []),
     }));
     // console.log("correlations", correlations);
     setCorrelations(correlations);
@@ -162,9 +157,7 @@ function PlotCorHeatmap({
 
           d3.select(target).style("cursor", "pointer");
           // highlight the according rectangle from rects
-          d3.select(rects.nodes()[idx1d])
-            .style("stroke", "black")
-            .style("stroke-width", 3.5);
+          d3.select(rects.nodes()[idx1d]).style("stroke", "black").style("stroke-width", 3.5);
         }
       })
       .on("pointerout", function (event) {
@@ -203,9 +196,7 @@ function PlotCorHeatmap({
 
       function HighlightCell(idx1d: number) {
         // Highlight cell with purple border
-        d3.select(rects.nodes()[idx1d])
-          .style("stroke", "purple")
-          .style("stroke-width", 4);
+        d3.select(rects.nodes()[idx1d]).style("stroke", "purple").style("stroke-width", 4);
 
         // Keep the border for 10 seconds
         setTimeout(() => {
@@ -237,9 +228,7 @@ function PlotCorHeatmap({
         rects.style("stroke", "none"); // Reset stroke for all cells
 
         // Highlight cell with purple border
-        d3.select(rects.nodes()[idx1d])
-          .style("stroke", "purple")
-          .style("stroke-width", 4);
+        d3.select(rects.nodes()[idx1d]).style("stroke", "purple").style("stroke-width", 4);
 
         // Keep the border for 10 seconds
         setTimeout(() => {
@@ -291,8 +280,7 @@ function PlotScatterplot({
     console.log("Scatterplot fun started");
     patients_data = patients_data.filter((p) => !isNaN(p[x_feature] && p[y_feature]));
 
-    let catFeatureSelected: boolean =
-      categoricalFeature !== "" && categoricalFeature !== "None";
+    let catFeatureSelected: boolean = categoricalFeature !== "" && categoricalFeature !== "None";
 
     let colors = COLORS_BIN;
     let k_mean_cluster_sel = false;
@@ -323,7 +311,7 @@ function PlotScatterplot({
       ", k_mean_cluster_sel: ",
       k_mean_cluster_sel,
       ", z_diagnosis_sel: ",
-      z_diagnosis_sel
+      z_diagnosis_sel,
     );
 
     if (!catFeatureSelected) {
@@ -345,7 +333,7 @@ function PlotScatterplot({
     let intercept: number = 0;
     [slope_all, intercept] = LinReg(
       patients_data.map((p) => p[x_feature]),
-      patients_data.map((p) => p[y_feature])
+      patients_data.map((p) => p[y_feature]),
     );
     const linReg_x = [min_x, max_x];
     let linReg_y = linReg_x.map((x) => slope_all * x + intercept);
@@ -362,7 +350,7 @@ function PlotScatterplot({
       patients_data
         .filter((d) => d[categoricalFeature] === 0) // also filters out NaN
         .map((p) => p[x_feature]),
-      patients_data.filter((d) => d[categoricalFeature] === 0).map((p) => p[y_feature])
+      patients_data.filter((d) => d[categoricalFeature] === 0).map((p) => p[y_feature]),
     );
     linReg_y = linReg_x.map((x) => slope * x + intercept);
     const linRegData0 = linReg_x.map((x, i) => ({ x: x, y: linReg_y[i] }));
@@ -376,14 +364,14 @@ function PlotScatterplot({
         patients_data
           .filter((d) => d[categoricalFeature] === 1) // also filters out NaN
           .map((p) => p[x_feature]),
-        patients_data.filter((d) => d[categoricalFeature] === 1).map((p) => p[y_feature])
+        patients_data.filter((d) => d[categoricalFeature] === 1).map((p) => p[y_feature]),
       );
     } else {
       [slope, intercept] = CalcAverage(
         patients_data
           .filter((d) => d[categoricalFeature] === 1) // also filters out NaN
           .map((p) => p[x_feature]),
-        patients_data.filter((d) => d[categoricalFeature] === 1).map((p) => p[y_feature])
+        patients_data.filter((d) => d[categoricalFeature] === 1).map((p) => p[y_feature]),
       );
     }
 
@@ -398,10 +386,7 @@ function PlotScatterplot({
         } else if (z_diagnosis_sel) {
           titleCatFeature = categoricalFeature + ": " + d[categoricalFeature];
         } else {
-          titleCatFeature =
-            categoricalFeature +
-            ": " +
-            (d[categoricalFeature] === 0 ? "NOT Done" : "Done");
+          titleCatFeature = categoricalFeature + ": " + (d[categoricalFeature] === 0 ? "NOT Done" : "Done");
         }
         titleCatFeature += "\n";
       }
@@ -534,12 +519,7 @@ interface plotHistoProps {
   k_mean_clusters: number;
 }
 
-function PlotHisto({
-  patients_data,
-  selected_feature,
-  catFeature,
-  k_mean_clusters,
-}: plotHistoProps) {
+function PlotHisto({ patients_data, selected_feature, catFeature, k_mean_clusters }: plotHistoProps) {
   function createPlot() {
     console.log("plotHisto fun started");
     const binNumber = 9;
@@ -570,7 +550,7 @@ function PlotHisto({
       ", k_mean_cluster_sel: ",
       k_mean_cluster_sel,
       ", z_diagnosis_sel: ",
-      z_diagnosis_sel
+      z_diagnosis_sel,
     );
 
     // dont define as Patient[], because than the map function does not work
@@ -602,8 +582,8 @@ function PlotHisto({
                         }),
                   }
                 : {}),
-            }
-          )
+            },
+          ),
         ),
         Plot.ruleY([0]),
         // Plot.tip(

@@ -25,34 +25,24 @@ export class ChatCodeRes {
     const hasExactKeys = (obj: any, keys: string[]): boolean => {
       const objKeys = Object.keys(obj).sort();
       const expectedKeys = keys.slice().sort();
-      return (
-        objKeys.length === expectedKeys.length &&
-        objKeys.every((key, i) => key === expectedKeys[i])
-      );
+      return objKeys.length === expectedKeys.length && objKeys.every((key, i) => key === expectedKeys[i]);
     };
 
     if (!hasExactKeys(obj, ["code", "function"])) {
       throw new Error(
-        "Object must contain exactly the keys 'code' and 'function', but got: " +
-          JSON.stringify(Object.keys(obj))
+        "Object must contain exactly the keys 'code' and 'function', but got: " + JSON.stringify(Object.keys(obj)),
       );
     }
 
     if (!obj.function || typeof obj.function !== "string") {
       throw new Error(
-        "Invalid or missing 'function' in JSON, function must be a string, but got: " +
-          JSON.stringify(obj.function)
+        "Invalid or missing 'function' in JSON, function must be a string, but got: " + JSON.stringify(obj.function),
       );
     }
     // check if code an array of strings
-    if (
-      !obj.code ||
-      !Array.isArray(obj.code) ||
-      !obj.code.every((item: any) => typeof item === "string")
-    ) {
+    if (!obj.code || !Array.isArray(obj.code) || !obj.code.every((item: any) => typeof item === "string")) {
       throw new Error(
-        "Invalid or missing 'code' in JSON — must be array of strings, but got: " +
-          JSON.stringify(obj.code)
+        "Invalid or missing 'code' in JSON — must be array of strings, but got: " + JSON.stringify(obj.code),
       );
     }
 
@@ -83,9 +73,7 @@ export const initialSystemPrompts: MessageHistory[] = [
   },
   {
     role: "system",
-    content:
-      "This are the specifications of the Dashboard: " +
-      JSON.stringify(systemsSpecificifications),
+    content: "This are the specifications of the Dashboard: " + JSON.stringify(systemsSpecificifications),
   },
 
   {
@@ -177,10 +165,7 @@ const handleChatSubmit = async ({
   }
 
   // Append the new user message to the message history
-  const updatedMessages: MessageHistory[] = [
-    ...messageHisto,
-    { role: "user", content: prompt },
-  ];
+  const updatedMessages: MessageHistory[] = [...messageHisto, { role: "user", content: prompt }];
 
   console.log("Content length of message history:", calcContentLength(updatedMessages));
   // Check if the content length exceeds the limit
@@ -223,9 +208,7 @@ const handleChatSubmit = async ({
         },
       ], // Send the entire conversation history
     });
-    const assistantResponseFollowUp: string[] = [
-      completetion.choices[0].message.content || "",
-    ];
+    const assistantResponseFollowUp: string[] = [completetion.choices[0].message.content || ""];
 
     // code response
     console.log("Start code generation");
@@ -250,8 +233,7 @@ const handleChatSubmit = async ({
     //     completion_code
     // );
 
-    const assistantResponse_code =
-      completion_code.choices[0].message.content || "nothing?";
+    const assistantResponse_code = completion_code.choices[0].message.content || "nothing?";
     console.log("Assistant response for code generation:", assistantResponse_code);
 
     try {
@@ -305,10 +287,7 @@ const handleChatSubmitSuggest = async ({
   let prompt_2 =
     "What could be two to interesting features to analyze in a scatterplot, if there, consider previous prompts?. Your answer should be the two features, seperated through a coma. No additional text.";
   // Append the new user message to the message history
-  const updatedMessages: MessageHistory[] = [
-    ...messageHisto,
-    { role: "user", content: prompt_2 },
-  ];
+  const updatedMessages: MessageHistory[] = [...messageHisto, { role: "user", content: prompt_2 }];
   setMessageHisto(updatedMessages);
 
   try {
@@ -333,10 +312,7 @@ const handleChatSubmitSuggest = async ({
 
     prompt_2 = "Explain why these features are interesting to analyze";
     // Append the new user message to the message history
-    const updatedMessages_2: MessageHistory[] = [
-      ...updatedMessagesWithResponse,
-      { role: "user", content: prompt_2 },
-    ];
+    const updatedMessages_2: MessageHistory[] = [...updatedMessagesWithResponse, { role: "user", content: prompt_2 }];
     // setMessageHisto(updatedMessages_2);
 
     const completion_2 = await openai.chat.completions.create({

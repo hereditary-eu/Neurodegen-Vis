@@ -30,12 +30,7 @@ import {
   initialSystemPrompts as initialSystemPrompts,
   ChatCodeRes,
 } from "./Chat";
-import {
-  PlotHisto,
-  PlotCorHeatmap,
-  PlotScatterplot,
-  pearsonCorrelation,
-} from "./Heatmap_Scatterplots";
+import { PlotHisto, PlotCorHeatmap, PlotScatterplot, pearsonCorrelation } from "./Heatmap_Scatterplots";
 import ReactMarkdown from "react-markdown";
 import { RunKmeans } from "./Kmean";
 
@@ -60,11 +55,7 @@ interface MultiSelectDropdownProps {
   setSelectedOptions: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
-  options,
-  selectedOptions,
-  setSelectedOptions,
-}) => {
+const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, selectedOptions, setSelectedOptions }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleCheckboxChange = (option: string) => {
@@ -164,8 +155,7 @@ function App() {
   // all features should be all the keys from the Patient class
   const allFeatures = Object.keys(new Patient());
 
-  const [selectedCovFeatures, setSelectedCovFeatures] =
-    useState<string[]>(cov_features_init);
+  const [selectedCovFeatures, setSelectedCovFeatures] = useState<string[]>(cov_features_init);
 
   const handleCheckboxChange = (feature: string) => {
     setSelectedCovFeatures((prevSelected) => {
@@ -179,12 +169,10 @@ function App() {
     });
   };
 
-  const [scatterplotFeatures, setScatterplotFeatures] = useState<[string, string]>(
-    scatterplot_features_init
-  );
+  const [scatterplotFeatures, setScatterplotFeatures] = useState<[string, string]>(scatterplot_features_init);
 
   const [catFeatures, setCatFeatures] = useState<string[]>(
-    cat_features_generic.concat(cat_features_mapping[scatterplotFeatures[1]])
+    cat_features_generic.concat(cat_features_mapping[scatterplotFeatures[1]]),
   );
 
   // ToDO always resets to k_mean_cluster
@@ -198,9 +186,7 @@ function App() {
     // console.log("z Methods", Object.keys(zTestMethodsMapping));
     if (Object.keys(cat_features_mapping).includes(features[1])) {
       // scatterplotCatFeatures;
-      scatterplotCatFeatures = scatterplotCatFeatures.concat(
-        cat_features_mapping[features[1]]
-      );
+      scatterplotCatFeatures = scatterplotCatFeatures.concat(cat_features_mapping[features[1]]);
 
       setCatFeatures(scatterplotCatFeatures);
       setCatFeature(scatterplotCatFeatures[1]);
@@ -228,9 +214,7 @@ function App() {
 
   // todo, hard coded 54
   let emptyPatient: Patient = new Patient();
-  const [patients_data, setPatientData] = useState<Patient[]>(
-    Array(54).fill(emptyPatient)
-  );
+  const [patients_data, setPatientData] = useState<Patient[]>(Array(54).fill(emptyPatient));
   function setPatientDataFunc(data: Patient[]) {
     console.log("Setting data...");
     setPatientData(data);
@@ -246,10 +230,7 @@ function App() {
     let correlations = d3.cross(covFeatures, covFeatures).map(([a, b]) => ({
       a,
       b,
-      correlation: pearsonCorrelation(
-        Plot.valueof(patientsData, a) ?? [],
-        Plot.valueof(patientsData, b) ?? []
-      ),
+      correlation: pearsonCorrelation(Plot.valueof(patientsData, a) ?? [], Plot.valueof(patientsData, b) ?? []),
     }));
     return correlations;
   }
@@ -260,9 +241,7 @@ function App() {
     async function loadAndProcessData() {
       try {
         // Step 1: Load Data
-        const patientDataLoaded = (await d3.csv("dataset/noisy.csv")).map((r) =>
-          Patient.fromJson(r)
-        );
+        const patientDataLoaded = (await d3.csv("dataset/noisy.csv")).map((r) => Patient.fromJson(r));
         console.log("Data loaded!", patientDataLoaded);
 
         // Step 2: Run PCA Analysis
@@ -321,16 +300,9 @@ function App() {
   // const [response, setResponse] = useState<string>("");
 
   const [shownMessages, setShownMessages] = useState<MessageHistory[]>([]);
-  const [messageHisto, setMessageHisto] =
-    useState<MessageHistory[]>(initialSystemPrompts);
-  const [ChatFeatureSuggestion, setChatFeatureSuggestion] = useState<[string, string]>([
-    "",
-    "",
-  ]);
-  const [ChatFeatureHighlight, setChatFeatureHighlight] = useState<[string, string]>([
-    "",
-    "",
-  ]);
+  const [messageHisto, setMessageHisto] = useState<MessageHistory[]>(initialSystemPrompts);
+  const [ChatFeatureSuggestion, setChatFeatureSuggestion] = useState<[string, string]>(["", ""]);
+  const [ChatFeatureHighlight, setChatFeatureHighlight] = useState<[string, string]>(["", ""]);
 
   const [sugFollowUpQuestions, setSugFollowUpQuestions] = useState<string[]>([]);
 
@@ -367,10 +339,7 @@ function App() {
         // highlight feature(s) in the heatmap
         console.log("Chat code response: HighlightFeature(S) case triggered");
         const featureList: string[] = codeResponse.code;
-        if (
-          featureList.length === 2 &&
-          featureList.every((feature) => cov_features.includes(feature))
-        ) {
+        if (featureList.length === 2 && featureList.every((feature) => cov_features.includes(feature))) {
           console.log("Valid feature highlighted: ", featureList);
           // setScatterplotFeatures([featureList[0], featureList[1]]);
           setChatFeatureHighlight([featureList[0], featureList[1]]);
@@ -385,10 +354,7 @@ function App() {
         console.log("Chat code response: None case triggered");
         break;
       default:
-        console.log(
-          "Chat code response: Invalid function name:",
-          codeResponse.functionName
-        );
+        console.log("Chat code response: Invalid function name:", codeResponse.functionName);
     }
   }
 
@@ -463,11 +429,7 @@ function App() {
 
                     <p>Or ask your questions.</p>
                     <div className="chat-textInput-container">
-                      <input
-                        type="text"
-                        ref={promptRef}
-                        placeholder="Enter your prompt here"
-                      />
+                      <input type="text" ref={promptRef} placeholder="Enter your prompt here" />
                       <Button
                         variant="dark"
                         onClick={() =>
@@ -518,16 +480,10 @@ function App() {
                 <div className="heatmap-scatterplots-grid">
                   <div className="flex-container-column ">
                     <div className="flex-container-row">
-                      <Button
-                        variant="dark"
-                        onClick={handleShow}
-                        className="show-chat-button"
-                      >
+                      <Button variant="dark" onClick={handleShow} className="show-chat-button">
                         Show Chat assistant.
                       </Button>
-                      <h3 className="pearsonCorrelation-heading">
-                        Pearson Correlation for selected features
-                      </h3>
+                      <h3 className="pearsonCorrelation-heading">Pearson Correlation for selected features</h3>
                     </div>
 
                     <div className="checkbox-container">

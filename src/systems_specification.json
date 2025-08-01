@@ -25,11 +25,7 @@
         "x": "Feature selected from heatmap",
         "y": "Feature selected from heatmap",
         "color": {
-          "options": [
-            "None",
-            "Cluster (k-means)",
-            "Other Categorical features if available"
-          ]
+          "options": ["None", "Cluster (k-means)", "Other Categorical features if available"]
         }
       },
       "interactions": {
@@ -44,11 +40,7 @@
         "x": "Feature selected from heatmap",
         "y": "Count of datapoints",
         "color": {
-          "options": [
-            "None",
-            "Cluster (k-means)",
-            "Other Categorical features if available"
-          ]
+          "options": ["None", "Cluster (k-means)", "Other Categorical features if available"]
         }
       },
       "interactions": {

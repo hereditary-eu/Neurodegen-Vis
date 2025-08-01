@@ -1,11 +1,5 @@
 export const cat_features_mapping: { [key: string]: string[] } = {
-  attent_z_comp: [
-    "corsi_done",
-    "digit_span_done",
-    "dot_score_done",
-    "dot_span_done",
-    "tmt_a_done",
-  ],
+  attent_z_comp: ["corsi_done", "digit_span_done", "dot_score_done", "dot_span_done", "tmt_a_done"],
   exec_z_comp: [
     "tmt_b_done",
     "stroop_t_done",
