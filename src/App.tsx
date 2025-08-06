@@ -508,6 +508,7 @@ function App() {
                         chatFeatureHighlight={chatFeatureHighlight}
                         setSelectedFeatures={heatmapSetsScatterplotFeatures}
                         setCorrelations={setPearsonCorr}
+                        correlations={pearsonCorr}
                       />
                     </div>
                   </div>

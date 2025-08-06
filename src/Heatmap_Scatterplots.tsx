@@ -15,7 +15,6 @@ const COLORS_BIN_STR: { [key: string]: string } = {
   "Not Done": "orange",
 };
 
-// // todo, set cluster to color, not just with order
 const CLUSTERCOLORS: { [key: number]: string } = {
   [-1]: "#ffffff", // white => cluster -1
   0: "#1f77b4", // Blue
@@ -47,10 +46,11 @@ interface CorHeatmapProps {
   patients_data: Patient[];
   cov_features: string[];
   selectedFeatures: [string, string];
+  setSelectedFeatures: (selectedFeatures: [string, string]) => void;
   chatFeatureSuggestion: [string, string];
   chatFeatureHighlight: [string, string];
-  setSelectedFeatures: (selectedFeatures: [string, string]) => void;
   setCorrelations: (correlations: { a: string; b: string; correlation: number }[]) => void;
+  correlations: { a: string; b: string; correlation: number }[];
 } // Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
 function PlotCorHeatmap({
   patients_data,
@@ -60,6 +60,7 @@ function PlotCorHeatmap({
   chatFeatureHighlight,
   setSelectedFeatures,
   setCorrelations,
+  correlations,
 }: CorHeatmapProps) {
   const corr_heatmap_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
 
@@ -68,13 +69,13 @@ function PlotCorHeatmap({
     // d3.cross returns the cartesian product (all possible combinations) of the two arrays
     console.log("PlotCorHeatmap fun started");
     console.log("selectedFeatures", selectedFeatures);
-    let correlations = d3.cross(cov_features, cov_features).map(([a, b]) => ({
+    let correlationsNew = d3.cross(cov_features, cov_features).map(([a, b]) => ({
       a,
       b,
       correlation: pearsonCorrelation(Plot.valueof(patients_data, a) ?? [], Plot.valueof(patients_data, b) ?? []),
     }));
     // console.log("correlations", correlations);
-    setCorrelations(correlations);
+    setCorrelations(correlationsNew);
 
     const heatmap_width = cov_features.length * 65 + 165;
     const heatmap_height = cov_features.length * 35 + 155;
@@ -101,13 +102,13 @@ function PlotCorHeatmap({
         domain: cov_features, // Order the y-axis according to cov_features
       },
       marks: [
-        Plot.cell(correlations, {
+        Plot.cell(correlationsNew, {
           x: "a",
           y: "b",
           fill: "correlation",
           className: "heatmap-cell",
         }),
-        Plot.text(correlations, {
+        Plot.text(correlationsNew, {
           x: "a",
           y: "b",
           text: (d) => d.correlation.toFixed(2), // toFixed(2) to convert number to string and display only 2 decimal places
@@ -195,21 +196,18 @@ function PlotCorHeatmap({
       const rects = d3.select(corr_heatmap_ref.current).selectAll("rect");
 
       function HighlightCell(idx1d: number) {
-        // Highlight cell with purple border
-        d3.select(rects.nodes()[idx1d]).style("stroke", "purple").style("stroke-width", 4);
-
-        // TODO correlations not known
-        // let corr = correlations[idx1d].correlation;
-        // if (corr > 0.5 || corr < -0.8) {
-        //   d3.select(rects.nodes()[idx1d])
-        //     .style("stroke", "#E6E6FA")
-        //     // .style("stroke", "#D8BFD8")
-        //     .style("stroke-width", 4);
-        // } else {
-        //   d3.select(rects.nodes()[idx1d])
-        //     .style("stroke", "purple")
-        //     .style("stroke-width", 4);
-        // }
+        let corr = correlations[idx1d].correlation;
+        // console.log("Correlation for border highlight", corr);
+        if (corr > 0.5 || corr < -0.8) {
+          // console.log("Highlighting violet cell");
+          d3.select(rects.nodes()[idx1d])
+            .style("stroke", "#E6E6FA")
+            // .style("stroke", "#D8BFD8")
+            .style("stroke-width", 4);
+        } else {
+          // console.log("Highlighting purple cell");
+          d3.select(rects.nodes()[idx1d]).style("stroke", "purple").style("stroke-width", 4);
+        }
 
         // Keep the border for 10 seconds
         setTimeout(() => {
@@ -240,21 +238,16 @@ function PlotCorHeatmap({
         rects.style("fill-opacity", "1"); // Reset fill opacity for all cells
         rects.style("stroke", "none"); // Reset stroke for all cells
 
-        // Highlight cell with purple border
-        d3.select(rects.nodes()[idx1d]).style("stroke", "purple").style("stroke-width", 4);
-
-        // TODO correlations not known
-        // let corr = correlations[idx1d].correlation;
-        // if (corr > 0.5 || corr < -0.8) {
-        //   d3.select(rects.nodes()[idx1d])
-        //     .style("stroke", "#E6E6FA")
-        //     // .style("stroke", "#D8BFD8")
-        //     .style("stroke-width", 4);
-        // } else {
-        //   d3.select(rects.nodes()[idx1d])
-        //     .style("stroke", "purple")
-        //     .style("stroke-width", 4);
-        // }
+        // Highlight cell with border
+        let corr = correlations[idx1d].correlation;
+        // console.log("Correlation for border highlight", corr);
+        if (corr > 0.5 || corr < -0.8) {
+          // console.log("Highlighting violet cell");
+          d3.select(rects.nodes()[idx1d]).style("stroke", "#E6E6FA").style("stroke-width", 4);
+        } else {
+          // console.log("Highlighting purple cell");
+          d3.select(rects.nodes()[idx1d]).style("stroke", "purple").style("stroke-width", 4);
+        }
 
         // Keep the border for 10 seconds
         setTimeout(() => {
@@ -557,7 +550,7 @@ function PlotHisto({ patients_data, selected_feature, catFeature, k_mean_cluster
     let z_diagnosis_sel = false; // for z_diagnosis, we need to set the color to 0 and 1
     if (catFeature === "k_mean_cluster") {
       if (k_mean_clusters === 1) {
-        catFeatureSelected = false; // TODO
+        catFeatureSelected = false;
       } else {
         k_mean_cluster_sel = true;
         colors = CLUSTERCOLORS;
