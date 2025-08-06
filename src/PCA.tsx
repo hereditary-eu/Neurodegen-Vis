@@ -28,12 +28,7 @@ const CLUSTERCOLORS = [
   "#9edae5", // Light Cyan
 ];
 
-function getLoadingsForPlot(
-  feature_num: number,
-  loadings: number[][],
-  loadingScaleFactor: number,
-  features: string[]
-) {
+function getLoadingsForPlot(feature_num: number, loadings: number[][], loadingScaleFactor: number, features: string[]) {
   const loadingsForPlot = [
     { x: 0, y: 0 },
     {
@@ -69,10 +64,7 @@ interface PCAAnalysisProps {
   numFeatures: string[];
 }
 
-function PCA_analysis({
-  patientsData: patientsData,
-  numFeatures: numFeatures,
-}: PCAAnalysisProps) {
+function PCA_analysis({ patientsData: patientsData, numFeatures: numFeatures }: PCAAnalysisProps) {
   console.log("PCA_analysis started");
 
   // Step 1: Track the indices of valid rows
@@ -137,14 +129,9 @@ function PlotPcaBiplot({
 
     const patientsDataValid = patientsData.filter((patient) => patient.valid_pc);
 
-    const pcaProjections: number[][] = patientsDataValid.map((patient) => [
-      patient.pc1,
-      patient.pc2,
-    ]);
+    const pcaProjections: number[][] = patientsDataValid.map((patient) => [patient.pc1, patient.pc2]);
 
-    const validClusters: number[] = patientsDataValid.map(
-      (patient) => patient.k_mean_cluster
-    );
+    const validClusters: number[] = patientsDataValid.map((patient) => patient.k_mean_cluster);
 
     const [min_x, , min_y] = CalcMinMaxMatrix({
       matrix: pcaProjections,
@@ -163,12 +150,7 @@ function PlotPcaBiplot({
 
     for (let i = 0; i < show_features.length; i++) {
       let j = show_features[i];
-      const loadingMark = getLoadingsForPlot(
-        j,
-        loadings,
-        loadingScaleFactor,
-        numFeatures
-      );
+      const loadingMark = getLoadingsForPlot(j, loadings, loadingScaleFactor, numFeatures);
       loadingLines.push(loadingMark.line);
       loadingTexts.push(loadingMark.text);
       // loadingMarks.push(loadingMark.line, loadingMark.text);
@@ -203,7 +185,7 @@ function PlotPcaBiplot({
                   ": " +
                   (typeof patientsDataValid[i][feature] === "number"
                     ? patientsDataValid[i][feature].toFixed(2)
-                    : patientsDataValid[i][feature])
+                    : patientsDataValid[i][feature]),
               )
               .join("\n"), // Show all biplot feature values
           ...(showKmeans

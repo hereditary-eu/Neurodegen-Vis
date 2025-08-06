@@ -10,9 +10,7 @@ type ClusterResult = {
  * Calculates the Euclidean distance between two points.
  */
 function euclideanDistance(point1: Point, point2: Point): number {
-  return Math.sqrt(
-    point1.reduce((sum, val, index) => sum + Math.pow(val - point2[index], 2), 0)
-  );
+  return Math.sqrt(point1.reduce((sum, val, index) => sum + Math.pow(val - point2[index], 2), 0));
 }
 
 /**
@@ -26,9 +24,7 @@ function initializeCentroids(data: Point[], k: number): Point[] {
   centroids.push(data[Math.floor(Math.random() * data.length)]);
 
   // Handle the case where all points are identical
-  const allPointsIdentical = data.every((point) =>
-    point.every((value, index) => value === data[0][index])
-  );
+  const allPointsIdentical = data.every((point) => point.every((value, index) => value === data[0][index]));
 
   if (allPointsIdentical) {
     // If all points are identical, duplicate the single unique point as centroids
@@ -119,11 +115,7 @@ function updateCentroids(data: Point[], assignments: number[], k: number): Point
 /**
  * Checks if centroids have stabilized (no significant change).
  */
-function centroidsConverged(
-  oldCentroids: Point[],
-  newCentroids: Point[],
-  tolerance = 1e-6
-): boolean {
+function centroidsConverged(oldCentroids: Point[], newCentroids: Point[], tolerance = 1e-6): boolean {
   return oldCentroids.every((oldCentroid, i) => {
     const distance = euclideanDistance(oldCentroid, newCentroids[i]);
     return distance < tolerance;
