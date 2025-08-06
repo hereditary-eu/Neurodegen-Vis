@@ -1,11 +1,12 @@
 {
   "systemName": "Parkinson's Disease Visual analytics dashboard",
-  "systemDescription": "The Dashboard should highlight correlations and dependencies between features, and cluster similar datapoints (patients). It is built of 3 view, heatmap, scatterplot or histogram, and PCA biplot.",
+  "systemDescription": "The Dashboard should highlight correlations and dependencies between features, and cluster similar datapoints (patients). It is built of 3 visual areas, a heatmap, Toggle of scatterplot or histogram, and PCA biplot.",
   "views": [
     {
       "viewName": "Pearson Correlation Heatmap",
       "visualizationType": "Heatmap",
       "position on dashboard": "left",
+      "Display condition": "Always",
       "encoding": {
         "x": "Feature X",
         "y": "Feature Y",
@@ -21,6 +22,7 @@
       "viewName": "Feature Scatterplot",
       "visualizationType": "Scatterplot",
       "position on dashboard": "top right",
+      "Display condition": "Toggle with histogram, displayed if non-diagonal heatmap cell is selected",
       "encoding": {
         "x": "Feature selected from heatmap",
         "y": "Feature selected from heatmap",
@@ -41,6 +43,7 @@
       "viewName": "Feature Histogram",
       "visualizationType": "Histogram",
       "position on dashboard": "top right",
+      "Display condition": "Toggle with scatterplot, displayed if diagonal heatmap cell is clicked",
       "encoding": {
         "x": "Feature selected from heatmap",
         "y": "Count of datapoints (patients)",
@@ -61,6 +64,7 @@
       "viewName": "PCA Biplot",
       "visualizationType": "Biplot (Scatterplot + Loadings)",
       "position on dashboard": "bottom right",
+      "Display condition": "Always",
       "encoding": {
         "x": "Principal Component 1",
         "y": "Principal Component 2",
@@ -77,9 +81,15 @@
   "viewRelationships": [
     {
       "sourceView": "Pearson Correlation Heatmap",
-      "targetView": "Feature Scatterplot and Feature Histogram",
-      "interactionType": "Filter",
-      "description": "Selecting a heatmap cell sets the X and Y features for the scatterplot. If the cell is a diagonal cell, the feature will be shown as histogram instead of scatterplot."
+      "targetView": "Detail View - Feature Scatterplot",
+      "interactionType": "Conditional Filter",
+      "description": "Selecting a non-diagonal heatmap cell sets the X and Y features in the scatterplot."
+    },
+    {
+      "sourceView": "Pearson Correlation Heatmap",
+      "targetView": "Detail View - Feature Histogram",
+      "interactionType": "Conditional Filter",
+      "description": "Selecting a diagonal heatmap cell sets the X feature for the histogram."
     }
   ]
 }

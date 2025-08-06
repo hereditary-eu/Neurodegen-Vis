@@ -276,7 +276,7 @@ function App() {
 
         if (!DEBUG) {
           handleChatSubmit({
-            prompt: "Can you give a very short overview of the data and the dashboard?",
+            prompt: "Can you give a short overview of the data and the dashboard?",
             messageHisto: messageHistoInit,
             setMessageHistoFun,
             shownMessages: [],

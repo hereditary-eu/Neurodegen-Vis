@@ -73,13 +73,13 @@ export const initialSystemPrompts: MessageHistory[] = [
   },
   {
     role: "system",
+    content: " Please answer all questions in a short and concise manner.",
+  },
+  {
+    role: "system",
     content: "This are the specifications of the Dashboard: " + JSON.stringify(systemsSpecificifications),
   },
 
-  {
-    role: "system",
-    content: " Please answer all questions in a short and concise manner.",
-  },
   {
     role: "system",
     content: "Description of the features:" + dataFieldDescription,
@@ -98,7 +98,9 @@ interface ChatProps {
 }
 
 const codePrompt =
-  "There are different types of dashboard interactions. Please provide the code in the following format (no additional text!): " +
+  "There are different types of dashboard interactions. " +
+  "If a function is helpful to answer the  user's last question, return only the single most relevant function, otherwise return the non function. " +
+  "Please provide the code in the following format (no additional text!): " +
   "a JSON object with two key-value pairs: " +
   '{"function": "valid_function", "code": "valid_code"} ' +
   'For example: {"function": "highlightFeature", "code": ["<feature_name>", "<feature_name>"]} ' +
@@ -107,8 +109,8 @@ const codePrompt =
   '2. "highlightFeatures": highlights a non-diagonal cell representing a feature pair in the heatmap. Input: two distinct feature names, e.g. {"code": ["featureA", "featureB"]} ' +
   "Only return one single function, based on the user's last question. " +
   'Use "highlightFeature" for questions like: "what is this feature", "explain this feature", etc. ' +
-  'Use "highlightFeatures" for questions like: "correlation", "dependency", "relationship between features", etc. ' +
-  'If none apply, return {"function": "none", "code": ["none"]}';
+  'Use "highlightFeatures" for questions like: "correlation"/"dependency"/"relationship between features", etc. ' +
+  'If no function is relevant to the users last question, return {"function": "none", "code": ["none"]}';
 
 // const codePrompt2 = "Answer with yes";
 
