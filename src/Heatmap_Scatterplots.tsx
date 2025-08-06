@@ -207,6 +207,19 @@ function PlotCorHeatmap({
           .style("stroke", "purple")
           .style("stroke-width", 4);
 
+        // TODO correlations not known
+        // let corr = correlations[idx1d].correlation;
+        // if (corr > 0.5 || corr < -0.8) {
+        //   d3.select(rects.nodes()[idx1d])
+        //     .style("stroke", "#E6E6FA")
+        //     // .style("stroke", "#D8BFD8")
+        //     .style("stroke-width", 4);
+        // } else {
+        //   d3.select(rects.nodes()[idx1d])
+        //     .style("stroke", "purple")
+        //     .style("stroke-width", 4);
+        // }
+
         // Keep the border for 10 seconds
         setTimeout(() => {
           d3.select(rects.nodes()[idx1d]).style("stroke", "none");
@@ -240,6 +253,19 @@ function PlotCorHeatmap({
         d3.select(rects.nodes()[idx1d])
           .style("stroke", "purple")
           .style("stroke-width", 4);
+
+        // TODO correlations not known
+        // let corr = correlations[idx1d].correlation;
+        // if (corr > 0.5 || corr < -0.8) {
+        //   d3.select(rects.nodes()[idx1d])
+        //     .style("stroke", "#E6E6FA")
+        //     // .style("stroke", "#D8BFD8")
+        //     .style("stroke-width", 4);
+        // } else {
+        //   d3.select(rects.nodes()[idx1d])
+        //     .style("stroke", "purple")
+        //     .style("stroke-width", 4);
+        // }
 
         // Keep the border for 10 seconds
         setTimeout(() => {
