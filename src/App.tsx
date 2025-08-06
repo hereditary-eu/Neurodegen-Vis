@@ -24,10 +24,10 @@ import {
 import { PCA_analysis, PlotPcaBiplot } from "./PCA";
 import {
   handleChatSubmitSuggest,
-  clearChatHistory,
+  // clearChatHistory,
   handleChatSubmit,
   MessageHistory,
-  initialSystemPrompts as initialSystemPrompts,
+  initialSystemPrompts,
   ChatCodeRes,
 } from "./Chat";
 import {
@@ -41,7 +41,7 @@ import { RunKmeans } from "./Kmean";
 
 import * as Plot from "@observablehq/plot";
 
-const DEBUG: boolean = false;
+const DEBUG: boolean = true; // Set to false for production
 
 interface logPSXProps {
   message: string;
@@ -282,8 +282,7 @@ function App() {
         const correlations = calcCorrelations(cov_features_init, patientDataLoaded);
         setPearsonCorr(correlations);
 
-        const messageHistoInit: MessageHistory[] = [
-          ...initialSystemPrompts,
+        const chatPearsonCorrTemp: MessageHistory[] = [
           {
             role: "system",
             content:
@@ -291,8 +290,13 @@ function App() {
               JSON.stringify(correlations),
           },
         ];
+        const messageHistoInit: MessageHistory[] = [
+          ...initialSystemPrompts,
+          ...chatPearsonCorrTemp,
+        ];
 
         setMessageHistoFun(messageHistoInit);
+        setChatPearsonCorr(chatPearsonCorrTemp);
 
         if (!DEBUG) {
           handleChatSubmit({
@@ -323,14 +327,21 @@ function App() {
   const [shownMessages, setShownMessages] = useState<MessageHistory[]>([]);
   const [messageHisto, setMessageHisto] =
     useState<MessageHistory[]>(initialSystemPrompts);
-  const [ChatFeatureSuggestion, setChatFeatureSuggestion] = useState<[string, string]>([
+  const [chatFeatureSuggestion, setChatFeatureSuggestion] = useState<[string, string]>([
     "",
     "",
   ]);
-  const [ChatFeatureHighlight, setChatFeatureHighlight] = useState<[string, string]>([
+  const [chatFeatureHighlight, setChatFeatureHighlight] = useState<[string, string]>([
     "",
     "",
   ]);
+  const [chatPearsonCorr, setChatPearsonCorr] = useState<MessageHistory[]>([]);
+
+  function clearChatHistory() {
+    setMessageHisto([...initialSystemPrompts, ...chatPearsonCorr]);
+    setShownMessages([]);
+    console.log("Cleared chat history");
+  }
 
   const [sugFollowUpQuestions, setSugFollowUpQuestions] = useState<string[]>([]);
 
@@ -427,16 +438,7 @@ function App() {
                 <div className="sidepanel-body">
                   <div className="chat-prompt-container">
                     <div className="container-suggest-clear-button">
-                      <Button
-                        variant="dark"
-                        onClick={() =>
-                          clearChatHistory({
-                            setMessageHistoFun,
-                            setShownMessages,
-                            initialPrompt: initialSystemPrompts,
-                          })
-                        }
-                      >
+                      <Button variant="dark" onClick={() => clearChatHistory()}>
                         Clear History
                       </Button>
 
@@ -549,8 +551,8 @@ function App() {
                         patients_data={patients_data}
                         cov_features={selectedCovFeatures}
                         selectedFeatures={scatterplotFeatures}
-                        chatFeatureSuggestion={ChatFeatureSuggestion}
-                        chatFeatureHighlight={ChatFeatureHighlight}
+                        chatFeatureSuggestion={chatFeatureSuggestion}
+                        chatFeatureHighlight={chatFeatureHighlight}
                         setSelectedFeatures={heatmapSetsScatterplotFeatures}
                         setCorrelations={setPearsonCorr}
                       />

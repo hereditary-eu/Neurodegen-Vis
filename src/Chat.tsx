@@ -369,23 +369,25 @@ const handleChatSubmitSuggest = async ({
   return featureList;
 };
 
-interface clearChatHistoryProps {
-  setMessageHistoFun: (messageHisto: MessageHistory[]) => void;
-  setShownMessages: (shownMessages: MessageHistory[]) => void;
-  initialPrompt: MessageHistory[];
-}
-const clearChatHistory = ({
-  setMessageHistoFun: setMessageHisto,
-  setShownMessages,
-  initialPrompt,
-}: clearChatHistoryProps) => {
-  // Clear the message history
-  setMessageHisto(initialPrompt);
-  setShownMessages([]);
-  console.log("Cleared message history");
-};
+// interface clearChatHistoryProps {
+//   setMessageHistoFun: (messageHisto: MessageHistory[]) => void;
+//   setShownMessages: (shownMessages: MessageHistory[]) => void;
+//   initialPrompt: MessageHistory[];
+//   chatPearsonCorr: MessageHistory;
+// }
+// const clearChatHistory = ({
+//   setMessageHistoFun: setMessageHisto,
+//   setShownMessages,
+//   initialPrompt,
+//   chatPearsonCorr,
+// }: clearChatHistoryProps) => {
+//   // Clear the message history
+//   setMessageHisto(initialPrompt);
+//   setShownMessages([]);
+//   console.log("Cleared message history");
+// };
 
-export { handleChatSubmit, handleChatSubmitSuggest, clearChatHistory };
+export { handleChatSubmit, handleChatSubmitSuggest }; //, clearChatHistory
 
 // function createChatResponse(messages: MessageHistory[]) {
 //   const completion = await openai.chat.completions.create({
