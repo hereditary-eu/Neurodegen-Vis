@@ -36,7 +36,7 @@ import { RunKmeans } from "./Kmean";
 
 import * as Plot from "@observablehq/plot";
 
-const DEBUG: boolean = true; // Set to false for production
+const DEBUG: boolean = false; // Set to false for production
 
 interface logPSXProps {
   message: string;
@@ -349,8 +349,10 @@ function App() {
         const featureList: string[] = codeResponse.code;
         if (featureList.length === 2 && featureList.every((feature) => cov_features.includes(feature))) {
           console.log("Valid feature highlighted: ", featureList);
-          // setScatterplotFeatures([featureList[0], featureList[1]]);
-          setChatFeatureHighlight([featureList[0], featureList[1]]);
+          // setChatFeatureHighlight([featureList[0], featureList[1]]);
+          setChatFeatureSuggestion([featureList[0], featureList[1]]);
+          setScatterplotFeatures([featureList[0], featureList[1]]);
+
           return;
         } else {
           console.log("Invalid feature highlighted: ", featureList);
@@ -383,7 +385,7 @@ function App() {
       {dataLoaded ? (
         <>
           <div className="background-container">
-            <h1 className="heading">Parkinson's disease analysis</h1>
+            <h1 className="heading">Neurodegen-Vis: Parkinson's disease analysis</h1>
 
             <div className="panels-container">
               {/* Sidepanel start */}

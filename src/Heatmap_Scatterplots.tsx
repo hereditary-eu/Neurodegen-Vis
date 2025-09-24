@@ -209,10 +209,10 @@ function PlotCorHeatmap({
           d3.select(rects.nodes()[idx1d]).style("stroke", "purple").style("stroke-width", 4);
         }
 
-        // Keep the border for 10 seconds
+        // Keep the border for 15 seconds
         setTimeout(() => {
           d3.select(rects.nodes()[idx1d]).style("stroke", "none");
-        }, 50000);
+        }, 15000);
       }
 
       // Calculate the index based on the new selected features (or GPT suggestion)
@@ -252,7 +252,7 @@ function PlotCorHeatmap({
         // Keep the border for 10 seconds
         setTimeout(() => {
           d3.select(rects.nodes()[idx1d]).style("stroke", "none");
-        }, 10000);
+        }, 15000);
 
         // Change only the fill opacity, so the stroke remains fully visible
         d3.select(rects.nodes()[idx1d]).style("fill-opacity", "0.5");

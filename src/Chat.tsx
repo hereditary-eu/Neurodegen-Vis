@@ -105,11 +105,11 @@ const codePrompt =
   '{"function": "valid_function", "code": "valid_code"} ' +
   'For example: {"function": "highlightFeature", "code": ["<feature_name>", "<feature_name>"]} ' +
   "Valid function options: " +
-  '1. "highlightFeature": highlights the diagonal cell of a feature in the correlation heatmap. Input: a list with the same feature name twice, e.g. {"code": ["featureX", "featureX"]} ' +
-  '2. "highlightFeatures": highlights a non-diagonal cell representing a feature pair in the heatmap. Input: two distinct feature names, e.g. {"code": ["featureA", "featureB"]} ' +
+  '1. "highlightFeatures": highlights a non-diagonal cell representing a feature pair in the heatmap. Input: two distinct feature names, e.g. {"code": ["featureA", "featureB"]} ' +
+  '2. "highlightFeature": highlights a diagonal cell of a feature in the correlation heatmap. Input: a list with the same feature name twice, e.g. {"code": ["featureX", "featureX"]} ' +
   "Only return one single function, based on the user's last question. " +
-  'Use "highlightFeature" for questions like: "what is this feature", "explain this feature", etc. ' +
-  'Use "highlightFeatures" for questions like: "correlation"/"dependency"/"relationship between features", etc. ' +
+  'Use "highlightFeatures" for questions about two features like: "What is the correlation"/"dependency"/"relationship between features", etc. ' +
+  'Use "highlightFeature" for question about one feature like: "what is this feature", "explain this feature", etc. ' +
   'If no function is relevant to the users last question, return {"function": "none", "code": ["none"]}';
 
 // const codePrompt2 = "Answer with yes";
@@ -287,7 +287,7 @@ const handleChatSubmitSuggest = async ({
 
   let featureList: string[] = ["", ""];
   let prompt_2 =
-    "What could be two to interesting features to analyze in a scatterplot, if there, consider previous prompts?. Your answer should be the two features, seperated through a coma. No additional text.";
+    "What could be two to interesting features to analyze in a scatterplot. Consider previous prompts, but suggest new features. Your answer should be the two features, seperated through a comma. No additional text.";
   // Append the new user message to the message history
   const updatedMessages: MessageHistory[] = [...messageHisto, { role: "user", content: prompt_2 }];
   setMessageHisto(updatedMessages);
