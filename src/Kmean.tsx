@@ -155,6 +155,12 @@ function kMeans(data: number[][], k: number, maxIterations = 50): number[] {
   return assignments;
 }
 
+/**
+ * Runs K-means clustering on patient data and updates the patient data with cluster assignments.
+ * @param patientData array of Patient objects
+ * @param setPatientDataFunc function to update patient data
+ * @param k number of clusters
+ */
 function RunKmeans(patientData: Patient[], setPatientDataFunc: Function, k: number) {
   const clusteringData: number[][] = patientData
     .filter((patient) => patient.valid_pc)
@@ -187,29 +193,3 @@ function RunKmeans(patientData: Patient[], setPatientDataFunc: Function, k: numb
 }
 
 export { kMeans, RunKmeans };
-
-// // Example usage:
-// const data: number[][] = [
-//     [1, 2],
-//     [1, 4],
-//     [1, 0],
-//     [10, 2],
-//     [10, 4],
-//     [10, 0],
-//     [7, 2],
-//     [7, 4],
-//     [7, 0],
-//     [4, 2],
-// ];
-
-// const data_2: number[][] = [
-//     [-1, -1],
-//     [-1, -1],
-//     [-1, -1],
-//     [-1, -1],
-//     [-1, -1],
-//     [-1, -1],
-// ];
-// const k = 3;
-// const result = kMeans(data_2, k);
-// console.log(result);

@@ -105,8 +105,8 @@ const codePrompt =
   '{"function": "valid_function", "code": "valid_code"} ' +
   'For example: {"function": "highlightFeature", "code": ["<feature_name>", "<feature_name>"]} ' +
   "Valid function options: " +
-  '1. "highlightFeatures": highlights a non-diagonal cell representing a feature pair in the heatmap. Input: two distinct feature names, e.g. {"code": ["featureA", "featureB"]} ' +
-  '2. "highlightFeature": highlights a diagonal cell of a feature in the correlation heatmap. Input: a list with the same feature name twice, e.g. {"code": ["featureX", "featureX"]} ' +
+  '1. "highlightFeatures": highlights a non-diagonal cell representing a feature pair in the heatmap. Changes the scatterplot view to these features. Input: two distinct feature names, e.g. {"code": ["featureA", "featureB"]} ' +
+  '2. "highlightFeature": highlights a diagonal cell of a feature in the correlation heatmap. Changes the heatmap view to this feature. Input: a list with the same feature name twice, e.g. {"code": ["featureX", "featureX"]} ' +
   "Only return one single function, based on the user's last question. " +
   'Use "highlightFeatures" for questions about two features like: "What is the correlation"/"dependency"/"relationship between features", etc. ' +
   'Use "highlightFeature" for question about one feature like: "what is this feature", "explain this feature", etc. ' +
@@ -146,12 +146,23 @@ const chatSubmitCodeResp = async (messageHisto: MessageHistory[]) => {
   }
 };
 
+/**
+ * Calculates the total content length of the message history.
+ */
 function calcContentLength(messageHisto: MessageHistory[]) {
   return messageHisto.reduce((total, message) => {
     return total + message.content.length;
   }, 0);
 }
 
+/**
+ * Handles the chat submission, by:
+ * 1. answering the user's prompt
+ * 2. calling code generation to manipulate the dashboard if needed
+ * 3. generating follow-up questions.
+ *
+ * Updates the message history, shown messages and the follow-up question accordingly.
+ */
 const handleChatSubmit = async ({
   prompt,
   messageHisto,
@@ -268,6 +279,12 @@ const handleChatSubmit = async ({
   return;
 };
 
+/**
+ * Handles the chat submission for feature suggestions, by:
+ * 1. Letting the LM suggest two features to analyze.
+ * 2. Letting the LM  explain why these features are interesting, and set the shown messages accordingly.
+ * 3. updating the feature list and therefore the highlight heatmap and scatterplot in the parent component through handleChatFeatureSuggestions.
+ */
 const handleChatSubmitSuggest = async ({
   prompt,
   messageHisto,
@@ -347,30 +364,4 @@ const handleChatSubmitSuggest = async ({
   return featureList;
 };
 
-// interface clearChatHistoryProps {
-//   setMessageHistoFun: (messageHisto: MessageHistory[]) => void;
-//   setShownMessages: (shownMessages: MessageHistory[]) => void;
-//   initialPrompt: MessageHistory[];
-//   chatPearsonCorr: MessageHistory;
-// }
-// const clearChatHistory = ({
-//   setMessageHistoFun: setMessageHisto,
-//   setShownMessages,
-//   initialPrompt,
-//   chatPearsonCorr,
-// }: clearChatHistoryProps) => {
-//   // Clear the message history
-//   setMessageHisto(initialPrompt);
-//   setShownMessages([]);
-//   console.log("Cleared message history");
-// };
-
 export { handleChatSubmit, handleChatSubmitSuggest }; //, clearChatHistory
-
-// function createChatResponse(messages: MessageHistory[]) {
-//   const completion = await openai.chat.completions.create({
-//     model: MODEL,
-//     messages: messages, // Send the entire conversation history
-//   });
-//   return completion.choices[0].message.content || "";
-// }

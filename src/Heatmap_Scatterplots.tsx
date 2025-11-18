@@ -52,6 +52,10 @@ interface CorHeatmapProps {
   setCorrelations: (correlations: { a: string; b: string; correlation: number }[]) => void;
   correlations: { a: string; b: string; correlation: number }[];
 } // Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
+
+/**
+ * Creates and renders the correlation heatmap
+ */
 function PlotCorHeatmap({
   patients_data,
   cov_features,
@@ -284,6 +288,9 @@ interface ScatterplotProps {
   showCatAvg?: boolean;
 }
 
+/**
+ * Creates and renders the scatterplot
+ */
 function PlotScatterplot({
   y_feature,
   x_feature,
@@ -538,6 +545,10 @@ interface plotHistoProps {
   k_mean_clusters: number;
 }
 
+/**
+ * Creates and renders the histogram plot
+ * @returns JSX.Element
+ */
 function PlotHisto({ patients_data, selected_feature, catFeature, k_mean_clusters }: plotHistoProps) {
   function createPlot() {
     console.log("plotHisto fun started");
@@ -660,6 +671,9 @@ function PlotHisto({ patients_data, selected_feature, catFeature, k_mean_cluster
   return <div ref={histoRef}></div>;
 }
 
+/**
+ * Function to perform linear regression on two arrays of numbers
+ */
 function LinReg(xArray: number[], yArray: number[]): [number, number] {
   // Calculate Sums
   // console.log("linReg fun started");
@@ -690,6 +704,9 @@ function LinReg(xArray: number[], yArray: number[]): [number, number] {
   return [slope, intercept];
 }
 
+/**
+ * Function to calculate the average line (slope=0) for given x and y arrays
+ */
 function CalcAverage(xArray: number[], yArray: number[]): [number, number] {
   const slope = 0;
   let intercept = 0;
@@ -702,6 +719,9 @@ function CalcAverage(xArray: number[], yArray: number[]): [number, number] {
 }
 
 // Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
+/**
+ * Function to calculate the Pearson correlation coefficient between two arrays
+ */
 function pearsonCorrelation(x: number[], y: number[]) {
   const n = x.length;
   if (y.length !== n) throw new Error("The two columns must have the same length.");

@@ -28,6 +28,9 @@ const CLUSTERCOLORS = [
   "#9edae5", // Light Cyan
 ];
 
+/**
+ * Generates loading vectors for PCA biplot visualization.
+ */
 function getLoadingsForPlot(feature_num: number, loadings: number[][], loadingScaleFactor: number, features: string[]) {
   const loadingsForPlot = [
     { x: 0, y: 0 },
@@ -64,6 +67,9 @@ interface PCAAnalysisProps {
   numFeatures: string[];
 }
 
+/**
+ * Performs PCA analysis on patient data and updates patient objects with PCA results.
+ */
 function PCA_analysis({ patientsData: patientsData, numFeatures: numFeatures }: PCAAnalysisProps) {
   console.log("PCA_analysis started");
 
@@ -117,6 +123,9 @@ interface PCAPlotProps {
   biplotFeatures: string[];
   showKmeans: boolean;
 }
+/**
+ * Creates and renders the PCA biplot, including PCA projections and loading vectors.
+ */
 function PlotPcaBiplot({
   patientsData: patientsData,
   numFeatures: numFeatures,

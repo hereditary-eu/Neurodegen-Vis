@@ -43,6 +43,9 @@ interface logPSXProps {
   logElement: any;
 }
 
+/**
+ * Dev helper function to log messages and elements to the console.
+ */
 function LogPSX({ message, logElement }: logPSXProps) {
   console.log(message, logElement);
   return <></>;

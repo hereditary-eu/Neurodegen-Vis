@@ -5,7 +5,9 @@ interface MinMaxPatProps {
   x_feature: string;
   patients_data: Patient[];
 }
-
+/**
+ * Calculates the min and max values for the specified features in patient data, adding a margin.
+ */
 function CalcMinMaxPatientsData({ y_feature, x_feature, patients_data }: MinMaxPatProps) {
   // console.log("min-max patients data started");
   const min_x = Math.min(...patients_data.map((p) => p[x_feature]).filter((d) => !isNaN(d)));
@@ -28,6 +30,9 @@ interface MinMaxMatrixProps {
   feature_1: number;
   feature_2: number;
 }
+/**
+ * Calculates the min and max values for the specified features in a numerical matrix, adding a margin.
+ */
 function CalcMinMaxMatrix({ matrix, feature_1, feature_2 }: MinMaxMatrixProps) {
   console.log("Min-max matrix started");
   const min_x = Math.min(...matrix.map((p) => p[feature_1]).filter((d) => !isNaN(d)));
