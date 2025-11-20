@@ -105,11 +105,11 @@ const codePrompt =
   '{"function": "valid_function", "code": "valid_code"} ' +
   'For example: {"function": "highlightFeature", "code": ["<feature_name>", "<feature_name>"]} ' +
   "Valid function options: " +
-  '1. "highlightFeatures": highlights a non-diagonal cell representing a feature pair in the heatmap. Changes the scatterplot view to these features. Input: two distinct feature names, e.g. {"code": ["featureA", "featureB"]} ' +
-  '2. "highlightFeature": highlights a diagonal cell of a feature in the correlation heatmap. Changes the heatmap view to this feature. Input: a list with the same feature name twice, e.g. {"code": ["featureX", "featureX"]} ' +
+  '1. "highlightFeatures": highlights a non-diagonal cell representing the feature pair in the heatmap. Changes the scatterplot view to these features. Input: two distinct feature names, e.g. {"code": ["featureA", "featureB"]} ' +
+  '2. "highlightFeature": highlights a diagonal cell of the feature in the correlation heatmap. Changes the histogram view to this feature. Input: a list with the same feature name twice, e.g. {"code": ["featureX", "featureX"]} ' +
   "Only return one single function, based on the user's last question. " +
-  'Use "highlightFeatures" for questions about two features like: "What is the correlation"/"dependency"/"relationship between features", etc. ' +
-  'Use "highlightFeature" for question about one feature like: "what is this feature", "explain this feature", etc. ' +
+  'Use "highlightFeatures" for questions about two features like: "What is the correlation"/"dependency"/"relationship between features", or wherever it could be useful.. ' +
+  'Use "highlightFeature" for question about one feature like: "what is this feature", "explain this feature", or wherever it could be useful. ' +
   'If no function is relevant to the users last question, return {"function": "none", "code": ["none"]}';
 
 // const codePrompt2 = "Answer with yes";
