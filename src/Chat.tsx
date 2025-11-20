@@ -114,38 +114,6 @@ const codePrompt =
 
 // const codePrompt2 = "Answer with yes";
 
-const chatSubmitCodeResp = async (messageHisto: MessageHistory[]) => {
-  // Append the new user message to the message history
-  const updatedMessagesCode: MessageHistory[] = [
-    ...messageHisto,
-    {
-      role: "system",
-      content: codePrompt,
-      // content: codePrompt2,
-    },
-  ];
-
-  console.log("Messages for code generation:", updatedMessagesCode);
-
-  // usless, only updated after the function call
-  // setMessageHisto(updatedMessages);
-  // setResponse("Generating response...");
-  try {
-    const completion = await openai.chat.completions.create({
-      model: MODEL,
-      messages: updatedMessagesCode, // Send the entire conversation history
-    });
-
-    console.log("Completion response for code generation:", completion);
-
-    const assistantResponse = completion.choices[0].message.content || "";
-    console.log("Assistant response for code generation:", assistantResponse);
-  } catch (error) {
-    console.error("Error fetching response for code generation:", error);
-    return {};
-  }
-};
-
 /**
  * Calculates the total content length of the message history.
  */
@@ -363,5 +331,37 @@ const handleChatSubmitSuggest = async ({
 
   return featureList;
 };
+
+// const chatSubmitCodeResp = async (messageHisto: MessageHistory[]) => {
+//   // Append the new user message to the message history
+//   const updatedMessagesCode: MessageHistory[] = [
+//     ...messageHisto,
+//     {
+//       role: "system",
+//       content: codePrompt,
+//       // content: codePrompt2,
+//     },
+//   ];
+
+//   console.log("Messages for code generation:", updatedMessagesCode);
+
+//   // usless, only updated after the function call
+//   // setMessageHisto(updatedMessages);
+//   // setResponse("Generating response...");
+//   try {
+//     const completion = await openai.chat.completions.create({
+//       model: MODEL,
+//       messages: updatedMessagesCode, // Send the entire conversation history
+//     });
+
+//     console.log("Completion response for code generation:", completion);
+
+//     const assistantResponse = completion.choices[0].message.content || "";
+//     console.log("Assistant response for code generation:", assistantResponse);
+//   } catch (error) {
+//     console.error("Error fetching response for code generation:", error);
+//     return {};
+//   }
+// };
 
 export { handleChatSubmit, handleChatSubmitSuggest }; //, clearChatHistory

@@ -25,6 +25,7 @@ export const cat_features_mapping: { [key: string]: string[] } = {
 };
 
 export const cat_features_generic: string[] = ["None", "k_mean_cluster", "z_diagnosis"];
+// TODO, add , "ins_npsi_sex" to numeric, adapt code in scatterplot to show correct legend
 
 export const cov_features: string[] = [
   "insnpsi_age",
@@ -54,7 +55,6 @@ export const cov_features_init: string[] = [
   "insnpsi_age",
   "npsid_ddur_v",
   "npsid_yearsed",
-  "ins_npsi_sex",
   "overall_domain_sum",
   "npsid_rep_moca_c",
   "npsid_rep_mmse_c",

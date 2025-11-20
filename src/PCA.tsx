@@ -149,10 +149,9 @@ function PlotPcaBiplot({
     });
 
     const loadingScaleFactor = 2.2;
-    // const loadingMarks = [];
 
-    const loadingLines: Plot.Mark[] = [];
-    const loadingTexts: Plot.Mark[] = [];
+    const loadingLines: Plot.Markish[] = [];
+    const loadingTexts: Plot.Markish[] = [];
 
     let show_features = biplotFeatures.map((x) => numFeatures.indexOf(x));
     // console.log("show_features", show_features);
@@ -162,7 +161,6 @@ function PlotPcaBiplot({
       const loadingMark = getLoadingsForPlot(j, loadings, loadingScaleFactor, numFeatures);
       loadingLines.push(loadingMark.line);
       loadingTexts.push(loadingMark.text);
-      // loadingMarks.push(loadingMark.line, loadingMark.text);
     }
 
     const loadingMarks = [...loadingLines, ...loadingTexts];

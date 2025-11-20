@@ -692,7 +692,7 @@ function LinReg(xArray: number[], yArray: number[]): [number, number] {
     }
   }
 
-  for (let i = 0, len = count; i < count; i++) {
+  for (let i = 0; i < count; i++) {
     xSum += xArray[i];
     ySum += yArray[i];
     xxSum += xArray[i] * xArray[i];
@@ -707,7 +707,7 @@ function LinReg(xArray: number[], yArray: number[]): [number, number] {
 /**
  * Function to calculate the average line (slope=0) for given x and y arrays
  */
-function CalcAverage(xArray: number[], yArray: number[]): [number, number] {
+function CalcAverage(_xArray: number[], yArray: number[]): [number, number] {
   const slope = 0;
   let intercept = 0;
 

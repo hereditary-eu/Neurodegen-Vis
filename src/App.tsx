@@ -36,7 +36,9 @@ import { RunKmeans } from "./Kmean";
 
 import * as Plot from "@observablehq/plot";
 
-const DEBUG: boolean = false; // Set to false for production
+const DEBUG: boolean = false; // Set to false for production, TODO
+// const DATASET_PATH = "dataset/noisy.csv";
+const DATASET_PATH = "database/noisy.csv";
 
 interface logPSXProps {
   message: string;
@@ -244,7 +246,12 @@ function App() {
     async function loadAndProcessData() {
       try {
         // Step 1: Load Data
-        const patientDataLoaded = (await d3.csv("dataset/noisy.csv")).map((r) => Patient.fromJson(r));
+        console.log("Loading dataset from:", DATASET_PATH);
+        // print if dataset exists
+        const datasetExists = await fetch(DATASET_PATH).then((res) => res.ok);
+        console.log("Dataset exists:", datasetExists);
+
+        const patientDataLoaded = (await d3.csv(DATASET_PATH)).map((r) => Patient.fromJson(r));
         console.log("Data loaded!", patientDataLoaded);
 
         // Step 2: Run PCA Analysis

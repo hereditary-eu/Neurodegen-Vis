@@ -1,11 +1,6 @@
 import { Patient } from "./env_dataset/Patient";
 type Point = number[];
 
-type ClusterResult = {
-  centroids: Point[];
-  assignments: number[];
-};
-
 /**
  * Calculates the Euclidean distance between two points.
  */
