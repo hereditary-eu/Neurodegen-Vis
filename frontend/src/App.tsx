@@ -24,10 +24,10 @@ import {
   handleChatSubmitSuggest,
   // clearChatHistory,
   handleChatSubmit,
-  MessageHistory,
   initialSystemPrompts,
   ChatCodeRes,
 } from "./components/chat/Chat";
+import { MessageHistory } from "./components/chat/types";
 import { PlotScatterplot } from "./components/visualisations/scatterplot";
 import { PlotHisto } from "./components/visualisations/histogram";
 import { PlotCorHeatmap } from "./components/visualisations/heatmap";
@@ -62,15 +62,6 @@ function App() {
   document.body.classList.add("bg-dark", "text-white");
 
   console.log("App started");
-
-  const [data, setData] = useState<string>("loading...");
-
-  useEffect(() => {
-    fetch("http://localhost:8000/dummy")
-      .then((res) => res.json())
-      .then((json) => setData(json.message))
-      .catch((err) => console.error(err));
-  }, []);
 
   // all features should be all the keys from the Patient class
   const allFeatures = Object.keys(new Patient());
@@ -307,7 +298,6 @@ function App() {
   // ------------------------- JSX -------------------------
   return (
     <>
-      <div>{data}</div>
       {dataLoaded ? (
         <>
           <div className="background-container">

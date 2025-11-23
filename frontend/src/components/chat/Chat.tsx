@@ -1,11 +1,8 @@
 import OpenAI from "openai";
 import dataFieldDescription from "../../env_dataset/PD_DataFieldsDescription_plain.txt?raw";
 import systemsSpecificifications from "../../systems_specification_pd.json";
-
-export interface MessageHistory {
-  role: "system" | "user" | "assistant";
-  content: string;
-}
+import { MessageHistory } from "./types";
+import { getChatResponse } from "../../api/chat_response";
 
 export class ChatCodeRes {
   functionName: string = "";
@@ -164,13 +161,7 @@ const handleChatSubmit = async ({
   let codeResponse: ChatCodeRes = new ChatCodeRes();
 
   try {
-    // ----------------- Generate Chat Submit
-    const completion = await openai.chat.completions.create({
-      model: MODEL,
-      messages: updatedMessages, // Send the entire conversation history
-    });
-
-    const assistantResponse = completion.choices[0].message.content || "";
+    const assistantResponse = await getChatResponse(updatedMessages);
 
     // Append the assistant's response to the message history
     const updatedMessagesWithResponse: MessageHistory[] = [
@@ -179,17 +170,15 @@ const handleChatSubmit = async ({
     ];
 
     console.log("Start Suggested follow-up questions:");
-    const completetion = await openai.chat.completions.create({
-      model: MODEL,
-      messages: [
-        ...updatedMessagesWithResponse,
-        {
-          role: "system",
-          content: "Suggest one short and useful follow-question the user could ask!",
-        },
-      ], // Send the entire conversation history
-    });
-    const assistantResponseFollowUp: string[] = [completetion.choices[0].message.content || ""];
+
+    const messagesForFollowup: MessageHistory[] = [
+      ...updatedMessagesWithResponse,
+      {
+        role: "system",
+        content: "Suggest one short and useful follow-question the user could ask!",
+      },
+    ];
+    const assistantResponseFollowUp: string[] = [await getChatResponse(messagesForFollowup)];
 
     // code response
     console.log("Start code generation");
@@ -204,17 +193,8 @@ const handleChatSubmit = async ({
 
     console.log("Messages for code generation:", updatedMessagesCode);
 
-    const completion_code = await openai.chat.completions.create({
-      model: MODEL,
-      messages: updatedMessagesCode, // Send the entire conversation history
-    });
+    const assistantResponse_code: string = await getChatResponse(updatedMessagesCode);
 
-    // console.log(
-    //     "Completion response for code generation:",
-    //     completion_code
-    // );
-
-    const assistantResponse_code = completion_code.choices[0].message.content || "nothing?";
     console.log("Assistant response for code generation:", assistantResponse_code);
 
     try {
@@ -278,12 +258,7 @@ const handleChatSubmitSuggest = async ({
   setMessageHisto(updatedMessages);
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: MODEL,
-      messages: updatedMessages, // Send the entire conversation history
-    });
-
-    const assistantResponse = completion.choices[0].message.content || "";
+    const assistantResponse = await getChatResponse(updatedMessages);
 
     // Append the assistant's response to the message history
     const updatedMessagesWithResponse: MessageHistory[] = [
@@ -302,12 +277,7 @@ const handleChatSubmitSuggest = async ({
     const updatedMessages_2: MessageHistory[] = [...updatedMessagesWithResponse, { role: "user", content: prompt_2 }];
     // setMessageHisto(updatedMessages_2);
 
-    const completion_2 = await openai.chat.completions.create({
-      model: MODEL,
-      messages: updatedMessages_2, // Send the entire conversation history
-    });
-
-    const assistantResponse_2 = completion_2.choices[0].message.content || "";
+    const assistantResponse_2 = await getChatResponse(updatedMessages_2);
 
     // Append the assistant's response to the message history
     const updatedMessagesWithResponse_2: MessageHistory[] = [
@@ -331,37 +301,5 @@ const handleChatSubmitSuggest = async ({
 
   return featureList;
 };
-
-// const chatSubmitCodeResp = async (messageHisto: MessageHistory[]) => {
-//   // Append the new user message to the message history
-//   const updatedMessagesCode: MessageHistory[] = [
-//     ...messageHisto,
-//     {
-//       role: "system",
-//       content: codePrompt,
-//       // content: codePrompt2,
-//     },
-//   ];
-
-//   console.log("Messages for code generation:", updatedMessagesCode);
-
-//   // usless, only updated after the function call
-//   // setMessageHisto(updatedMessages);
-//   // setResponse("Generating response...");
-//   try {
-//     const completion = await openai.chat.completions.create({
-//       model: MODEL,
-//       messages: updatedMessagesCode, // Send the entire conversation history
-//     });
-
-//     console.log("Completion response for code generation:", completion);
-
-//     const assistantResponse = completion.choices[0].message.content || "";
-//     console.log("Assistant response for code generation:", assistantResponse);
-//   } catch (error) {
-//     console.error("Error fetching response for code generation:", error);
-//     return {};
-//   }
-// };
 
 export { handleChatSubmit, handleChatSubmitSuggest }; //, clearChatHistory

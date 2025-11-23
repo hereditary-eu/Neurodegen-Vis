@@ -3,10 +3,10 @@ import {
   handleChatSubmitSuggest,
   // clearChatHistory,
   handleChatSubmit,
-  MessageHistory,
   initialSystemPrompts,
   ChatCodeRes,
 } from "./Chat";
+import { MessageHistory } from "./types";
 
 interface FollowUpBubblesProps {
   sugFollowUpQuestions: string[];

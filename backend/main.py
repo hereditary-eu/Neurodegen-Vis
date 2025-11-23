@@ -1,6 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from openai import OpenAI
+import os
+from pydantic import BaseModel
+from chat import chat_router
 
 app = FastAPI()
 
@@ -13,9 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/dummy")
-def dummy():
-    return {"message": "Hello from FastAPI!"}
+app.include_router(chat_router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
