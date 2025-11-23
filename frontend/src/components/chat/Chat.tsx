@@ -1,6 +1,6 @@
 import OpenAI from "openai";
-import dataFieldDescription from "./env_dataset/PD_DataFieldsDescription_plain.txt?raw";
-import systemsSpecificifications from "./systems_specification_pd.json";
+import dataFieldDescription from "../../env_dataset/PD_DataFieldsDescription_plain.txt?raw";
+import systemsSpecificifications from "../../systems_specification_pd.json";
 
 export interface MessageHistory {
   role: "system" | "user" | "assistant";

@@ -6,7 +6,7 @@ import {
   MessageHistory,
   initialSystemPrompts,
   ChatCodeRes,
-} from "../Chat";
+} from "./Chat";
 
 interface FollowUpBubblesProps {
   sugFollowUpQuestions: string[];

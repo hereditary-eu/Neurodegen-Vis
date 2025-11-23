@@ -18,7 +18,8 @@ import {
   biplot_features_init,
 } from "./env_dataset/variables_feature_lists";
 
-import { PCA_analysis, PlotPcaBiplot } from "./PCA";
+import { PlotPcaBiplot } from "./components/visualisations/pca_biplot";
+import { PCA_analysis } from "./components/utils/pca";
 import {
   handleChatSubmitSuggest,
   // clearChatHistory,
@@ -26,19 +27,23 @@ import {
   MessageHistory,
   initialSystemPrompts,
   ChatCodeRes,
-} from "./Chat";
-import { PlotHisto, PlotCorHeatmap, PlotScatterplot, pearsonCorrelation } from "./Heatmap_Scatterplots";
+} from "./components/chat/Chat";
+import { PlotScatterplot } from "./components/visualisations/scatterplot";
+import { PlotHisto } from "./components/visualisations/histogram";
+import { PlotCorHeatmap } from "./components/visualisations/heatmap";
+import { pearsonCorrelation } from "./components/utils/pearson_correlation";
+
 import ReactMarkdown from "react-markdown";
-import { RunKmeans } from "./Kmean";
+import { RunKmeans } from "./components/utils/Kmean";
 
 import * as Plot from "@observablehq/plot";
 
-const DEBUG: boolean = false; // Set to false for production, TODO
+const DEBUG: boolean = true; // Set to false for production, TODO
 // const DATASET_PATH = "dataset/noisy.csv";
 const DATASET_PATH = "database/noisy.csv";
 
 import MultiSelectDropdown from "./components/multiselectdropdown";
-import FollowUpBubbles from "./components/FollowUpBubbles";
+import FollowUpBubbles from "./components/chat/FollowUpBubbles";
 
 interface logPSXProps {
   message: string;
@@ -57,6 +62,15 @@ function App() {
   document.body.classList.add("bg-dark", "text-white");
 
   console.log("App started");
+
+  const [data, setData] = useState<string>("loading...");
+
+  useEffect(() => {
+    fetch("http://localhost:8000/dummy")
+      .then((res) => res.json())
+      .then((json) => setData(json.message))
+      .catch((err) => console.error(err));
+  }, []);
 
   // all features should be all the keys from the Patient class
   const allFeatures = Object.keys(new Patient());
@@ -293,6 +307,7 @@ function App() {
   // ------------------------- JSX -------------------------
   return (
     <>
+      <div>{data}</div>
       {dataLoaded ? (
         <>
           <div className="background-container">
