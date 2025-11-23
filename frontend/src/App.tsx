@@ -2,15 +2,12 @@ import { useEffect, useState, useRef } from "react";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from "react-bootstrap/Button";
-
 import "./css/App.css";
 import "./css/dropdown.css";
 import "./css/Chat-sidePanel.css";
 import "./css/FollowUpBubble.css";
-
 import * as d3 from "d3";
 import { Patient } from "./env_dataset/Patient";
-
 import {
   pca_num_features_list,
   cat_features_mapping,
@@ -40,6 +37,9 @@ const DEBUG: boolean = false; // Set to false for production, TODO
 // const DATASET_PATH = "dataset/noisy.csv";
 const DATASET_PATH = "database/noisy.csv";
 
+import MultiSelectDropdown from "./components/multiselectdropdown";
+import FollowUpBubbles from "./components/FollowUpBubbles";
+
 interface logPSXProps {
   message: string;
   logElement: any;
@@ -52,105 +52,6 @@ function LogPSX({ message, logElement }: logPSXProps) {
   console.log(message, logElement);
   return <></>;
 }
-
-// Define props type for the dropdown component
-interface MultiSelectDropdownProps {
-  options: string[];
-  selectedOptions: string[];
-  setSelectedOptions: React.Dispatch<React.SetStateAction<string[]>>;
-}
-
-const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, selectedOptions, setSelectedOptions }) => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  const handleCheckboxChange = (option: string) => {
-    if (selectedOptions.includes(option)) {
-      setSelectedOptions(selectedOptions.filter((item) => item !== option));
-    } else {
-      setSelectedOptions([...selectedOptions, option]);
-    }
-  };
-  const max_length = 23;
-
-  return (
-    <div className="dropdown-container">
-      <div className="dropdown-header" onClick={() => setDropdownOpen(!dropdownOpen)}>
-        {selectedOptions.join(", ").length > max_length // Set max length here
-          ? `${selectedOptions.join(", ").slice(0, max_length)}..`
-          : selectedOptions.join(", ") || "Select features"}
-        {/* <span className="dropdown-arrow">▼</span> */}
-        <span className="dropdown-arrow"></span>
-      </div>
-      {dropdownOpen && (
-        <div className="dropdown-options">
-          {options.map((option) => (
-            <div key={option} className="dropdown-option">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={selectedOptions.includes(option)}
-                  onChange={() => handleCheckboxChange(option)}
-                />
-                {option}
-              </label>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-interface FollowUpBubblesProps {
-  sugFollowUpQuestions: string[];
-  messageHisto: MessageHistory[];
-  setMessageHistoFun: (messages: MessageHistory[]) => void;
-  shownMessages: MessageHistory[];
-  setShownMessages: (messages: MessageHistory[]) => void;
-  handleChatFeatureSuggestions: (featureList: string[]) => void;
-  handleChatCodeResponse: (codeResponse: ChatCodeRes) => void;
-  setFollowUpQuestions: (questions: string[]) => void;
-  // handleChatSubmit: (prompt: string) => void;
-}
-
-const FollowUpBubbles: React.FC<FollowUpBubblesProps> = ({
-  sugFollowUpQuestions,
-  messageHisto,
-  setMessageHistoFun,
-  shownMessages,
-  setShownMessages,
-  handleChatFeatureSuggestions,
-  handleChatCodeResponse,
-  setFollowUpQuestions,
-}) => {
-  return (
-    <div className="follow-up-container">
-      {/* <h5 className="follow-up-heading">Suggested Follow-up Questions</h5> */}
-      <div className="bubble-wrapper">
-        {sugFollowUpQuestions.map((question, idx) => (
-          <button
-            key={idx}
-            onClick={() =>
-              handleChatSubmit({
-                prompt: question,
-                messageHisto,
-                setMessageHistoFun,
-                shownMessages,
-                setShownMessages,
-                handleChatFeatureSuggestions,
-                handleChatCodeResponse,
-                setFollowUpQuestions,
-              })
-            }
-            className="bubble-button"
-          >
-            {question}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 function App() {
   document.body.classList.add("bg-dark", "text-white");
