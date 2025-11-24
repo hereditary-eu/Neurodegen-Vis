@@ -8,7 +8,15 @@ from pydantic import BaseModel
 
 chat_router = APIRouter() # prefix="/chat", tags=["chat"]
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+if os.getenv("SERVER") == "true":
+    client = OpenAI(
+      api_key=os.getenv("OPENAI_API_KEY"),
+      base_url="http://hereditary.cgv.tugraz.at/lm/api/v1"
+    )
+else: 
+    client = OpenAI(
+      api_key=os.getenv("OPENAI_API_KEY"))
+
 
 class ChatRequest(BaseModel):
     messages: list
