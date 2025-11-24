@@ -1,3 +1,4 @@
+from multiprocessing import process
 from fastapi import APIRouter
 from openai import OpenAI
 import os
@@ -9,14 +10,19 @@ from pydantic import BaseModel
 chat_router = APIRouter()  # prefix="/chat", tags=["chat"]
 
 if os.getenv("SERVER") == "true":
-    MODEL = "meta-llama/Llama-3.2-3B-Instruct"
+    MODEL = os.getenv("OPENAI_MODEL", "meta-llama/Llama-3.2-3B-Instruct")
     client = OpenAI(
         api_key=os.getenv("OPENAI_API_KEY"),
-        base_url="https://hereditary.cgv.tugraz.at/lm/api/v1",
+        base_url=os.getenv(
+            "OPENAI_BASE_URL", "https://hereditary.cgv.tugraz.at/lm/api/v1"
+        ),
     )
 else:
     MODEL = "gpt-4o-mini"
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+print("Using model:", MODEL)
+print("Using base URL:", client.base_url)
 
 
 class ChatRequest(BaseModel):
