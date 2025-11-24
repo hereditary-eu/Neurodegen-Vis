@@ -165,7 +165,8 @@ const handleChatSubmit = async ({
       ...updatedMessagesWithResponse,
       {
         role: "system",
-        content: "Suggest one short and useful follow-question the user could ask!",
+        content:
+          "Suggest one short and useful follow-question the user could ask! The answer should be only the question.",
       },
     ];
     const assistantResponseFollowUp: string[] = [await getChatResponse(messagesForFollowup)];
