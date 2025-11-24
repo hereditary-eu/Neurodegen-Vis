@@ -1,10 +1,10 @@
 # built stage
-FROM oven/bun:1 AS build-stage
+FROM node:22 AS build-stage
 WORKDIR /app 
-COPY package.json bun.lockb ./
-RUN bun install --frozen-lockfile
+COPY package*.json ./
+RUN npm install --frozen-lockfile
 COPY . .
-RUN bun run build
+RUN npm run build
 
 # production stage
 FROM nginx:stable-alpine AS production-stage
