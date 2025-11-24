@@ -3,6 +3,8 @@ from openai import OpenAI
 import os
 from pydantic import BaseModel
 
+# from dotenv import load_dotenv
+# load_dotenv()
 
 chat_router = APIRouter() # prefix="/chat", tags=["chat"]
 

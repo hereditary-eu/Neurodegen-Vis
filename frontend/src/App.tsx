@@ -38,7 +38,7 @@ import { RunKmeans } from "./components/utils/Kmean";
 
 import * as Plot from "@observablehq/plot";
 
-const DEBUG: boolean = true; // Set to false for production, TODO
+const DEBUG: boolean = false; // Set to false for production, TODO
 // const DATASET_PATH = "dataset/noisy.csv";
 const DATASET_PATH = "database/noisy.csv";
 
