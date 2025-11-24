@@ -40,7 +40,7 @@ import * as Plot from "@observablehq/plot";
 
 const DEBUG: boolean = false; // Set to false for production, TODO
 // const DATASET_PATH = "dataset/noisy.csv";
-const DATASET_PATH = "database/noisy.csv";
+const DATASET_PATH = import.meta.env.BASE_URL + "/database/noisy.csv";
 
 import MultiSelectDropdown from "./components/multiselectdropdown";
 import FollowUpBubbles from "./components/chat/FollowUpBubbles";

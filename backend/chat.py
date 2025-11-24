@@ -9,19 +9,18 @@ from pydantic import BaseModel
 chat_router = APIRouter()  # prefix="/chat", tags=["chat"]
 
 if os.getenv("SERVER") == "true":
+    MODEL = "meta-llama/Llama-3.2-3B-Instruct"
     client = OpenAI(
         api_key=os.getenv("OPENAI_API_KEY"),
-        base_url="http://hereditary.cgv.tugraz.at/lm/api/v1",
+        base_url="https://hereditary.cgv.tugraz.at/lm/api/v1",
     )
 else:
+    MODEL = "gpt-4o-mini"
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 class ChatRequest(BaseModel):
     messages: list
-
-
-MODEL = "gpt-4o-mini"
 
 
 @chat_router.post("/chat")
