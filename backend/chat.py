@@ -5,7 +5,9 @@ import os
 from pydantic import BaseModel
 
 # from dotenv import load_dotenv
-# load_dotenv()
+# load_dotenv(override=True)
+# print("SERVER env var:", os.getenv("SERVER"))
+# print("OPENAI_API_KEY env var:", os.getenv("OPENAI_API_KEY"))
 
 chat_router = APIRouter()  # prefix="/chat", tags=["chat"]
 

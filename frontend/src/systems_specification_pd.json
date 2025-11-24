@@ -1,6 +1,6 @@
 {
   "systemName": "Parkinson's Disease Visual analytics dashboard",
-  "systemDescription": "The Dashboard should highlight correlations and dependencies between features, and cluster similar datapoints (patients). It is built of 3 visual areas, a heatmap, Toggle of scatterplot or histogram, and PCA biplot.",
+  "systemDescription": "The Dashboard should highlight correlations and dependencies between features, and cluster similar datapoints (patients). It is built of 3 visual areas,firstly a heatmap, secondly a scatterplot or histogram (toggled), and thirdly PCA biplot. Only the described views and interactions are implemented, no additional buttons or filtering. Interaction methods are limited to their view.",
   "views": [
     {
       "viewName": "Pearson Correlation Heatmap",
@@ -22,7 +22,7 @@
       "viewName": "Feature Scatterplot",
       "visualizationType": "Scatterplot",
       "position on dashboard": "top right",
-      "Display condition": "Toggle with histogram, displayed if non-diagonal heatmap cell is selected",
+      "Display condition": "Toggle with histogram, displayed if non-diagonal heatmap cell (feature pair) is selected",
       "encoding": {
         "x": "Feature selected from heatmap",
         "y": "Feature selected from heatmap",
@@ -43,7 +43,7 @@
       "viewName": "Feature Histogram",
       "visualizationType": "Histogram",
       "position on dashboard": "top right",
-      "Display condition": "Toggle with scatterplot, displayed if diagonal heatmap cell is clicked",
+      "Display condition": "Toggle with scatterplot, displayed if diagonal heatmap cell (single feature) is clicked",
       "encoding": {
         "x": "Feature selected from heatmap",
         "y": "Count of datapoints (patients)",
@@ -74,7 +74,10 @@
       "interactions": {
         "dropdown": "Toggle loading vectors (on/off)",
         "numeric_input": "Set number of clusters (k)",
-        "button": "Run PCA and apply k-means clustering"
+        "button": {
+          "buttonLabel": "Run",
+          "function": "Run k-means clustering with selected number of clusters and update color encoding"
+        }
       }
     }
   ],
@@ -83,13 +86,13 @@
       "sourceView": "Pearson Correlation Heatmap",
       "targetView": "Detail View - Feature Scatterplot",
       "interactionType": "Conditional Filter",
-      "description": "Selecting a non-diagonal heatmap cell sets the X and Y features in the scatterplot."
+      "description": "Selecting a non-diagonal heatmap cell (feature pair) sets the X and Y features in the scatterplot."
     },
     {
       "sourceView": "Pearson Correlation Heatmap",
       "targetView": "Detail View - Feature Histogram",
       "interactionType": "Conditional Filter",
-      "description": "Selecting a diagonal heatmap cell sets the X feature for the histogram."
+      "description": "Selecting a diagonal heatmap cell (single feature) sets the X feature for the histogram."
     }
   ]
 }

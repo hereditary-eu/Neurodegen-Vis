@@ -64,6 +64,11 @@ export const initialSystemPrompts: MessageHistory[] = [
   },
   {
     role: "system",
+    content:
+      "Only use the features and interactions described in the specifications to answer the user's questions, do not hallucinate additional features or interactions.",
+  },
+  {
+    role: "system",
     content: "This are the specifications of the Dashboard: " + JSON.stringify(systemsSpecificifications),
   },
 
