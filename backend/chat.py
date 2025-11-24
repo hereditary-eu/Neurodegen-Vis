@@ -31,6 +31,8 @@ class ChatRequest(BaseModel):
 
 @chat_router.post("/chat")
 async def chat(req: ChatRequest):
+    print("Received chat request")
+    print("Using model inside endpoint:", MODEL)
     # print("Received messages:", req.messages)
     completion = client.chat.completions.create(
         model=MODEL, messages=req.messages, timeout=180
