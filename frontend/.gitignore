@@ -1,5 +1,5 @@
 # for now
-*database*
+# *database*
 *local*
 
 # Logs
@@ -199,5 +199,5 @@ stuff/
 smartnoise-sdk/
 .venv
 
-dataset/
+# dataset/
 paper/
