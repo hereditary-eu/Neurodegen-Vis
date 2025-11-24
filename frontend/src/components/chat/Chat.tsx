@@ -1,4 +1,3 @@
-import OpenAI from "openai";
 import dataFieldDescription from "../../env_dataset/PD_DataFieldsDescription_plain.txt?raw";
 import systemsSpecificifications from "../../systems_specification_pd.json";
 import { MessageHistory } from "./types";
@@ -49,15 +48,6 @@ export class ChatCodeRes {
     return instance;
   }
 }
-
-const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-const openai = new OpenAI({
-  apiKey: apiKey,
-  dangerouslyAllowBrowser: true, // TODO, Allow the API to be used in the browser, not recommended for production
-});
-
-const MODEL = "gpt-4o-mini";
-// MODEL = "gpt-3.5-turbo";
 
 export const initialSystemPrompts: MessageHistory[] = [
   {
