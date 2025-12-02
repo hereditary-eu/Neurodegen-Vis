@@ -1,7 +1,7 @@
 import React from "react";
 import { PlotScatterplot } from "../visualisations/scatterplot";
 import { PlotHisto } from "../visualisations/histogram";
-import { Patient } from "../../env_dataset/Patient";
+import { Patient } from "../../data/Patient";
 
 interface ScatterplotPanelProps {
   patients_data: Patient[];

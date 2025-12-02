@@ -8,7 +8,7 @@ import "./css/FollowUpBubble.css";
 import * as d3 from "d3";
 import * as Plot from "@observablehq/plot";
 
-import { Patient } from "./env_dataset/Patient";
+import { Patient } from "./data/Patient";
 import {
   pca_num_features_list,
   cat_features_mapping,
@@ -17,7 +17,7 @@ import {
   cov_features_init,
   scatterplot_features_init,
   biplot_features_init,
-} from "./env_dataset/variables_feature_lists";
+} from "./data/variables_feature_lists";
 
 import { PCA_analysis } from "./utils/pca";
 import { handleChatSubmitSuggest, handleChatSubmit } from "./utils_chat/Chat";
@@ -25,8 +25,8 @@ import { initialSystemPrompts } from "./utils_chat/system_prompts";
 import { ChatCodeRes } from "./utils_chat/types";
 import { MessageHistory } from "./utils_chat/types";
 import { pearsonCorrelation } from "./utils/pearson_correlation";
-
 import { RunKmeans } from "./utils/Kmean";
+import { LogPSX } from "./utils/HelperFunctions";
 
 import SidePanel from "./components/panels/chat_sidepanel";
 import MainPanel from "./components/panels/main_panel";
@@ -34,19 +34,6 @@ import MainPanel from "./components/panels/main_panel";
 const DATASET_PATH = import.meta.env.BASE_URL + "/database/noisy.csv";
 
 const DEBUG: boolean = false; // Set to false for production, TODO
-
-interface logPSXProps {
-  message: string;
-  logElement: any;
-}
-
-/**
- * Dev helper function to log messages and elements to the console.
- */
-function LogPSX({ message, logElement }: logPSXProps) {
-  console.log(message, logElement);
-  return <></>;
-}
 
 function App() {
   document.body.classList.add("bg-dark", "text-white");

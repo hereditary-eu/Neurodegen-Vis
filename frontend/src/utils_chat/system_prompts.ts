@@ -1,4 +1,4 @@
-import dataFieldDescription from "../env_dataset/PD_DataFieldsDescription_plain.txt?raw";
+import dataFieldDescription from "../config_dataset/PD_DataFieldsDescription_plain.txt?raw";
 import systemsSpecificifications from "../systems_specification_pd.json";
 import { MessageHistory } from "./types";
 

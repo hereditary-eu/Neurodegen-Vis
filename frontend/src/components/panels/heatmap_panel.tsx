@@ -1,5 +1,5 @@
 import { PlotCorHeatmap } from "../visualisations/heatmap";
-import { Patient } from "../../env_dataset/Patient";
+import { Patient } from "../../data/Patient";
 import Button from "react-bootstrap/Button";
 
 interface HeatmapPanelProps {

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { handleChatSubmit } from "./Chat";
-import { MessageHistory, ChatCodeRes } from "./types";
+import { handleChatSubmit } from "../../utils_chat/Chat";
+import { MessageHistory, ChatCodeRes } from "../../utils_chat/types";
 
 interface FollowUpBubblesProps {
   sugFollowUpQuestions: string[];

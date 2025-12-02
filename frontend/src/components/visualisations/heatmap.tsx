@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import "../../css/App.css";
 import * as d3 from "d3";
 import * as Plot from "@observablehq/plot";
-import { Patient } from "../../env_dataset/Patient";
+import { Patient } from "../../data/Patient";
 import { pearsonCorrelation } from "../../utils/pearson_correlation";
 import { FONTSIZE } from "./vis_variables";
 

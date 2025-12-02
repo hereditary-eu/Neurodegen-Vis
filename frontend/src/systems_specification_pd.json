@@ -1,6 +1,6 @@
 {
   "systemName": "Parkinson's Disease Visual analytics dashboard",
-  "systemDescription": "The Dashboard should highlight correlations and dependencies between features, and cluster similar datapoints (patients). It is built of 3 visual areas,firstly a heatmap, secondly a scatterplot or histogram (toggled), and thirdly PCA biplot. Only the described views and interactions are implemented, no additional buttons or filtering. Interaction methods are limited to their view.",
+  "systemDescription": "The Dashboard should highlight correlations and dependencies between features, and cluster similar datapoints (patients). It is built of 3 visual areas, firstly a heatmap, secondly a scatterplot or histogram (toggled), and thirdly PCA biplot. Only the described views and interactions are implemented, no additional buttons or filtering. Interaction methods are limited to their view.",
   "views": [
     {
       "viewName": "Pearson Correlation Heatmap",

@@ -1,9 +1,9 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
-import MultiSelectDropdown from "../multiselectdropdown";
+import MultiSelectDropdown from "../ui/multiselectdropdown";
 import { PlotPcaBiplot } from "../visualisations/pca_biplot";
-import { Patient } from "../../env_dataset/Patient";
-import { pca_num_features_list } from "../../env_dataset/variables_feature_lists";
+import { Patient } from "../../data/Patient";
+import { pca_num_features_list } from "../../data/variables_feature_lists";
 
 interface PcaPanelProps {
   patients_data: Patient[];

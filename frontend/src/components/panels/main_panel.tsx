@@ -3,7 +3,7 @@ import HeatmapPanel from "./heatmap_panel";
 import ScatterplotPanel from "./scatter_histo_panel";
 import PcaPanel from "./pca_panel";
 import Button from "react-bootstrap/Button";
-import { Patient } from "../../env_dataset/Patient";
+import { Patient } from "../../data/Patient";
 import { MessageHistory } from "../../utils_chat/types";
 
 interface MainPanelProps {

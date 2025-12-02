@@ -1,7 +1,7 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 import ReactMarkdown from "react-markdown";
-import FollowUpBubbles from "../../utils_chat/FollowUpBubbles";
+import FollowUpBubbles from "../ui/FollowUpBubbles";
 import { MessageHistory } from "../../utils_chat/types";
 import { ChatCodeRes } from "../../utils_chat/types";
 import "../../css/Chat-sidePanel.css";
