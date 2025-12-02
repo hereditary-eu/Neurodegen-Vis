@@ -33,13 +33,8 @@ import { PlotHisto } from "./components/visualisations/histogram";
 import { PlotCorHeatmap } from "./components/visualisations/heatmap";
 import { pearsonCorrelation } from "./components/utils/pearson_correlation";
 
-import ReactMarkdown from "react-markdown";
-import { RunKmeans } from "./components/utils/Kmean";
-
-import * as Plot from "@observablehq/plot";
-
-const DEBUG: boolean = false; // Set to false for production, TODO
-// const DATASET_PATH = "dataset/noisy.csv";
+import SidePanel from "./components/panels/chat_sidepanel";
+import MainPanel from "./components/panels/main_panel";
 const DATASET_PATH = import.meta.env.BASE_URL + "/database/noisy.csv";
 
 import MultiSelectDropdown from "./components/multiselectdropdown";
@@ -346,135 +341,29 @@ function App() {
               />
               {/* Sidepanel end */}
 
-              <div className={`mainpanel ${showChat ? "sp-expanded" : "sp-collapsed"}`}>
-                <div className="heatmap-scatterplots-grid">
-                  <div className="flex-container-column ">
-                    <div className="flex-container-row">
-                      <Button variant="dark" onClick={handleShow} className="show-chat-button">
-                        Show Chat assistant.
-                      </Button>
-                      <h3 className="pearsonCorrelation-heading">Pearson Correlation for selected features</h3>
-                    </div>
-
-                    <div className="checkbox-container">
-                      {cov_features.map((feature) => (
-                        <div key={feature}>
-                          <label>
-                            <input
-                              type="checkbox"
-                              checked={selectedCovFeatures.includes(feature)}
-                              onChange={() => handleCheckboxChange(feature)}
-                            />
-                            {feature}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                    <div>
-                      <PlotCorHeatmap
+              <MainPanel
+                showChat={showChat}
                         patients_data={patients_data}
-                        cov_features={selectedCovFeatures}
-                        selectedFeatures={scatterplotFeatures}
+                pearsonCorr={pearsonCorr}
+                setPearsonCorr={setPearsonCorr}
+                covFeatures={cov_features}
+                selectedCovFeatures={selectedCovFeatures}
+                handleCheckboxChange={handleCheckboxChange}
+                scatterplotFeatures={scatterplotFeatures}
+                heatmapSetsScatterplotFeatures={heatmapSetsScatterplotFeatures}
                         chatFeatureSuggestion={chatFeatureSuggestion}
                         chatFeatureHighlight={chatFeatureHighlight}
-                        setSelectedFeatures={heatmapSetsScatterplotFeatures}
-                        setCorrelations={setPearsonCorr}
-                        correlations={pearsonCorr}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex-container-column ">
-                    {scatterplotFeatures[0] !== "" && scatterplotFeatures[1] !== "" ? (
-                      <div>
-                        <div className="pca-heading-container">
-                          {scatterplotFeatures[0] == scatterplotFeatures[1] ? (
-                            <h4 className="plot-headings">{scatterplotFeatures[1]}</h4>
-                          ) : (
-                            <h4 className="plot-headings">
-                              {scatterplotFeatures[1]} vs {scatterplotFeatures[0]}
-                            </h4>
-                          )}
-                          <select
-                            name="catFeature"
-                            style={{
-                              visibility: catFeatures.length > 0 ? "visible" : "hidden",
-                            }} // Use style attribute to set visibility
-                            id="catFeature"
-                            className="single-select-dropdown"
-                            value={catFeature}
-                            onChange={(e) => setCatFeature(e.target.value)}
-                          >
-                            {catFeatures.map((f) => (
-                              <option key={f} value={f}>
-                                {f}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        {scatterplotFeatures[0] == scatterplotFeatures[1] ? (
-                          <PlotHisto
-                            patients_data={patients_data}
-                            selected_feature={scatterplotFeatures[0]}
-                            k_mean_clusters={k}
+                catFeatures={catFeatures}
                             catFeature={catFeature}
-                          />
-                        ) : (
-                          <PlotScatterplot
-                            x_feature={scatterplotFeatures[0]}
-                            y_feature={scatterplotFeatures[1]}
-                            patients_data={patients_data}
-                            categoricalFeature={catFeature}
-                            k_mean_clusters={k}
-                            showCatLinReg={false}
-                            showCatAvg={true}
-                          />
-                        )}
-                      </div>
-                    ) : (
-                      <p> No features Selected for Scatterplot</p>
-                    )}
-                    <div>
-                      <div className="pca-heading-container">
-                        <h4 className="plot-headings">PCA Analysis</h4>
-                        <div>
-                          <MultiSelectDropdown
-                            options={pca_num_features_list}
-                            selectedOptions={biplotFeatures}
-                            setSelectedOptions={setBiplotFeatures}
-                          />
-                        </div>
-                      </div>
-                      <div className="kmeans-container">
-                        <label htmlFor="kmeans-input">Number of Clusters (k): </label>
-                        <input
-                          type="number"
-                          id="kmeans-input"
-                          value={k}
-                          onChange={(e) => setK(Number(e.target.value))}
-                          min="1"
-                          max="20"
-                        />
-                        <Button
-                          variant="dark"
-                          onClick={() => RunKmeans(patients_data, setPatientDataFunc, k)}
-                          className="run-kmeans-button"
-                        >
-                          Run
-                        </Button>
-                      </div>
-
-                      <PlotPcaBiplot
-                        patientsData={patients_data}
-                        numFeatures={pca_num_features_list}
-                        loadings={pcaLoadings}
+                setCatFeature={setCatFeature}
                         biplotFeatures={biplotFeatures}
-                        showKmeans={!(k === 1)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
+                setBiplotFeatures={setBiplotFeatures}
+                pcaLoadings={pcaLoadings}
+                k={k}
+                setK={setK}
+                runKmeans={() => RunKmeans(patients_data, setPatientDataFunc, k)}
+                handleShowChat={handleShow}
+              />
             </div>
           </div>
         </>
