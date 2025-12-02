@@ -44,6 +44,7 @@ const DATASET_PATH = import.meta.env.BASE_URL + "/database/noisy.csv";
 
 import MultiSelectDropdown from "./components/multiselectdropdown";
 import FollowUpBubbles from "./components/chat/FollowUpBubbles";
+import SidePanel from "./components/chat_sidepanel";
 
 interface logPSXProps {
   message: string;
@@ -305,94 +306,46 @@ function App() {
 
             <div className="panels-container">
               {/* Sidepanel start */}
-
-              <div className={`sidepanel ${showChat ? "expanded" : "collapsed"}`}>
-                <div className="sidepanel-header">
-                  <h5>Chatbot</h5>
-                  <button
-                    type="button"
-                    className="btn-close btn-close-white"
-                    aria-label="Close"
-                    onClick={handleClose}
-                  ></button>
-                </div>
-                <div className="sidepanel-body">
-                  <div className="chat-prompt-container">
-                    <div className="container-suggest-clear-button">
-                      <Button variant="dark" onClick={() => clearChatHistory()}>
-                        Clear History
-                      </Button>
-
-                      <div className="chat-suggest-button">
-                        <Button
-                          variant="dark"
-                          onClick={() =>
-                            handleChatSubmitSuggest({
-                              prompt: promptRef.current?.value || "",
-                              messageHisto,
-                              setMessageHistoFun,
-                              shownMessages,
-                              setShownMessages,
-                              handleChatFeatureSuggestions: handleChatFeatureSuggestion,
-                              handleChatCodeResponse,
-                              setFollowUpQuestions: setFollowUpQuestionFun,
-                            })
-                          }
-                        >
-                          Suggest Features
-                        </Button>
-                      </div>
-                    </div>
-
-                    <p>Or ask your questions.</p>
-                    <div className="chat-textInput-container">
-                      <input type="text" ref={promptRef} placeholder="Enter your prompt here" />
-                      <Button
-                        variant="dark"
-                        onClick={() =>
-                          handleChatSubmit({
-                            prompt: promptRef.current?.value || "",
-                            messageHisto,
-                            setMessageHistoFun,
-                            shownMessages,
-                            setShownMessages,
-                            handleChatFeatureSuggestions: handleChatFeatureSuggestion,
-                            handleChatCodeResponse,
-                            setFollowUpQuestions: setFollowUpQuestionFun,
-                          })
-                        }
-                      >
-                        Submit
-                      </Button>
-                    </div>
-                    <FollowUpBubbles
-                      sugFollowUpQuestions={sugFollowUpQuestions}
-                      messageHisto={messageHisto}
-                      setMessageHistoFun={setMessageHistoFun}
-                      shownMessages={shownMessages}
-                      setShownMessages={setShownMessages}
-                      handleChatFeatureSuggestions={handleChatFeatureSuggestion}
-                      handleChatCodeResponse={handleChatCodeResponse}
-                      setFollowUpQuestions={setFollowUpQuestionFun}
-                    />
-                  </div>
-                  <div className="chat-messages">
-                    {shownMessages
-                      .filter((msg) => msg.role === "user" || msg.role === "assistant")
-                      .map((msg, idx) => (
-                        <div
-                          key={idx}
-                          className={`chat-message ${msg.role === "user" ? "user-message" : "assistant-message"}`}
-                        >
-                          <ReactMarkdown>{msg.content}</ReactMarkdown>
-                        </div>
-                      ))}
-                    <div ref={messagesEndRef} />
-                  </div>
-                </div>
-              </div>
-
+              <SidePanel
+                showChat={showChat}
+                onClose={handleClose}
+                clearChatHistory={clearChatHistory}
+                submitPrompt={() =>
+                  handleChatSubmit({
+                    prompt: promptRef.current?.value || "",
+                    messageHisto: messageHisto,
+                    setMessageHistoFun: setMessageHistoFun,
+                    shownMessages: shownMessages,
+                    setShownMessages: setShownMessages,
+                    handleChatFeatureSuggestions: handleChatFeatureSuggestion,
+                    handleChatCodeResponse: handleChatCodeResponse,
+                    setFollowUpQuestions: setFollowUpQuestionFun,
+                  })
+                }
+                submitSuggest={() =>
+                  handleChatSubmitSuggest({
+                    prompt: promptRef.current?.value || "",
+                    messageHisto: messageHisto,
+                    setMessageHistoFun: setMessageHistoFun,
+                    shownMessages: shownMessages,
+                    setShownMessages: setShownMessages,
+                    handleChatFeatureSuggestions: handleChatFeatureSuggestion,
+                    handleChatCodeResponse: handleChatCodeResponse,
+                    setFollowUpQuestions: setFollowUpQuestionFun,
+                  })
+                }
+                promptRef={promptRef}
+                messageHisto={messageHisto}
+                sugFollowUpQuestions={sugFollowUpQuestions}
+                shownMessages={shownMessages}
+                setMessageHistoFun={setMessageHisto}
+                setShownMessages={setShownMessages}
+                handleChatFeatureSuggestions={handleChatFeatureSuggestion}
+                handleChatCodeResponse={handleChatCodeResponse}
+                setFollowUpQuestions={setFollowUpQuestionFun}
+              />
               {/* Sidepanel end */}
+
               <div className={`mainpanel ${showChat ? "sp-expanded" : "sp-collapsed"}`}>
                 <div className="heatmap-scatterplots-grid">
                   <div className="flex-container-column ">
