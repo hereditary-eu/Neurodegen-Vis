@@ -1,12 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import Button from "react-bootstrap/Button";
 import "./css/App.css";
 import "./css/dropdown.css";
 import "./css/Chat-sidePanel.css";
 import "./css/FollowUpBubble.css";
 import * as d3 from "d3";
+import * as Plot from "@observablehq/plot";
+
 import { Patient } from "./env_dataset/Patient";
 import {
   pca_num_features_list,
@@ -18,28 +19,21 @@ import {
   biplot_features_init,
 } from "./env_dataset/variables_feature_lists";
 
-import { PlotPcaBiplot } from "./components/visualisations/pca_biplot";
-import { PCA_analysis } from "./components/utils/pca";
-import {
-  handleChatSubmitSuggest,
-  // clearChatHistory,
-  handleChatSubmit,
-  initialSystemPrompts,
-  ChatCodeRes,
-} from "./components/chat/Chat";
-import { MessageHistory } from "./components/chat/types";
-import { PlotScatterplot } from "./components/visualisations/scatterplot";
-import { PlotHisto } from "./components/visualisations/histogram";
-import { PlotCorHeatmap } from "./components/visualisations/heatmap";
-import { pearsonCorrelation } from "./components/utils/pearson_correlation";
+import { PCA_analysis } from "./utils/pca";
+import { handleChatSubmitSuggest, handleChatSubmit } from "./utils_chat/Chat";
+import { initialSystemPrompts } from "./utils_chat/system_prompts";
+import { ChatCodeRes } from "./utils_chat/types";
+import { MessageHistory } from "./utils_chat/types";
+import { pearsonCorrelation } from "./utils/pearson_correlation";
+
+import { RunKmeans } from "./utils/Kmean";
 
 import SidePanel from "./components/panels/chat_sidepanel";
 import MainPanel from "./components/panels/main_panel";
+
 const DATASET_PATH = import.meta.env.BASE_URL + "/database/noisy.csv";
 
-import MultiSelectDropdown from "./components/multiselectdropdown";
-import FollowUpBubbles from "./components/chat/FollowUpBubbles";
-import SidePanel from "./components/chat_sidepanel";
+const DEBUG: boolean = false; // Set to false for production, TODO
 
 interface logPSXProps {
   message: string;
@@ -343,7 +337,7 @@ function App() {
 
               <MainPanel
                 showChat={showChat}
-                        patients_data={patients_data}
+                patients_data={patients_data}
                 pearsonCorr={pearsonCorr}
                 setPearsonCorr={setPearsonCorr}
                 covFeatures={cov_features}
@@ -351,12 +345,12 @@ function App() {
                 handleCheckboxChange={handleCheckboxChange}
                 scatterplotFeatures={scatterplotFeatures}
                 heatmapSetsScatterplotFeatures={heatmapSetsScatterplotFeatures}
-                        chatFeatureSuggestion={chatFeatureSuggestion}
-                        chatFeatureHighlight={chatFeatureHighlight}
+                chatFeatureSuggestion={chatFeatureSuggestion}
+                chatFeatureHighlight={chatFeatureHighlight}
                 catFeatures={catFeatures}
-                            catFeature={catFeature}
+                catFeature={catFeature}
                 setCatFeature={setCatFeature}
-                        biplotFeatures={biplotFeatures}
+                biplotFeatures={biplotFeatures}
                 setBiplotFeatures={setBiplotFeatures}
                 pcaLoadings={pcaLoadings}
                 k={k}

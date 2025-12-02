@@ -2,9 +2,9 @@ import { useEffect, useRef } from "react";
 import "../../css/App.css";
 import * as Plot from "@observablehq/plot";
 import { Patient } from "../../env_dataset/Patient";
-import { CalcMinMaxPatientsData } from "../../HelperFunctions";
+import { CalcMinMaxPatientsData } from "../../utils/HelperFunctions";
 import { FONTSIZE, CLUSTERCOLORS, COLORS_BIN, COLORS_BIN_STR } from "./vis_variables";
-import { LinReg, CalcAverage } from "../utils/scatterplot_utils";
+import { LinReg, CalcAverage } from "../../utils/scatterplot_utils";
 
 // correlations of the form {a: string, b: string, correlation: number from all combinations of cov_features}
 // correlations: {'string', 'string', 'number'}[]

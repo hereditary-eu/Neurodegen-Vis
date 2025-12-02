@@ -1,4 +1,4 @@
-import { Patient } from "./env_dataset/Patient";
+import { Patient } from "../env_dataset/Patient";
 
 interface MinMaxPatProps {
   y_feature: string;

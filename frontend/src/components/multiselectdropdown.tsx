@@ -4,7 +4,7 @@ import React, { useState } from "react";
 interface MultiSelectDropdownProps {
   options: string[];
   selectedOptions: string[];
-  setSelectedOptions: React.Dispatch<React.SetStateAction<string[]>>;
+  setSelectedOptions: (options: string[]) => void;
 }
 
 const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, selectedOptions, setSelectedOptions }) => {
