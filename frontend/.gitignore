@@ -194,10 +194,3 @@ scripts/env.local
 /src/deps/zstd
 /src/deps/zlib
 /src/deps/zig
-
-stuff/
-smartnoise-sdk/
-.venv
-
-# dataset/
-paper/
