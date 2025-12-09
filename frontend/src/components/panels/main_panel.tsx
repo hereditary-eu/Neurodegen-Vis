@@ -34,7 +34,8 @@ interface MainPanelProps {
   pcaLoadings: number[][];
   k: number;
   setK: (n: number) => void;
-  runKmeans: () => void;
+  // runKmeans: () => void;
+  setPatientDataFunc: (data: Patient[]) => void;
   handleShowChat: () => void;
 }
 
@@ -61,7 +62,8 @@ export default function MainPanel({
   pcaLoadings,
   k,
   setK,
-  runKmeans,
+  setPatientDataFunc,
+  // runKmeans,
   handleShowChat,
 }: MainPanelProps) {
   // const handleShow = () => setShowChat(!showChat);
@@ -103,7 +105,8 @@ export default function MainPanel({
             pcaLoadings={pcaLoadings}
             k={k}
             setK={setK}
-            runKmeans={runKmeans}
+            setPatientDataFunc={setPatientDataFunc}
+            // runKmeans={runKmeans}
           />
         </div>
       </div>

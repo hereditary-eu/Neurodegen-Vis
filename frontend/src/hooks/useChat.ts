@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import { initialSystemPrompts } from "../utils_chat/system_prompts";
 import { MessageHistory, ChatCodeRes } from "../utils_chat/types";
 import { cov_features } from "../data/variables_feature_lists";
+import { handleChatSubmitSuggest, handleChatSubmit } from "../utils_chat/Chat";
 
 export function useChat(allFeatures: string[], setScatterplotFeatures: (features: [string, string]) => void) {
   // ------------------------- chat (hook)-------------------------
@@ -15,14 +16,13 @@ export function useChat(allFeatures: string[], setScatterplotFeatures: (features
   const [chatFeatureSuggestion, setChatFeatureSuggestion] = useState<[string, string]>(["", ""]);
   const [chatFeatureHighlight, setChatFeatureHighlight] = useState<[string, string]>(["", ""]);
   const [chatPearsonCorr, setChatPearsonCorr] = useState<MessageHistory[]>([]);
+  const [sugFollowUpQuestions, setSugFollowUpQuestions] = useState<string[]>([]);
 
   function clearChatHistory() {
     setMessageHisto([...initialSystemPrompts, ...chatPearsonCorr]);
     setShownMessages([]);
     console.log("Cleared chat history");
   }
-
-  const [sugFollowUpQuestions, setSugFollowUpQuestions] = useState<string[]>([]);
 
   function setFollowUpQuestionFun(questions: string[]) {
     console.log("Follow-up questions updated:", questions);
@@ -77,6 +77,20 @@ export function useChat(allFeatures: string[], setScatterplotFeatures: (features
         console.log("Chat code response: Invalid function name:", codeResponse.functionName);
     }
   }
+
+  function runInitialChatPrompt(messageHistoInit: MessageHistory[]) {
+    handleChatSubmit({
+      prompt: "Can you give a short overview of the data and the dashboard?",
+      messageHisto: messageHistoInit,
+      setMessageHistoFun,
+      shownMessages: [],
+      setShownMessages: setShownMessages,
+      handleChatFeatureSuggestions: handleChatFeatureSuggestion,
+      handleChatCodeResponse: handleChatCodeResponse,
+      setFollowUpQuestions: setFollowUpQuestionFun,
+    });
+  }
+
   return {
     promptRef,
     shownMessages,
@@ -93,5 +107,6 @@ export function useChat(allFeatures: string[], setScatterplotFeatures: (features
     setFollowUpQuestionFun,
     handleChatFeatureSuggestion,
     handleChatCodeResponse,
+    runInitialChatPrompt,
   };
 }

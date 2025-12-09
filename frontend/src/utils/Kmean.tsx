@@ -156,7 +156,7 @@ function kMeans(data: number[][], k: number, maxIterations = 50): number[] {
  * @param setPatientDataFunc function to update patient data
  * @param k number of clusters
  */
-function RunKmeans(patientData: Patient[], setPatientDataFunc: Function, k: number) {
+function runKmeans(patientData: Patient[], setPatientDataFunc: Function, k: number) {
   const clusteringData: number[][] = patientData
     .filter((patient) => patient.valid_pc)
     .map((patient) => [patient.pc1, patient.pc2]);
@@ -187,4 +187,4 @@ function RunKmeans(patientData: Patient[], setPatientDataFunc: Function, k: numb
   setPatientDataFunc(patientData.map((patient) => ({ ...patient })));
 }
 
-export { kMeans, RunKmeans };
+export { kMeans, runKmeans };

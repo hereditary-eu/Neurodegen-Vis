@@ -5,194 +5,38 @@ import "./css/App.css";
 import "./css/dropdown.css";
 import "./css/Chat-sidePanel.css";
 import "./css/FollowUpBubble.css";
-import * as d3 from "d3";
-import * as Plot from "@observablehq/plot";
 
-import { Patient } from "./data/Patient";
-import {
-  pca_num_features_list,
-  cat_features_mapping,
-  cat_features_generic,
-  cov_features,
-  cov_features_init,
-  scatterplot_features_init,
-  biplot_features_init,
-} from "./data/variables_feature_lists";
-
-import { PCA_analysis } from "./utils/pca";
+import { cov_features } from "./data/variables_feature_lists";
 import { handleChatSubmitSuggest, handleChatSubmit } from "./utils_chat/Chat";
-import { initialSystemPrompts } from "./utils_chat/system_prompts";
-import { ChatCodeRes } from "./utils_chat/types";
-import { MessageHistory } from "./utils_chat/types";
-import { pearsonCorrelation } from "./utils/pearson_correlation";
-import { RunKmeans } from "./utils/Kmean";
 import { LogPSX } from "./utils/HelperFunctions";
 
 import SidePanel from "./components/panels/chat_sidepanel";
 import MainPanel from "./components/panels/main_panel";
 
-// import { loadDataset } from "./hooks/loadDataset";
-// import { useVisualizationState } from "./hooks/useVisualizationState";
+import { useLoadInitializeData } from "./hooks/useLoadInitializeData";
 import { useChat } from "./hooks/useChat";
+import { useVisStateFeatures } from "./hooks/useVisStateFeatures";
 
 const DATASET_PATH = import.meta.env.BASE_URL + "/database/noisy.csv";
-
 const DEBUG: boolean = false; // Set to false for production, TODO
 
 function App() {
   document.body.classList.add("bg-dark", "text-white");
   console.log("App started");
 
-  // all features should be all the keys from the Patient class
-  const allFeatures = Object.keys(new Patient());
-  console.log("All features:", allFeatures);
-  console.log("all features type:", typeof allFeatures);
-
-  // visualisation hooks
-  const [selectedCovFeatures, setSelectedCovFeatures] = useState<string[]>(cov_features_init);
-
-  const handleCheckboxChange = (feature: string) => {
-    setSelectedCovFeatures((prevSelected) => {
-      if (prevSelected.includes(feature)) {
-        // If feature is already selected, remove it
-        return prevSelected.filter((f) => f !== feature);
-      } else {
-        // Otherwise, add the feature
-        return [...prevSelected, feature];
-      }
-    });
-  };
-
-  const [scatterplotFeatures, setScatterplotFeatures] = useState<[string, string]>(scatterplot_features_init);
-
-  const [catFeatures, setCatFeatures] = useState<string[]>(
-    cat_features_generic.concat(cat_features_mapping[scatterplotFeatures[1]]),
-  );
-
-  // ToDO always resets to k_mean_cluster
-  const [catFeature, setCatFeature] = useState<string>(catFeatures[1]);
-
-  function heatmapSetsScatterplotFeatures(features: [string, string]) {
-    setScatterplotFeatures(features);
-
-    let scatterplotCatFeatures: string[] = cat_features_generic;
-
-    // console.log("z Methods", Object.keys(zTestMethodsMapping));
-    if (Object.keys(cat_features_mapping).includes(features[1])) {
-      // scatterplotCatFeatures;
-      scatterplotCatFeatures = scatterplotCatFeatures.concat(cat_features_mapping[features[1]]);
-
-      setCatFeatures(scatterplotCatFeatures);
-      setCatFeature(scatterplotCatFeatures[1]);
-    } else {
-      setCatFeatures(cat_features_generic);
-
-      // TODO always resets to k_mean_cluster
-      setCatFeature("k_mean_cluster");
-    }
-  }
-
-  // features for PCA, biplot axis:
-  const [biplotFeatures, setBiplotFeatures] = useState<string[]>(biplot_features_init);
-
-  const [dataLoaded, setDataLoaded] = useState<boolean>(false);
-
-  // correlations of format {a: "feature1", b: "feature2", correlation: 0.8}
-  const [pearsonCorr, setPearsonCorr] = useState<
-    {
-      a: string;
-      b: string;
-      correlation: number;
-    }[]
-  >([]);
-
-  // todo, hard coded 54
-  let emptyPatient: Patient = new Patient();
-  const [patients_data, setPatientData] = useState<Patient[]>(Array(54).fill(emptyPatient));
-  function setPatientDataFunc(data: Patient[]) {
-    console.log("Setting data...");
-    setPatientData(data);
-  }
-
-  const [pcaLoadings, setPcaLoadings] = useState<number[][]>([]); // Use state to store pcaLoadings
-
-  // kmeans
-  const k_init = 2;
-  const [k, setK] = useState<number>(k_init);
-
-  function calcCorrelations(covFeatures: string[], patientsData: Patient[]) {
-    let correlations = d3.cross(covFeatures, covFeatures).map(([a, b]) => ({
-      a,
-      b,
-      correlation: pearsonCorrelation(Plot.valueof(patientsData, a) ?? [], Plot.valueof(patientsData, b) ?? []),
-    }));
-    return correlations;
-  }
-
-  // ------------------------- Data loading and processing (hook) -------------------------
-  useEffect(() => {
-    console.log("Loading data...");
-    async function loadAndProcessData() {
-      try {
-        // Step 1: Load Data
-        console.log("Loading dataset from:", DATASET_PATH);
-        // print if dataset exists
-        const datasetExists = await fetch(DATASET_PATH).then((res) => res.ok);
-        console.log("Dataset exists:", datasetExists);
-
-        const patientDataLoaded = (await d3.csv(DATASET_PATH)).map((r) => Patient.fromJson(r));
-        console.log("Data loaded!", patientDataLoaded);
-
-        // Step 2: Run PCA Analysis
-        const newPcaLoadings = PCA_analysis({
-          patientsData: patientDataLoaded,
-          numFeatures: pca_num_features_list,
-        });
-
-        // Run Kmeans
-        RunKmeans(patientDataLoaded, setPatientDataFunc, k);
-
-        // Step 3: Update State
-        setPatientData(patientDataLoaded);
-        setPcaLoadings(newPcaLoadings);
-        setDataLoaded(true); // Set this last to indicate both processes are done
-
-        const correlations = calcCorrelations(cov_features_init, patientDataLoaded);
-        setPearsonCorr(correlations);
-
-        const chatPearsonCorrTemp: MessageHistory[] = [
-          {
-            role: "system",
-            content:
-              "Pearson correlations from some features in format {a: 'feature1', b: 'feature2', correlation: 'number'}" +
-              JSON.stringify(correlations),
-          },
-        ];
-        const messageHistoInit: MessageHistory[] = [...initialSystemPrompts, ...chatPearsonCorrTemp];
-
-        setMessageHistoFun(messageHistoInit);
-        setChatPearsonCorr(chatPearsonCorrTemp);
-
-        if (!DEBUG) {
-          handleChatSubmit({
-            prompt: "Can you give a short overview of the data and the dashboard?",
-            messageHisto: messageHistoInit,
-            setMessageHistoFun,
-            shownMessages: [],
-            setShownMessages: setShownMessages,
-            handleChatFeatureSuggestions: handleChatFeatureSuggestion,
-            handleChatCodeResponse: handleChatCodeResponse,
-            setFollowUpQuestions: setFollowUpQuestionFun,
-          });
-
-          setShowChat(true); // Automatically show chat on load
-        }
-      } catch (error) {
-        console.error("Error loading data or running PCA:", error);
-      }
-    }
-    loadAndProcessData();
-  }, []);
+  const {
+    allFeatures,
+    selectedCovFeatures,
+    handleCheckboxChange,
+    scatterplotFeatures,
+    setScatterplotFeatures,
+    heatmapSetsScatterplotFeatures,
+    catFeatures,
+    catFeature,
+    setCatFeature,
+    biplotFeatures,
+    setBiplotFeatures,
+  } = useVisStateFeatures();
 
   const {
     promptRef,
@@ -210,8 +54,13 @@ function App() {
     setFollowUpQuestionFun,
     handleChatFeatureSuggestion,
     handleChatCodeResponse,
+    runInitialChatPrompt,
   } = useChat(allFeatures, setScatterplotFeatures);
 
+  const { patients_data, setPatientDataFunc, pcaLoadings, pearsonCorr, setPearsonCorr, dataLoaded, k, setK } =
+    useLoadInitializeData(DEBUG, DATASET_PATH, setMessageHistoFun, setChatPearsonCorr, runInitialChatPrompt);
+
+  // auto scroll to bottom of chat on new message
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -219,7 +68,7 @@ function App() {
   }, [shownMessages]);
 
   // handle siedpanelview
-  const [showChat, setShowChat] = useState(false);
+  const [showChat, setShowChat] = useState(true);
   const handleCloseChat = () => setShowChat(false);
   const handleShowChat = () => setShowChat(!showChat);
 
@@ -293,7 +142,8 @@ function App() {
                 pcaLoadings={pcaLoadings}
                 k={k}
                 setK={setK}
-                runKmeans={() => RunKmeans(patients_data, setPatientDataFunc, k)}
+                setPatientDataFunc={setPatientDataFunc}
+                // runKmeans={() => runKmeans(patients_data, setPatientDataFunc, k)}
                 handleShowChat={handleShowChat}
               />
             </div>

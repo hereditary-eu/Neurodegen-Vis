@@ -4,6 +4,7 @@ import MultiSelectDropdown from "../ui/multiselectdropdown";
 import { PlotPcaBiplot } from "../visualisations/pca_biplot";
 import { Patient } from "../../data/Patient";
 import { pca_num_features_list } from "../../data/variables_feature_lists";
+import { runKmeans } from "../../utils/Kmean";
 
 interface PcaPanelProps {
   patients_data: Patient[];
@@ -13,8 +14,9 @@ interface PcaPanelProps {
 
   k: number;
   setK: (n: number) => void;
+  setPatientDataFunc: (data: Patient[]) => void;
 
-  runKmeans: () => void;
+  // runKmeans: () => void;
 }
 
 export default function PcaPanel({
@@ -25,8 +27,9 @@ export default function PcaPanel({
 
   k,
   setK,
+  setPatientDataFunc,
 
-  runKmeans,
+  // runKmeans,
 }: PcaPanelProps) {
   return (
     <div>
@@ -50,7 +53,7 @@ export default function PcaPanel({
           min="1"
           max="20"
         />
-        <Button variant="dark" onClick={runKmeans}>
+        <Button variant="dark" onClick={() => runKmeans(patients_data, setPatientDataFunc, k)}>
           Run
         </Button>
       </div>
