@@ -1,9 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from openai import OpenAI
-import os
-from pydantic import BaseModel
 from chat import chat_router
 
 app = FastAPI()
