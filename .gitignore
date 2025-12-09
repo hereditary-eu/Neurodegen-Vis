@@ -6,4 +6,5 @@ smartnoise-sdk/
 .venv
 
 dataset/
+database/
 paper/
