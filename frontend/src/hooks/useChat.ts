@@ -9,7 +9,7 @@ export function useChat(allFeatures: string[], setScatterplotFeatures: (features
   // ------------------------- chat (hook)-------------------------
 
   // use ref to avoid re-rendering for the input field for every key stroke
-  const promptRef = useRef<HTMLInputElement>(null);
+  // const promptRef = useRef<HTMLInputElement>(null);
 
   const [shownMessages, setShownMessages] = useState<MessageHistory[]>([]);
   const [messageHisto, setMessageHisto] = useState<MessageHistory[]>(initialSystemPrompts);
@@ -92,7 +92,7 @@ export function useChat(allFeatures: string[], setScatterplotFeatures: (features
   }
 
   return {
-    promptRef,
+    // promptRef,
     shownMessages,
     setShownMessages,
     messageHisto,

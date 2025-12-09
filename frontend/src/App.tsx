@@ -38,8 +38,8 @@ function App() {
     setBiplotFeatures,
   } = useVisStateFeatures();
 
+  const promptRef = useRef<HTMLInputElement>(null!);
   const {
-    promptRef,
     shownMessages,
     setShownMessages,
     messageHisto,

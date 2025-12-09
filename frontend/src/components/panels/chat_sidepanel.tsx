@@ -11,7 +11,8 @@ interface SidePanelProps {
   onClose: () => void;
 
   // Chat logic passed in from parent
-  promptRef: React.RefObject<HTMLInputElement>;
+  promptRef: React.RefObject<HTMLInputElement | null>;
+
   clearChatHistory: () => void;
   submitPrompt: () => void;
   submitSuggest: () => void;
