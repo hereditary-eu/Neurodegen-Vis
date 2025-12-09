@@ -31,18 +31,24 @@ import { LogPSX } from "./utils/HelperFunctions";
 import SidePanel from "./components/panels/chat_sidepanel";
 import MainPanel from "./components/panels/main_panel";
 
+// import { loadDataset } from "./hooks/loadDataset";
+// import { useVisualizationState } from "./hooks/useVisualizationState";
+import { useChat } from "./hooks/useChat";
+
 const DATASET_PATH = import.meta.env.BASE_URL + "/database/noisy.csv";
 
 const DEBUG: boolean = false; // Set to false for production, TODO
 
 function App() {
   document.body.classList.add("bg-dark", "text-white");
-
   console.log("App started");
 
   // all features should be all the keys from the Patient class
   const allFeatures = Object.keys(new Patient());
+  console.log("All features:", allFeatures);
+  console.log("all features type:", typeof allFeatures);
 
+  // visualisation hooks
   const [selectedCovFeatures, setSelectedCovFeatures] = useState<string[]>(cov_features_init);
 
   const handleCheckboxChange = (feature: string) => {
@@ -123,7 +129,7 @@ function App() {
     return correlations;
   }
 
-  // Initializing website, loading data, running PCA and Kmeans, and other things for the first time
+  // ------------------------- Data loading and processing (hook) -------------------------
   useEffect(() => {
     console.log("Loading data...");
     async function loadAndProcessData() {
@@ -188,78 +194,23 @@ function App() {
     loadAndProcessData();
   }, []);
 
-  // ------------------------- chat -------------------------
-  // use ref to avoid re-rendering for the input field for every key stroke
-  const promptRef = useRef<HTMLInputElement>(null);
-  // const [response, setResponse] = useState<string>("");
-
-  const [shownMessages, setShownMessages] = useState<MessageHistory[]>([]);
-  const [messageHisto, setMessageHisto] = useState<MessageHistory[]>(initialSystemPrompts);
-  const [chatFeatureSuggestion, setChatFeatureSuggestion] = useState<[string, string]>(["", ""]);
-  const [chatFeatureHighlight, setChatFeatureHighlight] = useState<[string, string]>(["", ""]);
-  const [chatPearsonCorr, setChatPearsonCorr] = useState<MessageHistory[]>([]);
-
-  function clearChatHistory() {
-    setMessageHisto([...initialSystemPrompts, ...chatPearsonCorr]);
-    setShownMessages([]);
-    console.log("Cleared chat history");
-  }
-
-  const [sugFollowUpQuestions, setSugFollowUpQuestions] = useState<string[]>([]);
-
-  function setFollowUpQuestionFun(questions: string[]) {
-    console.log("Follow-up questions updated:", questions);
-    setSugFollowUpQuestions(questions);
-  }
-
-  function setMessageHistoFun(messages: MessageHistory[]) {
-    setMessageHisto(messages);
-    console.log("Message history updated:", messages);
-  }
-
-  function handleChatFeatureSuggestion(featureList: string[]) {
-    // check if the features are valid in in the data
-    if (featureList.every((feature) => allFeatures.includes(feature))) {
-      console.log("Valid feature suggestion: ", featureList);
-      setScatterplotFeatures([featureList[0], featureList[1]]);
-      setChatFeatureSuggestion([featureList[0], featureList[1]]);
-      return;
-    } else {
-      console.log("Invalid feature suggestion: ", featureList);
-    }
-
-    return;
-  }
-
-  function handleChatCodeResponse(codeResponse: ChatCodeRes) {
-    // Handle the code response from the chat
-    console.log("Chat code response received:", codeResponse);
-    switch (codeResponse.functionName) {
-      case "highlightFeature":
-      case "highlightFeatures":
-        // highlight feature(s) in the heatmap
-        console.log("Chat code response: HighlightFeature(S) case triggered");
-        const featureList: string[] = codeResponse.code;
-        if (featureList.length === 2 && featureList.every((feature) => cov_features.includes(feature))) {
-          console.log("Valid feature highlighted: ", featureList);
-          // setChatFeatureHighlight([featureList[0], featureList[1]]);
-          setChatFeatureSuggestion([featureList[0], featureList[1]]);
-          setScatterplotFeatures([featureList[0], featureList[1]]);
-
-          return;
-        } else {
-          console.log("Invalid feature highlighted: ", featureList);
-        }
-        break;
-
-      case "none":
-        // No specific action needed
-        console.log("Chat code response: None case triggered");
-        break;
-      default:
-        console.log("Chat code response: Invalid function name:", codeResponse.functionName);
-    }
-  }
+  const {
+    promptRef,
+    shownMessages,
+    setShownMessages,
+    messageHisto,
+    setMessageHisto,
+    setMessageHistoFun,
+    chatFeatureSuggestion,
+    chatFeatureHighlight,
+    chatPearsonCorr,
+    setChatPearsonCorr,
+    sugFollowUpQuestions,
+    clearChatHistory,
+    setFollowUpQuestionFun,
+    handleChatFeatureSuggestion,
+    handleChatCodeResponse,
+  } = useChat(allFeatures, setScatterplotFeatures);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -267,10 +218,10 @@ function App() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [shownMessages]);
 
-  // handle offcanvas
+  // handle siedpanelview
   const [showChat, setShowChat] = useState(false);
-  const handleClose = () => setShowChat(false);
-  const handleShow = () => setShowChat(!showChat);
+  const handleCloseChat = () => setShowChat(false);
+  const handleShowChat = () => setShowChat(!showChat);
 
   // ------------------------- JSX -------------------------
   return (
@@ -284,7 +235,7 @@ function App() {
               {/* Sidepanel start */}
               <SidePanel
                 showChat={showChat}
-                onClose={handleClose}
+                onClose={handleCloseChat}
                 clearChatHistory={clearChatHistory}
                 submitPrompt={() =>
                   handleChatSubmit({
@@ -343,7 +294,7 @@ function App() {
                 k={k}
                 setK={setK}
                 runKmeans={() => RunKmeans(patients_data, setPatientDataFunc, k)}
-                handleShowChat={handleShow}
+                handleShowChat={handleShowChat}
               />
             </div>
           </div>
