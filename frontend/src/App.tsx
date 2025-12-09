@@ -143,7 +143,6 @@ function App() {
                 k={k}
                 setK={setK}
                 setPatientDataFunc={setPatientDataFunc}
-                // runKmeans={() => runKmeans(patients_data, setPatientDataFunc, k)}
                 handleShowChat={handleShowChat}
               />
             </div>
