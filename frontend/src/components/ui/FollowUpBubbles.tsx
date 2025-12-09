@@ -1,12 +1,6 @@
 import React, { useState } from "react";
-import {
-  handleChatSubmitSuggest,
-  // clearChatHistory,
-  handleChatSubmit,
-  initialSystemPrompts,
-  ChatCodeRes,
-} from "./Chat";
-import { MessageHistory } from "./types";
+import { handleChatSubmit } from "../../utils_chat/Chat";
+import { MessageHistory, ChatCodeRes } from "../../utils_chat/types";
 
 interface FollowUpBubblesProps {
   sugFollowUpQuestions: string[];

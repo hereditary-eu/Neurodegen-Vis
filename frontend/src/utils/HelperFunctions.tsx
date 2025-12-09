@@ -1,4 +1,17 @@
-import { Patient } from "./env_dataset/Patient";
+import { Patient } from "../data/Patient";
+
+interface logPSXProps {
+  message: string;
+  logElement: any;
+}
+
+/**
+ * Dev helper function to log messages and elements to the console.
+ */
+export function LogPSX({ message, logElement }: logPSXProps) {
+  console.log(message, logElement);
+  return <></>;
+}
 
 interface MinMaxPatProps {
   y_feature: string;

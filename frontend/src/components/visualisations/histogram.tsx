@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import "../../css/App.css";
 import * as Plot from "@observablehq/plot";
-import { Patient } from "../../env_dataset/Patient";
+import { Patient } from "../../data/Patient";
 import { FONTSIZE, CLUSTERCOLORS, COLORS_BIN, COLORS_BIN_STR } from "./vis_variables";
 
 interface plotHistoProps {

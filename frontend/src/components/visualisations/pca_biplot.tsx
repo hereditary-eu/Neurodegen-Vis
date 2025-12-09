@@ -1,10 +1,10 @@
-import { Patient } from "../../env_dataset/Patient";
+import { Patient } from "../../data/Patient";
 import { PCA } from "ml-pca";
 import * as Plot from "@observablehq/plot";
 import { useEffect, useRef } from "react";
-import { CalcMinMaxMatrix } from "../../HelperFunctions";
+import { CalcMinMaxMatrix } from "../../utils/HelperFunctions";
 import { FONTSIZE, CLUSTERCOLORS } from "./vis_variables";
-import { PCA_analysis } from "../utils/pca";
+import { PCA_analysis } from "../../utils/pca";
 
 /**
  * Generates loading vectors for PCA biplot visualization.
