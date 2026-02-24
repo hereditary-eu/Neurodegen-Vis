@@ -5,5 +5,9 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   envPrefix: "NEURO_",
+  // Deployment on Demo Server.
   base: "/neurodegen-vis",
+
+  // // to run locally via Docker, uncomment the following line:
+  // base: "./",
 });
