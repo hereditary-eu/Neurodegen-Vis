@@ -32,7 +32,6 @@ function PlotCorHeatmap({
   chatFeatureHighlight,
   setSelectedFeatures,
   setCorrelations,
-  correlations,
   specialMode = false,
 }: CorHeatmapProps) {
   const corr_heatmap_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
@@ -53,9 +52,12 @@ function PlotCorHeatmap({
     const heatmap_width = cov_features.length * 65 + 165;
     const heatmap_height = cov_features.length * 35 + 155;
 
-    // in special mode, only the lower triangle carries information (upper triangle mirrors it)
+    // Standard lower-triangular matrix reading order: row 0 at the top, increasing downward.
+    // Keep cells where the row (b) is on/below the diagonal relative to the column (a).
     const isLowerTriangle = (d: { a: string; b: string }) =>
       cov_features.indexOf(d.b) >= cov_features.indexOf(d.a);
+
+    const cellData = specialMode ? correlationsNew.filter(isLowerTriangle) : correlationsNew;
 
     const corr_heatmap = Plot.plot({
       width: heatmap_width, // Set the overall width of the heatmap
@@ -86,20 +88,20 @@ function PlotCorHeatmap({
       y: {
         // label: "Features (Y)",
         domain: cov_features, // Order the y-axis according to cov_features
+        reverse: specialMode ? true : undefined, // row 0 at the top, like a conventional matrix
         tickFormat: specialMode ? labelIt : undefined,
       },
       marks: [
-        Plot.cell(correlationsNew, {
+        Plot.cell(cellData, {
           x: "a",
           y: "b",
           fill: specialMode ? (d) => Math.abs(d.correlation) : "correlation",
-          fillOpacity: specialMode ? (d) => (isLowerTriangle(d) ? 1 : 0) : 1,
           className: "heatmap-cell",
         }),
         ...(specialMode
           ? []
           : [
-              Plot.text(correlationsNew, {
+              Plot.text(cellData, {
                 x: "a",
                 y: "b",
                 text: (d) => d.correlation.toFixed(2), // toFixed(2) to convert number to string and display only 2 decimal places
@@ -113,14 +115,23 @@ function PlotCorHeatmap({
     });
 
     // adapted from https://observablehq.com/@ambassadors/interactive-plot-dashboard
-    const rects = d3.select(corr_heatmap).selectAll("rect");
+    // rects are looked up by their bound datum (a/b feature pair) rather than a positional
+    // index, since specialMode renders fewer than cov_features.length^2 cells.
+    const rects = d3.select(corr_heatmap).selectAll<SVGRectElement, { a: string; b: string; correlation: number }>(
+      "rect"
+    );
 
-    function HighlightCell(idx1d: number) {
+    function findRectNode(a: string, b: string) {
+      return rects.filter((d) => d.a === a && d.b === b).node();
+    }
+
+    function HighlightCell(a: string, b: string) {
       rects.style("fill-opacity", "1"); // Reset fill opacity for all cells
       rects.style("stroke", "none"); // Reset stroke for all cells
 
       // Change only the fill opacity, so the stroke remains fully visible
-      d3.select(rects.nodes()[idx1d]).style("fill-opacity", "0.5");
+      const node = findRectNode(a, b);
+      if (node) d3.select(node).style("fill-opacity", "0.5");
     }
 
     d3.select(corr_heatmap)
@@ -128,17 +139,13 @@ function PlotCorHeatmap({
       .on("click", function (event) {
         let target = event.target; // cell
         if (target.parentElement.classList.contains("heatmap-cell")) {
-          // copy the children of the parent element to an array and get the index of the cell
-          let idx1d = [...target.parentElement.children].indexOf(target);
-          const idx_x = Math.floor(idx1d / cov_features.length);
-          const idx_y = idx1d % cov_features.length;
+          const d = d3.select(target).datum() as { a: string; b: string } | undefined;
+          if (!d) return;
 
-          console.log("Clicked on cell", idx_x, idx_y);
-          setSelectedFeatures([cov_features[idx_x], cov_features[idx_y]]);
+          console.log("Clicked on cell", d.a, d.b);
+          setSelectedFeatures([d.a, d.b]);
 
-          // highlight cell
-          // d3.select(rects.nodes()[idx1d]).style("stroke", "purple");
-          HighlightCell(idx1d);
+          HighlightCell(d.a, d.b);
         }
       })
       .on("pointerover", function (event) {
@@ -146,11 +153,12 @@ function PlotCorHeatmap({
 
         // check if target has class head-map-cell
         if (target.parentElement.classList.contains("heatmap-cell")) {
-          let idx1d = [...target.parentElement.children].indexOf(target);
+          const d = d3.select(target).datum() as { a: string; b: string } | undefined;
+          if (!d) return;
 
           d3.select(target).style("cursor", "pointer");
-          // highlight the according rectangle from rects
-          d3.select(rects.nodes()[idx1d]).style("stroke", "black").style("stroke-width", 3.5);
+          const node = findRectNode(d.a, d.b);
+          if (node) d3.select(node).style("stroke", "black").style("stroke-width", 3.5);
         }
       })
       .on("pointerout", function (event) {
@@ -158,20 +166,17 @@ function PlotCorHeatmap({
 
         // Ensure the target is part of a heatmap cell (either the rectangle or the text)
         if (target.parentElement.classList.contains("heatmap-cell")) {
-          let idx1d = [...target.parentElement.children].indexOf(target);
+          const d = d3.select(target).datum() as { a: string; b: string } | undefined;
+          if (!d) return;
 
-          // Reset the stroke on the corresponding rect
-          d3.select(rects.nodes()[idx1d]).style("stroke", "none");
+          const node = findRectNode(d.a, d.b);
+          if (node) d3.select(node).style("stroke", "none");
         }
       });
 
     // ✅ **Highlight cell on first render
-    const defaultIdxX = cov_features.indexOf(selectedFeatures[0]);
-    const defaultIdxY = cov_features.indexOf(selectedFeatures[1]);
-
-    if (defaultIdxX !== -1 && defaultIdxY !== -1) {
-      const defaultIdx1d = defaultIdxX * cov_features.length + defaultIdxY;
-      HighlightCell(defaultIdx1d);
+    if (cov_features.includes(selectedFeatures[0]) && cov_features.includes(selectedFeatures[1])) {
+      HighlightCell(selectedFeatures[0], selectedFeatures[1]);
     }
 
     if (corr_heatmap_ref.current) {
@@ -185,36 +190,33 @@ function PlotCorHeatmap({
   useEffect(() => {
     console.log("Update cell highlight for ChatGPT suggestion");
     if (corr_heatmap_ref.current) {
-      const rects = d3.select(corr_heatmap_ref.current).selectAll("rect");
+      const rects = d3
+        .select(corr_heatmap_ref.current)
+        .selectAll<SVGRectElement, { a: string; b: string; correlation: number }>("rect");
 
-      function HighlightCell(idx1d: number) {
-        let corr = correlations[idx1d].correlation;
-        // console.log("Correlation for border highlight", corr);
+      function HighlightCell(a: string, b: string) {
+        // rendered cell may only exist as (a,b) or its mirror (b,a) depending on the triangle shown
+        const match = rects.filter((d) => (d.a === a && d.b === b) || (d.a === b && d.b === a));
+        const node = match.node();
+        if (!node) return;
+        const corr = match.datum().correlation;
+
         if (corr > 0.5 || corr < -0.8) {
-          // console.log("Highlighting violet cell");
-          d3.select(rects.nodes()[idx1d])
+          d3.select(node)
             .style("stroke", "#E6E6FA")
-            // .style("stroke", "#D8BFD8")
             .style("stroke-width", 4);
         } else {
-          // console.log("Highlighting purple cell");
-          d3.select(rects.nodes()[idx1d]).style("stroke", "purple").style("stroke-width", 4);
+          d3.select(node).style("stroke", "purple").style("stroke-width", 4);
         }
 
         // Keep the border for 15 seconds
         setTimeout(() => {
-          d3.select(rects.nodes()[idx1d]).style("stroke", "none");
+          d3.select(node).style("stroke", "none");
         }, 15000);
       }
 
-      // Calculate the index based on the new selected features (or GPT suggestion)
-      const idx_x = cov_features.indexOf(chatFeatureHighlight[0]);
-      const idx_y = cov_features.indexOf(chatFeatureHighlight[1]);
-      if (idx_x !== -1 && idx_y !== -1) {
-        const idx1d = idx_x * cov_features.length + idx_y;
-
-        // Update the highlighting without re-rendering the whole plot
-        HighlightCell(idx1d);
+      if (chatFeatureHighlight[0] && chatFeatureHighlight[1]) {
+        HighlightCell(chatFeatureHighlight[0], chatFeatureHighlight[1]);
       }
     }
   }, [chatFeatureHighlight]);
@@ -224,40 +226,37 @@ function PlotCorHeatmap({
   useEffect(() => {
     console.log("Update cell highlight for ChatGPT suggestion");
     if (corr_heatmap_ref.current) {
-      const rects = d3.select(corr_heatmap_ref.current).selectAll("rect");
+      const rects = d3
+        .select(corr_heatmap_ref.current)
+        .selectAll<SVGRectElement, { a: string; b: string; correlation: number }>("rect");
 
-      function HighlightCell(idx1d: number) {
+      function HighlightCell(a: string, b: string) {
         rects.style("fill-opacity", "1"); // Reset fill opacity for all cells
         rects.style("stroke", "none"); // Reset stroke for all cells
 
-        // Highlight cell with border
-        let corr = correlations[idx1d].correlation;
-        // console.log("Correlation for border highlight", corr);
+        // rendered cell may only exist as (a,b) or its mirror (b,a) depending on the triangle shown
+        const match = rects.filter((d) => (d.a === a && d.b === b) || (d.a === b && d.b === a));
+        const node = match.node();
+        if (!node) return;
+        const corr = match.datum().correlation;
+
         if (corr > 0.5 || corr < -0.8) {
-          // console.log("Highlighting violet cell");
-          d3.select(rects.nodes()[idx1d]).style("stroke", "#E6E6FA").style("stroke-width", 4);
+          d3.select(node).style("stroke", "#E6E6FA").style("stroke-width", 4);
         } else {
-          // console.log("Highlighting purple cell");
-          d3.select(rects.nodes()[idx1d]).style("stroke", "purple").style("stroke-width", 4);
+          d3.select(node).style("stroke", "purple").style("stroke-width", 4);
         }
 
         // Keep the border for 10 seconds
         setTimeout(() => {
-          d3.select(rects.nodes()[idx1d]).style("stroke", "none");
+          d3.select(node).style("stroke", "none");
         }, 15000);
 
         // Change only the fill opacity, so the stroke remains fully visible
-        d3.select(rects.nodes()[idx1d]).style("fill-opacity", "0.5");
+        d3.select(node).style("fill-opacity", "0.5");
       }
 
-      // Calculate the index based on the new selected features (or GPT suggestion)
-      const idx_x = cov_features.indexOf(chatFeatureSuggestion[0]);
-      const idx_y = cov_features.indexOf(chatFeatureSuggestion[1]);
-      if (idx_x !== -1 && idx_y !== -1) {
-        const idx1d = idx_x * cov_features.length + idx_y;
-
-        // Update the highlighting without re-rendering the whole plot
-        HighlightCell(idx1d);
+      if (chatFeatureSuggestion[0] && chatFeatureSuggestion[1]) {
+        HighlightCell(chatFeatureSuggestion[0], chatFeatureSuggestion[1]);
       }
     }
   }, [chatFeatureSuggestion]);
