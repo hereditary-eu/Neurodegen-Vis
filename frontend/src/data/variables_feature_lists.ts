@@ -70,6 +70,20 @@ export const cov_features_init: string[] = [
   "pc2",
 ];
 
+export const cov_features_labels_it: { [key: string]: string } = {
+  insnpsi_age: "ETA'",
+  npsid_ddur_v: "ANNI DI MALATTIA",
+  npsid_yearsed: "EDUCAZIONE",
+  overall_domain_sum: "FUNZIONI COGNITIVE",
+  npsid_rep_moca_c: "TEST MOCA",
+  npsid_rep_mmse_c: "TEST MMSE",
+  attent_z_comp: "ATTENZIONE",
+  exec_z_comp: "MOVIMENTO",
+  visuosp_z_comp: "PERCEZIONE SPAZIALE",
+  memory_z_comp: "MEMORIA",
+  language_z_comp: "LINGUAGGIO",
+};
+
 export const scatterplot_features_init: [string, string] = ["insnpsi_age", "visuosp_z_comp"];
 
 export const pca_num_features_list: string[] = [

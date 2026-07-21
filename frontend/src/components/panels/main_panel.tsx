@@ -37,6 +37,7 @@ interface MainPanelProps {
   // runKmeans: () => void;
   setPatientDataFunc: (data: Patient[]) => void;
   handleShowChat: () => void;
+  specialMode?: boolean;
 }
 
 export default function MainPanel({
@@ -65,6 +66,7 @@ export default function MainPanel({
   setPatientDataFunc,
   // runKmeans,
   handleShowChat,
+  specialMode = false,
 }: MainPanelProps) {
   // const handleShow = () => setShowChat(!showChat);
 
@@ -84,6 +86,7 @@ export default function MainPanel({
           chatFeatureSuggestion={chatFeatureSuggestion}
           chatFeatureHighlight={chatFeatureHighlight}
           handleShow={handleShowChat}
+          specialMode={specialMode}
         />
 
         {/* 2 — SCATTERPLOT / HISTOGRAM PANEL */}

@@ -1,25 +1,31 @@
 // src/hooks/useChat.ts
 import { useState, useRef } from "react";
-import { initialSystemPrompts } from "../utils_chat/system_prompts";
+import { initialSystemPrompts, initialSystemPromptsIt } from "../utils_chat/system_prompts";
 import { MessageHistory, ChatCodeRes } from "../utils_chat/types";
 import { cov_features } from "../data/variables_feature_lists";
 import { handleChatSubmitSuggest, handleChatSubmit } from "../utils_chat/Chat";
 
-export function useChat(allFeatures: string[], setScatterplotFeatures: (features: [string, string]) => void) {
+export function useChat(
+  allFeatures: string[],
+  setScatterplotFeatures: (features: [string, string]) => void,
+  specialMode: boolean = false
+) {
   // ------------------------- chat (hook)-------------------------
 
   // use ref to avoid re-rendering for the input field for every key stroke
   // const promptRef = useRef<HTMLInputElement>(null);
 
+  const initialSystemPromptsUsed = specialMode ? initialSystemPromptsIt : initialSystemPrompts;
+
   const [shownMessages, setShownMessages] = useState<MessageHistory[]>([]);
-  const [messageHisto, setMessageHisto] = useState<MessageHistory[]>(initialSystemPrompts);
+  const [messageHisto, setMessageHisto] = useState<MessageHistory[]>(initialSystemPromptsUsed);
   const [chatFeatureSuggestion, setChatFeatureSuggestion] = useState<[string, string]>(["", ""]);
   const [chatFeatureHighlight, setChatFeatureHighlight] = useState<[string, string]>(["", ""]);
   const [chatPearsonCorr, setChatPearsonCorr] = useState<MessageHistory[]>([]);
   const [sugFollowUpQuestions, setSugFollowUpQuestions] = useState<string[]>([]);
 
   function clearChatHistory() {
-    setMessageHisto([...initialSystemPrompts, ...chatPearsonCorr]);
+    setMessageHisto([...initialSystemPromptsUsed, ...chatPearsonCorr]);
     setShownMessages([]);
     console.log("Cleared chat history");
   }
@@ -80,7 +86,9 @@ export function useChat(allFeatures: string[], setScatterplotFeatures: (features
 
   function runInitialChatPrompt(messageHistoInit: MessageHistory[]) {
     handleChatSubmit({
-      prompt: "Can you give a short overview of the data and the dashboard?",
+      prompt: specialMode
+        ? "Puoi darmi una breve panoramica dei dati e della dashboard?"
+        : "Can you give a short overview of the data and the dashboard?",
       messageHisto: messageHistoInit,
       setMessageHistoFun,
       shownMessages: [],

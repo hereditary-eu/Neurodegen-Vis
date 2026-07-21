@@ -5,6 +5,9 @@ import * as Plot from "@observablehq/plot";
 import { Patient } from "../../data/Patient";
 import { pearsonCorrelation } from "../../utils/pearson_correlation";
 import { FONTSIZE } from "./vis_variables";
+import { cov_features_labels_it } from "../../data/variables_feature_lists";
+
+const labelIt = (feature: string) => cov_features_labels_it[feature] ?? feature;
 
 interface CorHeatmapProps {
   patients_data: Patient[];
@@ -15,6 +18,7 @@ interface CorHeatmapProps {
   chatFeatureHighlight: [string, string];
   setCorrelations: (correlations: { a: string; b: string; correlation: number }[]) => void;
   correlations: { a: string; b: string; correlation: number }[];
+  specialMode?: boolean;
 } // Adapted from https://observablehq.com/@observablehq/plot-correlation-heatmap
 
 /**
@@ -29,6 +33,7 @@ function PlotCorHeatmap({
   setSelectedFeatures,
   setCorrelations,
   correlations,
+  specialMode = false,
 }: CorHeatmapProps) {
   const corr_heatmap_ref = useRef<HTMLDivElement>(null); // Create a ref to access the div element
 
@@ -48,42 +53,61 @@ function PlotCorHeatmap({
     const heatmap_width = cov_features.length * 65 + 165;
     const heatmap_height = cov_features.length * 35 + 155;
 
+    // in special mode, only the lower triangle carries information (upper triangle mirrors it)
+    const isLowerTriangle = (d: { a: string; b: string }) =>
+      cov_features.indexOf(d.b) >= cov_features.indexOf(d.a);
+
     const corr_heatmap = Plot.plot({
       width: heatmap_width, // Set the overall width of the heatmap
       height: heatmap_height, // Set the overall height of the heatmap (adjust for number of features)
       marginLeft: 134,
       marginBottom: 132,
       label: null,
-      color: {
-        scheme: "buylrd", // blue-red color scheme
-        pivot: 0, // Zero as the midpoint
-        legend: true, // Display a color legend
-        label: "correlation", // Label for the legend
-      },
+      color: specialMode
+        ? {
+            scheme: "reds", // color intensity = strength of correlation, direction dropped
+            domain: [0, 1],
+            legend: true,
+            label: "correlazione (valore assoluto)",
+            tickFormat: (v: number) => (v >= 0.5 ? "Alta" : "Bassa"),
+          }
+        : {
+            scheme: "buylrd", // blue-red color scheme
+            pivot: 0, // Zero as the midpoint
+            legend: true, // Display a color legend
+            label: "correlation", // Label for the legend
+          },
       x: {
         // label: "Features (X)",
         domain: cov_features, // Order the x-axis according to cov_features
         tickRotate: 90, // Rotate the x-axis tick labels by 90 degrees
+        tickFormat: specialMode ? labelIt : undefined,
       },
       y: {
         // label: "Features (Y)",
         domain: cov_features, // Order the y-axis according to cov_features
+        tickFormat: specialMode ? labelIt : undefined,
       },
       marks: [
         Plot.cell(correlationsNew, {
           x: "a",
           y: "b",
-          fill: "correlation",
+          fill: specialMode ? (d) => Math.abs(d.correlation) : "correlation",
+          fillOpacity: specialMode ? (d) => (isLowerTriangle(d) ? 1 : 0) : 1,
           className: "heatmap-cell",
         }),
-        Plot.text(correlationsNew, {
-          x: "a",
-          y: "b",
-          text: (d) => d.correlation.toFixed(2), // toFixed(2) to convert number to string and display only 2 decimal places
-          fill: (d) => (d.correlation > 0.8 || d.correlation < -0.6 ? "white" : "black"),
-          fontSize: 12, //fontsize of correlation values
-          className: "heatmap-cell",
-        }),
+        ...(specialMode
+          ? []
+          : [
+              Plot.text(correlationsNew, {
+                x: "a",
+                y: "b",
+                text: (d) => d.correlation.toFixed(2), // toFixed(2) to convert number to string and display only 2 decimal places
+                fill: (d) => (d.correlation > 0.8 || d.correlation < -0.6 ? "white" : "black"),
+                fontSize: 12, //fontsize of correlation values
+                className: "heatmap-cell",
+              }),
+            ]),
       ],
       style: "font-size: " + FONTSIZE + "; --plot-axis-tick-rotate: 90deg;",
     });

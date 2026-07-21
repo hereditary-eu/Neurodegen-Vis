@@ -31,6 +31,32 @@ export const initialSystemPrompts: MessageHistory[] = [
   },
 ];
 
+export const initialSystemPromptsIt: MessageHistory[] = [
+  {
+    role: "system",
+    content:
+      "Sei un assistente AI di supporto, che aiuta l'utente a comprendere una dashboard di analisi visiva. " +
+      "Rispondi sempre e solo in italiano, indipendentemente dalla lingua della domanda.",
+  },
+  {
+    role: "system",
+    content: "Rispondi a tutte le domande in modo breve e conciso.",
+  },
+  {
+    role: "system",
+    content:
+      "Usa solo le funzionalità e le interazioni descritte nelle specifiche per rispondere alle domande dell'utente, non inventare funzionalità o interazioni.",
+  },
+  {
+    role: "system",
+    content: "Queste sono le specifiche della dashboard: " + JSON.stringify(systemsSpecificifications),
+  },
+  {
+    role: "system",
+    content: "Descrizione delle variabili:" + dataFieldDescription,
+  },
+];
+
 export const codePrompt =
   "There are different types of dashboard interactions. " +
   "If a function is helpful to answer the  user's last question, return only the single most relevant function, otherwise return the non function. " +

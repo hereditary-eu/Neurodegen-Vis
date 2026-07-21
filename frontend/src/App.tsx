@@ -20,9 +20,13 @@ import { useVisStateFeatures } from "./hooks/useVisStateFeatures";
 const DATASET_PATH = import.meta.env.BASE_URL + "/database/noisy.csv";
 const DEBUG: boolean = false; // Set to false for production, TODO
 
+// Activity 3 "Special Mode": lower-triangle-only heatmap, absolute correlation strength,
+// Italian axis labels and chatbot. Opt in via the URL hash, e.g. https://host/#special-mode
 function App() {
   document.body.classList.add("bg-dark", "text-white");
   console.log("App started");
+
+  const specialMode = window.location.hash === "#special-mode";
 
   const {
     allFeatures,
@@ -55,7 +59,7 @@ function App() {
     handleChatFeatureSuggestion,
     handleChatCodeResponse,
     runInitialChatPrompt,
-  } = useChat(allFeatures, setScatterplotFeatures);
+  } = useChat(allFeatures, setScatterplotFeatures, specialMode);
 
   const { patients_data, setPatientDataFunc, pcaLoadings, pearsonCorr, setPearsonCorr, dataLoaded, k, setK } =
     useLoadInitializeData(DEBUG, DATASET_PATH, setMessageHistoFun, setChatPearsonCorr, runInitialChatPrompt);
@@ -78,7 +82,9 @@ function App() {
       {dataLoaded ? (
         <>
           <div className="background-container">
-            <h1 className="heading">Neurodegen-Vis: Parkinson's disease analysis</h1>
+            <h1 className="heading">
+              {specialMode ? "Neurodegen-Vis: analisi della malattia di Parkinson" : "Neurodegen-Vis: Parkinson's disease analysis"}
+            </h1>
 
             <div className="panels-container">
               {/* Sidepanel start */}
@@ -144,6 +150,7 @@ function App() {
                 setK={setK}
                 setPatientDataFunc={setPatientDataFunc}
                 handleShowChat={handleShowChat}
+                specialMode={specialMode}
               />
             </div>
           </div>

@@ -18,6 +18,7 @@ interface HeatmapPanelProps {
   chatFeatureHighlight: [string, string];
 
   handleShow: () => void;
+  specialMode?: boolean;
 }
 
 export default function HeatmapPanel({
@@ -35,6 +36,7 @@ export default function HeatmapPanel({
   chatFeatureSuggestion,
   chatFeatureHighlight,
   handleShow,
+  specialMode = false,
 }: HeatmapPanelProps) {
   return (
     <div className="flex-container-column">
@@ -42,7 +44,9 @@ export default function HeatmapPanel({
         <Button variant="dark" onClick={handleShow} className="show-chat-button">
           Show Chat assistant.
         </Button>
-        <h3 className="pearsonCorrelation-heading">Pearson Correlation for selected features</h3>
+        <h3 className="pearsonCorrelation-heading">
+          {specialMode ? "Correlazione di Pearson per le variabili selezionate" : "Pearson Correlation for selected features"}
+        </h3>
       </div>
 
       <div className="checkbox-container">
@@ -67,6 +71,7 @@ export default function HeatmapPanel({
         setSelectedFeatures={heatmapSetsScatterplotFeatures}
         correlations={pearsonCorr}
         setCorrelations={setPearsonCorr}
+        specialMode={specialMode}
       />
     </div>
   );
