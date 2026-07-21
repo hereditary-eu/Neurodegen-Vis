@@ -88,7 +88,6 @@ function PlotCorHeatmap({
       y: {
         // label: "Features (Y)",
         domain: cov_features, // Order the y-axis according to cov_features
-        reverse: specialMode ? true : undefined, // row 0 at the top, like a conventional matrix
         tickFormat: specialMode ? labelIt : undefined,
       },
       marks: [
