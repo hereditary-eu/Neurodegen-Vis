@@ -8,21 +8,16 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.12, <3.13"
-dependencies = [
-  "invoke>=2.2.0,<3.0.0",
-  "pandas>=2.3.3",
-  "scipy>=1.18.1",
-  "smartnoise-synth",
-]
+dependencies = ["invoke>=3.0.3", "pandas>=2.3.3", "scipy>=1.18.1", "smartnoise-synth>=1.0.5"]
 
 [dependency-groups]
-dev = ["ipython>=9.3.0,<10"]
+dev = ["ipython>=9.17.1"]
 
 [tool.uv]
 package = false
 
-[tool.uv.sources]
-smartnoise-synth = { path = "smartnoise-sdk/synth" }
+[tool.uv.sources.smartnoise-synth]
+path = "smartnoise-sdk/synth"
 
 [tool.ruff]
 line-length = 120
