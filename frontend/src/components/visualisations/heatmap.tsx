@@ -132,8 +132,8 @@ function PlotCorHeatmap({
     d3.select(corr_heatmap)
       // .selectAll("rect")
       .on("click", function (event) {
-        let target = event.target; // cell
-        if (target.parentElement.classList.contains("heatmap-cell")) {
+        const target = event.target as Element; // cell
+        if (target.parentElement?.classList.contains("heatmap-cell")) {
           // copy the children of the parent element to an array and get the index of the cell
           let idx1d = [...target.parentElement.children].indexOf(target);
           const { a, b } = cellData[idx1d];
@@ -145,10 +145,10 @@ function PlotCorHeatmap({
         }
       })
       .on("pointerover", function (event) {
-        let target = event.target; // cell
+        const target = event.target as Element; // cell
 
         // check if target has class head-map-cell
-        if (target.parentElement.classList.contains("heatmap-cell")) {
+        if (target.parentElement?.classList.contains("heatmap-cell")) {
           let idx1d = [...target.parentElement.children].indexOf(target);
 
           d3.select(target).style("cursor", "pointer");
@@ -157,10 +157,10 @@ function PlotCorHeatmap({
         }
       })
       .on("pointerout", function (event) {
-        let target = event.target; // Get the target of the pointer event
+        const target = event.target as Element; // Get the target of the pointer event
 
         // Ensure the target is part of a heatmap cell (either the rectangle or the text)
-        if (target.parentElement.classList.contains("heatmap-cell")) {
+        if (target.parentElement?.classList.contains("heatmap-cell")) {
           let idx1d = [...target.parentElement.children].indexOf(target);
 
           // Reset the stroke on the corresponding rect

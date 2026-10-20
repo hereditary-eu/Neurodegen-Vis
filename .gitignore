@@ -8,3 +8,5 @@ smartnoise-sdk/
 dataset/
 database/
 paper/
+
+node_modules

@@ -163,7 +163,7 @@ src/runtime.version
 src/tests.zig
 test.txt
 test/js/bun/glob/fixtures
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 txt.js
 x64
 yarn.lock
