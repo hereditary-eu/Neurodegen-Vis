@@ -85,6 +85,11 @@ function App() {
             <h1 className="heading">
               {specialMode ? "Neurodegen-Vis: analisi della malattia di Parkinson" : "Neurodegen-Vis: Parkinson's disease analysis"}
             </h1>
+            <p className="small text-secondary mb-1">
+              {specialMode
+                ? "Prototipo di ricerca · Non è un dispositivo medico · Non per uso clinico"
+                : "Research prototype · Not a medical device · Not for clinical use"}
+            </p>
 
             <div className="panels-container">
               {/* Sidepanel start */}
