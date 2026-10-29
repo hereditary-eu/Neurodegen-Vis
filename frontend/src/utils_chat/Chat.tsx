@@ -76,7 +76,7 @@ const handleChatSubmit = async ({
     const messagesForFollowup: MessageHistory[] = [
       ...updatedMessagesWithResponse,
       {
-        role: "system",
+        role: "user",
         content:
           "Suggest one short and useful follow-question the user could ask! The answer should be only the question.",
       },
@@ -89,7 +89,7 @@ const handleChatSubmit = async ({
     const updatedMessagesCode: MessageHistory[] = [
       ...updatedMessagesWithResponse,
       {
-        role: "system",
+        role: "user",
         content: codePrompt,
       },
     ];

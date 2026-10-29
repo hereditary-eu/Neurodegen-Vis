@@ -13,7 +13,7 @@ export const initialSystemPrompts: MessageHistory[] = [
   },
   {
     role: "system",
-    content: " Please answer all questions in a short and concise manner.",
+    content: " Please answer all questions in a short and concise manner. Never use tables.",
   },
   {
     role: "system",
