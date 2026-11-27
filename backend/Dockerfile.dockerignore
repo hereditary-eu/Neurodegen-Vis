@@ -3,5 +3,4 @@
 !pyproject.toml
 !uv.lock
 !backend
-backend/local_test
 **/__pycache__
