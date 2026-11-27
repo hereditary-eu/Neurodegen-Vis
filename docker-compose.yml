@@ -7,6 +7,7 @@ services:
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       SERVER: ${SERVER}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost,http://localhost:5173}
 
   frontend:
     image: neurodegenvis-frontend

@@ -59,7 +59,10 @@ SERVER=false
 ```
 
 With `SERVER=false` the backend sends chat requests to the OpenAI API (`gpt-4o-mini`), a provider outside the EU/EEA.
+The request contains only the dashboard and feature descriptions, Pearson correlations computed on the synthetic table, and the chat messages you type; no data rows are sent.
 The demo server uses `SERVER=true`, which routes them to a self-hosted model at TU Graz instead.
+
+The backend only accepts chat requests from the origins in `ALLOWED_ORIGINS` (comma-separated). It defaults to the demo origin; `docker-compose.yml` sets `http://localhost,http://localhost:5173` for local use.
 
 ### 2. Change the URL base path
 

@@ -15,7 +15,7 @@ This file is the release disclaimer required by the HEREDITARY misuse self-asses
 | Version | v0.1.0 |
 | Type | Demo or web application (source code, plus a synthetic sample dataset) |
 | Owner partner and contact | TU Graz (IVC); Peter Waldert, peter.waldert@tugraz.at |
-| License | MIT (see [`LICENSE`](LICENSE)), in line with the WP5 licensing policy (D5.2, "Component FAIRification"). The Zenodo record of v0.1.0 is licensed CC-BY-4.0 (the GitHub-Zenodo default); the next archived version should carry MIT. |
+| License | MIT (see [`LICENSE`](LICENSE)), in line with the WP5 licensing policy (D5.2, "Component FAIRification"). `CITATION.cff` declares MIT. The Zenodo record of v0.1.0 was archived as CC-BY-4.0 (the GitHub-Zenodo default, because the file was then named `citation.cff`, which Zenodo does not read) and needs its license corrected to MIT on Zenodo. |
 | Repository and DOI | https://github.com/hereditary-eu/Neurodegen-Vis — demo: https://hereditary.cgv.tugraz.at/neurodegen-vis/ — Zenodo: https://doi.org/10.5281/zenodo.17870087 — paper: https://ceur-ws.org/Vol-4172/paper1.pdf — video: https://www.youtube.com/watch?v=Dx4C1wNZ3Fk |
 | Release date | Repository created 2025-12-09; v0.1.0 archived on Zenodo in December 2025 |
 | Related task or deliverable | WP5, T5.1; D5.1, D5.2 (demonstrator); component chapter in D5.5 |
@@ -64,12 +64,12 @@ The repository and the deployed demo contain no personal data, pseudonymized rec
 - **No extraction test.** No membership-inference or attribute-inference attack was run against the synthetic table; this was judged disproportionate given that the generator is not released and the published sample is 100 rows, but it means the residual risk above is documented rather than measured.
 - **LLM failure modes.** The assistant can misstate a number, over-interpret a correlation causally, or answer confidently outside its given context. The design contains this — it is prompted to explain and to point at views rather than to conclude, and every statement it makes is verifiable on screen — but it does not eliminate it.
 - **Generalizability.** Built around one feature schema (`PD_DataFieldsDescription_plain.txt`, the PD cohort's fields). Applying it to another dataset requires replacing the feature descriptions, the variable lists and the system prompts.
-- **Deployment hygiene.** The backend currently sets CORS `allow_origins=["*"]` (marked `TODO` in `backend/main.py`) and prints every generated chat response to the container log (`backend/chat.py`; responses can quote the user's question, while logging of the incoming messages is commented out). Neither exposes personal data in the current demo, but both should be tightened before any deployment that accepts user-supplied text.
+- **Deployment hygiene.** The backend accepts chat requests only from the origins in `ALLOWED_ORIGINS` (default: the demo origin), enforced through CORS and a server-side `Origin` check (`backend/main.py`). The `Origin` check stops casual scripted use but can be spoofed; per-IP rate limiting at the reverse proxy is the actual abuse control. Chat messages and responses are not logged.
 
 ## 7. Responsible use and reporting
 
 - **Terms of use.** Public read-only demo over a synthetic table; no user data upload path. Licensed under MIT (`LICENSE`).
-- **Pre-release actions.** This disclaimer is linked from the repository README, the repository carries an MIT `LICENSE` file, and the interface shows a short not-a-medical-device line (below the page title, in Italian in the `#special-mode` variant, `frontend/src/App.tsx`). Still open: restrict CORS and drop content logging.
+- **Pre-release actions.** This disclaimer is linked from the repository README, the repository carries an MIT `LICENSE` file, and the interface shows a short not-a-medical-device line (below the page title, in Italian in the `#special-mode` variant, `frontend/src/App.tsx`). CORS is restricted to the demo origin and chat content is no longer logged.
 - **Contact for misuse or vulnerability reports.** peter.waldert@tugraz.at
 
 ## 8. Acknowledgement

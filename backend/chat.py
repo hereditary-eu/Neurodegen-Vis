@@ -34,9 +34,7 @@ async def chat(req: ChatRequest):
     print("Received chat request", flush=True)
     print("Using model inside endpoint:", MODEL, flush=True)
 
-    print("Received messages:", req.messages)
     completion = client.chat.completions.create(model=MODEL, messages=req.messages, timeout=180)
     response = completion.choices[0].message.content
 
-    print("Generated response:", response)
     return {"reply": response}
