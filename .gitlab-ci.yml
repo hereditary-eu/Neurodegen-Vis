@@ -28,7 +28,7 @@ build-frontend:
 build-backend:
   stage: build
   script:
-    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $CONTAINER_BACKEND_IMAGE --pull -t $CONTAINER_BACKEND_IMAGE ./backend
+    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $CONTAINER_BACKEND_IMAGE --pull -t $CONTAINER_BACKEND_IMAGE -f backend/Dockerfile .
     - docker push $CONTAINER_BACKEND_IMAGE
 # deploy:
 #   stage: deploy

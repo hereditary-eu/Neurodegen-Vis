@@ -11,6 +11,11 @@ requires-python = ">=3.12, <3.13"
 dependencies = ["invoke>=3.0.3", "pandas>=2.3.3", "scipy>=1.18.1", "smartnoise-synth>=1.0.5"]
 
 [dependency-groups]
+backend = [
+    "fastapi>=0.121.3",
+    "openai>=3.41.0",
+    "uvicorn>=0.38.0",
+]
 dev = ["ipython>=9.17.1"]
 
 [tool.uv]

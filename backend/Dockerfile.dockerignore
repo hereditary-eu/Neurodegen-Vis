@@ -1,0 +1,7 @@
+# backend image only needs these
+*
+!pyproject.toml
+!uv.lock
+!backend
+backend/local_test
+**/__pycache__
